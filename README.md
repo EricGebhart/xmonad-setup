@@ -28,4 +28,78 @@ creating my initial xmonad.hs mess.
 I am not currently using this with the xfce-session manager.  I did for a while, but it seems unnecessary. I'm only using
 the xfce-panel.  So somethings on the applications menu don't work. But I almost never use that menu.
 
+Key Hints
+---------
+The important bits for keyhints is to put `showHintForKeymap.sh` in your .xmonad directory. If things are displayed to   tightly it may be necessary to increase the line height.  $lh at the top.
+ 
+If you want to change the font for dzen something like this works in .Xresources.
+```dzen2.font: xft:Source\ Code\ Pro:Regular:size=14```
+
+**The functionality for keyhints is in this code:**
+
+```
+ -- Key Map doc ------------------------------------------------
+
+windowScreenSize :: Window -> X (Rectangle)
+windowScreenSize w = withDisplay $ \d -> do
+    ws <- gets windowset
+    wa <- io $ getWindowAttributes d w
+    bw <- fi <$> asks (borderWidth . config)
+    sc <- fromMaybe (W.current ws) <$> pointScreen (fi $ wa_x wa) (fi $ wa_y wa)
+
+    return $ screenRect . W.screenDetail $ sc
+  where fi x = fromIntegral x
+
+focusedScreenSize :: X (Rectangle)
+focusedScreenSize = withWindowSet $ windowScreenSize . fromJust . W.peek
+
+  -- withWindowSet $ \ws -> do
+  -- ss <- windowScreenSize $ fromJust $ W.peek ws
+  -- return ss
+
+keyColor = "yellow"
+cmdColor = "cyan"
+
+keyMapDoc :: String -> X Handle
+keyMapDoc name = do
+  ss <- focusedScreenSize
+  handle <- spawnPipe $ unwords ["~/.xmonad/showHintForKeymap.sh",
+                                 name,
+                                 show (rect_x ss),
+                                 show (rect_y ss),
+                                 show (rect_width ss),
+                                 show (rect_height ss),
+                                 keyColor,
+                                 cmdColor]
+  return handle
+
+toSubmap :: XConfig l -> String -> [(String, X ())] -> X ()
+toSubmap c name m = do
+  pipe <- keyMapDoc name
+  submap $ mkKeymap c m
+  io $ hClose pipe
+
+```
+
+Creating a submap key menu is easy. If there is a comment at the end of a keymap entry that 
+will be used as the discriptor in the keyhint.  Otherwise the actual command will be used.
+Formatting should be nice, but the parser is fairly tolerant. It works by looking through your
+xmonad.hs for the keymap name and grabbing everything from there to the closing **]**
+
+```
+mainKeymap c = mkKeymap c $
+[...
+    , ("M4-r",          toSubmap c "raiseKeymap" raiseKeymap)
+]
+
+raiseKeymap =
+    [ ("v", runOrRaiseNext "Vivaldi" (className =? "Vivaldi")) -- Vivaldi
+    , ("e", raiseNext (className =? "Emacs")) -- Emacs cycle
+    , ("s", runOrRaise "Slack" (className =? "Slack")) -- Slack
+    ]
+```
+
+
+
+
 
