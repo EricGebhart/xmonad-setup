@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# xinitrc for xmonad with an xfce-panel
+
+eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
+export SSH_AUTH_SOCK
+
+emacs --daemon
+
+# Load resources
+
+xrdb -merge ~/.Xresources
+
+# Set up an icon tray
+
+#trayer --edge top --align right --SetDockType true --SetPartialStrut true \
+#       --expand true --width 10 --transparent true --tint 0x191970 --height 16 &
+
+# Set the background color<
+
+#xsetroot -solid midnightblue
+feh --bg-scale /home/eric/Documents/Art/ocean_park_114.jpg
+
+# Fire up apps
+
+#gajim &
+
+#xscreensaver -no-splash &
+
+if [ -x /usr/bin/nm-applet ] ; then
+    nm-applet & ## if using trayer add: --sm-disable &
+fi
+
+/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+blueberry-tray &
+
+# vivaldi-stable &
+# emacsn &
+
+xfce4-panel -d &
+
+#if [ -x /usr/bin/gnome-power-manager ] ; then
+#   sleep 3
+#   gnome-power-manager &
+#fi
+
+xmonad

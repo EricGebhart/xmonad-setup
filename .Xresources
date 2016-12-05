@@ -1,0 +1,85 @@
+URxvt*termName: rxvt-unicode
+URxvt*geometry: 240x84
+URxvt*loginShell: true
+
+URxvt*scrollColor: #777777
+URxvt*scrollstyle: plain
+! scroll in relation to buffer (with mouse scroll or Shift+Page Up)
+URxvt*scrollWithBuffer: true
+
+! scroll back to the bottom on keypress
+URxvt*scrollTtyKeypress: true
+! do not scroll with output
+URxvt*scrollTtyOutput: false
+
+URxvt*secondaryScreen: true
+URxvt*secondaryScroll:  true    # Enable Shift-PageUp/Down in screen
+URxvt*skipScroll: true
+URxvt*scrollBar: false
+URxvt*scrollBar_right: false
+URxvt*scrollBar_floating: false
+
+! URxvt*background: rgba:0000/0000/0000/cccc
+
+URxvt.fading: 70
+!URxvt.fadeColor: [0]black
+
+URxvt.saveLines:32767
+
+!URxvt*fading: 50
+URxvt*utmpInhibit: false
+URxvt*urgentOnBell: false
+URxvt*visualBell: true
+URxvt*mapAlert: true
+URxvt*mouseWheelScrollPage: true
+!URxvt*background: Black
+URxvt*foreground: White
+URxvt*colorUL: yellow
+URxvt*underlineColor: yellow
+urxvt*depth: 32
+URxvt*background: rgba:0000/0000/0200/c800
+
+
+!URxvt*font: -xos4-terminus-medium-*-*-*-14-*-*-*-*-*-iso8859-15,xft:terminus:pixelsize:12
+!URxvt*boldFont: -xos4-terminus-bold-*-*-*-14-*-*-*-*-*-iso8859-15,xft:terminus:bold:pixelsize:12
+!URxvt*italicFont: xft:Bitstream Vera Sans Mono:italic:autohint=true:pixelsize=12
+!URxvt*boldItalicFont: xft:Bitstream Vera Sans Mono:bold:italic:autohint=true:pixelsize=12
+
+URxvt*.boldfont: xft:Source\ Code\ Pro:Bold:size=14
+URxvt*.italicfont: xft:Source\ Code\ Pro:Italaic:size=14
+URxvt*.font: xft:Source\ Code\ Pro:Regular:size=14
+Xterm*.font: xft:Source\ Code\ Pro:Regular:size=14
+URxvt*buffered: true
+URxvt*hold: false
+URxvt*internalBorder:
+URxvt*print-pipe: cat > $HOME/$(echo urxvt.dump.$(date +'%Y%M%d%H%m%S'))
+URxvt*perl-ext:
+
+
+URxvt.background:       #000000
+URxvt.foreground:       gray75
+URxvt.color3:           DarkGoldenrod
+URxvt.color4:           RoyalBlue
+URxvt.color11:          LightGoldenrod
+URxvt.color12:          LightSteelBlue
+URxvt.color7:           gray75
+URxvt.colorBD:          #ffffff
+URxvt.colorUL:          LightSlateGrey
+URxvt.colorIT:          SteelBlue
+URxvt.cursorColor:      grey90
+URxvt.highlightColor:   grey25
+
+URxvt*cursorBlink: true
+
+! URxvt*font:  xft:inconsolata:size=10:antialias=true
+
+URxvt*depth: 32
+URxvt*borderless: 1
+URxvt.perl-ext-common: default,matcher
+URxvt.urlLauncher: vivaldi
+URxvt.matcher.button: 1
+
+!dzen2.font:       -*-profont-*-*-*-*-*-170-*-*-*-*-*-*
+dzen2.font: xft:Source\ Code\ Pro:Regular:size=14
+!dzen2.foreground: #22EE11
+!dzen2.background: black
