@@ -195,7 +195,7 @@ data TopicItem = TI { topicName :: Topic
 myTopics :: [TopicItem]
 myTopics = [
             TI "main" "" (return ())
-            ,  TI "mail" "" (spawnInTopicDir "emacsn -e")
+            -- ,  TI "mail" "" (spawnInTopicDir "emacsn -e")
             ,  TI "yeti" "Projects/Yeti/yeti-stack" (spawnInTopicDir "emacsn -m" >>
                                                         spawnInTopicDir "urxvtc")
             ,  TI "code" "Projects" (spawnInTopicDir "emacsn -m")
@@ -211,10 +211,10 @@ myTopics = [
                                                 spawnInTopicDir "dolphin" >>
                                                 spawn "anki")
             ,  TI "music"  "Music" (spawn "mediacenter22")
-            ,  TI "calendar" "" (spawn "vivaldi --app='http://calendar.google.com'")
+            -- ,  TI "calendar" "" (spawn "vivaldi --app='http://calendar.google.com'")
             ,  TI "xmonad" ".xmonad" (spawnInTopicDir "emacsn -m *.hs lib/*/*.hs")
-            ,  TI "feeds"  "" (spawn "chromium-browser --app='https://feedbin.me'")
-            ,  TI "stats"  "" (spawnInTopicDir "urxvtc -e htop")
+            --,  TI "feeds"  "" (spawn "chromium-browser --app='https://feedbin.me'")
+            --,  TI "stats"  "" (spawnInTopicDir "urxvtc -e htop")
             ]
 
 myTopicNames :: [Topic]
@@ -340,7 +340,7 @@ mySPFloat = customFloating scratchpadSize
 
 customTerm = "urxvt"
 scratchpads =
-  [ NS "term"  (customTerm ++ " -title term") (title =? "term") defaultFloating
+  [ NS "term"  (customTerm ++ " -title term") (title =? "term") mySPFloat
   , NS "term2" (customTerm ++ " -title term2") (title =? "term2") mySPFloat
   , NS "ghci"  (customTerm ++ " -e ghci") (title =? "ghci") mySPFloat
   , NS "sync"  (customTerm ++ " -e sy") (title =? "sy") mySPFloat
@@ -639,8 +639,10 @@ focusedScreenSize = withWindowSet $ windowScreenSize . fromJust . W.peek
   -- ss <- windowScreenSize $ fromJust $ W.peek ws
   -- return ss
 
-keyColor = "purple"
-cmdColor = "white"
+keyColor = "yellow"
+cmdColor = "cyan"
+-- double quoted so it can make it all the way to dzen.
+dzenFont = "\"-*-ubuntu mono-*-*-*-*-*-*-*-*-*-*-*-*\""
 
 keyMapDoc :: String -> X Handle
 keyMapDoc name = do
@@ -652,7 +654,8 @@ keyMapDoc name = do
                                  show (rect_width ss),
                                  show (rect_height ss),
                                  keyColor,
-                                 cmdColor]
+                                 cmdColor,
+                                 dzenFont]
   return handle
 
 toSubmap :: XConfig l -> String -> [(String, X ())] -> X ()
@@ -669,50 +672,52 @@ toSubmap c name m = do
 -- Note: Formatting is important for script
 focusKeymap = [ ("v",       focus "vivaldi")
               , ("e",       focus "emacs")
-              , ("m",       windows W.focusMaster)
-              , ("s",       windows W.swapMaster)
-              , ("/",       spawn menu)
-              , ("t",       withFocused $ windows . W.sink)
-              , ("<Up>",    windows W.swapUp)
-              , ("<Down>",  windows W.swapDown)
-              , ("z",       rotOpposite)
-              , ("i",       rotUnfocusedUp)
-              , ("d",       rotUnfocusedDown)
+              , ("m",       windows W.focusMaster) -- Focus Master
+              , ("s",       windows W.swapMaster) -- Swap Master
+              , ("/",       spawn menu) -- Menu
+              , ("t",       withFocused $ windows . W.sink) -- Sink
+              , ("<Up>",    windows W.swapUp) -- Swap Up
+              , ("<Down>",  windows W.swapDown) -- Swap Down
+              , ("z",       rotOpposite) -- Rotate Opposite
+              , ("i",       rotUnfocusedUp) -- Rotate UnFocused UP
+              , ("d",       rotUnfocusedDown) -- Rotate Focused Down
               , ("r",       refresh)
-              , ("<Right>", sendMessage MirrorExpand)
-              , ("<Left>",  sendMessage MirrorShrink)
-              , ("n",       shiftToNext)
-              , ("p",       shiftToPrev)
-              , ("S-n",     shiftToNext >> nextWS)
-              , ("S-p",     shiftToPrev >> prevWS)
+              , ("<Right>", sendMessage MirrorExpand) -- Mirror Expand
+              , ("<Left>",  sendMessage MirrorShrink) -- Mirror Shrink
+              , ("n",       shiftToNext) -- -> Next
+              , ("p",       shiftToPrev) -- -> Prev
+              , ("S-n",     shiftToNext >> nextWS) -- -> Next & follow
+              , ("S-p",     shiftToPrev >> prevWS) -- -> Prev & follow
               ]
   where focus :: String -> X ()
         focus w = spawn ("wmctrl -a " ++ w)
         menu = "wmctrl -l | cut -d' ' -f 5- | sort | uniq -u | dmenu -i | xargs -IWIN wmctrl -F -a WIN"
 
-musicKeymap = [ ("n", mpc "next")
-              , ("N", mpc "prev")
-              , ("p", mpc "toggle")
-              , ("r", mpc "random")
-              , ("l", mpc "repeat")
+musicKeymap = [ ("n", mpc "next") -- Next
+              , ("N", mpc "prev") -- Prev
+              , ("p", mpc "toggle") -- Toggle
+              , ("r", mpc "random") -- Random
+              , ("l", mpc "repeat") -- Repeat
               ]
   where mpc c = spawn ("mpc " ++ c)
 
-masterKeymap = [ ("f",   windows W.focusMaster)
-               , ("s",   windows W.swapMaster)
-               , ("h",   sendMessage Shrink)
-               , ("l",   sendMessage Expand)
-               , ("k",   incMaster)
-               , ("j",   decMaster)
+masterKeymap = [ ("f",      windows W.focusMaster) -- Focus
+               , ("s",      windows W.swapMaster) -- Swap
+               , ("h",      sendMessage Shrink) -- Shrink
+               , ("l",      sendMessage Expand) -- Expand
+               , ("k",      incMaster) -- Master++
+               , ("j",      decMaster) -- Master--
+               , ("<Up>",   incMaster) -- Master++
+               , ("<Down>", decMaster) -- Master--
                ]
   where incMaster       = sendMessage (IncMasterN 1)
         decMaster       = sendMessage (IncMasterN (-1))
 
 
-shotKeymap = [ ("c", setContext)
-             , ("s", takeShot select)
-             , ("w", takeShot currentWindow)
-             , ("o", openDirectory)
+shotKeymap = [ ("c", setContext) -- Set Context
+             , ("s", takeShot select) -- Take Select
+             , ("w", takeShot currentWindow) -- Take Current Window
+             , ("o", openDirectory) -- Open Directory
              ]
   where setContext = spawn ("~/.xmonad/sshot-context.sh")
         takeShot a = spawn ("scrot " ++ a ++ " ~/screenshots/current-context/'%Y-%m-%dT%H%M%S_$wx$h.png'")
@@ -757,75 +762,80 @@ searchList = [ ("g", google)
 
 -- Make sure you have $BROWSER set in your environment.
 promptSearchKeymap =
-     [ ("m", manPrompt myXPConfig)
-     , ("g", promptSearch myXPConfig google)
-     , ("d", promptSearch myXPConfig duckduckgo)
-     , ("w", promptSearch myXPConfig wikipedia)
-     , ("h", promptSearch myXPConfig hackage)
-     , ("s", promptSearch myXPConfig scholar)
-     , ("S-m", promptSearch myXPConfig mathworld)
-     , ("c", promptSearch myXPConfig maps)
-     , ("d", promptSearch myXPConfig dictionary)
-     , ("a", promptSearch myXPConfig alpha)
-     , ("l", promptSearch myXPConfig lucky)
-     , ("i", promptSearch myXPConfig images)
-     , ("k", promptSearch myXPConfig greek)
-     , ("r", promptSearch myXPConfig reverso)
+     [ ("m", manPrompt myXPConfig) -- Man Pages
+     , ("g", promptSearch myXPConfig google) -- Google
+     , ("d", promptSearch myXPConfig duckduckgo) -- duck duck go
+     , ("w", promptSearch myXPConfig wikipedia) -- wikipedia
+     , ("h", promptSearch myXPConfig hackage) -- hackage
+     , ("s", promptSearch myXPConfig scholar) -- Scholar
+     , ("S-m", promptSearch myXPConfig mathworld) -- Math World
+     , ("c", promptSearch myXPConfig maps) -- Maps / Cartes
+     , ("d", promptSearch myXPConfig dictionary) -- Dictionary
+     , ("a", promptSearch myXPConfig alpha) -- Alpha
+     , ("l", promptSearch myXPConfig lucky) -- Lucky
+     , ("i", promptSearch myXPConfig images) -- Images
+     , ("k", promptSearch myXPConfig greek) -- Greek
+     , ("r", promptSearch myXPConfig reverso) -- Reverso
      ]
 
 selectSearchKeymap =
-    [ ("g", selectSearch google)
-    , ("d", selectSearch duckduckgo)
-    , ("w", selectSearch wikipedia)
-    , ("h", selectSearch hackage)
-    , ("s", selectSearch scholar)
-    , ("m", selectSearch mathworld)
-    , ("c", selectSearch maps)
-    , ("d", selectSearch dictionary)
-    , ("a", selectSearch alpha)
-    , ("l", selectSearch lucky)
-    , ("i", selectSearch images)
-    , ("k", selectSearch greek)
-    , ("r", selectSearch reverso)
+    [ ("g", selectSearch google) -- Google
+    , ("d", selectSearch duckduckgo) -- Duckduckgo
+    , ("w", selectSearch wikipedia) -- Wikipedia
+    , ("h", selectSearch hackage) -- hackage
+    , ("s", selectSearch scholar) -- Scholar
+    , ("m", selectSearch mathworld) -- Mathworld
+    , ("c", selectSearch maps) -- Maps / Cartes
+    , ("d", selectSearch dictionary) -- Dictionary
+    , ("a", selectSearch alpha) -- Alpha
+    , ("l", selectSearch lucky) -- Lucky
+    , ("i", selectSearch images) -- Images
+    , ("k", selectSearch greek) -- Greek
+    , ("r", selectSearch reverso) -- Reverso
     ]
 
 
  -- some prompts.
  -- ability to change the working dir for a workspace.
 promptsKeymap =
-        [ ("d",   changeDir myXPConfig)
-        , ("r",   spawn "exe=`dmenu_run -b -nb black -nf yellow -sf yellow` && eval \"exec $exe\"")
-        , ("n",   appendFilePrompt myXPConfig "$HOME/NOTES")
-        , ("S-s", sshPrompt myXPConfig)
-        -- , ("e", spawn "exe=`echo | yeganesh -x` && eval \"exec $exe\"")
-        , ("z",   shellPrompt myXPConfig)
-        , ("s",   promptSearch myXPConfig $ intelligent multi)
+        [ ("d",   changeDir myXPConfig) -- Change Dir
+        , ("m",   manPrompt myXPConfig) -- Man Pages
+        , ("r",   spawn "exe=`dmenu_run -b -nb black -nf yellow -sf yellow` && eval \"exec $exe\"") -- dmenu
+        , ("n",   appendFilePrompt myXPConfig "$HOME/NOTES") -- append notes
+        , ("S-s", sshPrompt myXPConfig) -- SSH
+        , ("z",   shellPrompt myXPConfig) -- Shell
+        , ("s",   promptSearch myXPConfig $ intelligent multi) -- Multi Search
         ]
 
+        -- , ("e", spawn "exe=`echo | yeganesh -x` && eval \"exec $exe\"")
+
 namedScratchpadsKeymap =
-    [ ("s", namedScratchpadAction scratchpads "term")
-    , ("d", namedScratchpadAction scratchpads "term2")
-    , ("g", namedScratchpadAction scratchpads "ghci")
-    , ("c", namedScratchpadAction scratchpads "calc")
-    , ("t", namedScratchpadAction scratchpads "top")
-    , ("o", namedScratchpadAction scratchpads "OSX")
-    , ("w", namedScratchpadAction scratchpads "MSW")
-    , ("o", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800")
+    [ ("s", namedScratchpadAction scratchpads "term") -- Term
+    , ("d", namedScratchpadAction scratchpads "term2") -- Term2
+    , ("g", namedScratchpadAction scratchpads "ghci") -- ghci
+    , ("c", namedScratchpadAction scratchpads "calc") -- calc
+    , ("t", namedScratchpadAction scratchpads "top") -- top
+    , ("o", namedScratchpadAction scratchpads "OSX") -- OS X
+    , ("w", namedScratchpadAction scratchpads "MSW") -- MS Windows
+    , ("r", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
+    , ("q", spawn "fce4-session-logout")
+    , ("S-p", spawn "xfce4-appfinder")
+    , ("q",   spawn "fce4-session-logout")
     ]
 
--- xfceKeymap =
---     [ ("p",    spawn "xfrun4")
---     , ("S-p", spawn "xfce4-appfinder")
---     , ("q",   spawn "xfce4-session-logout")
---     , ("m",   spawn "xfce4-popup-menu")
---     ]
+xfceKeymap =
+    [ ("M4-n",          spawnShell) -- Terminal
+    , ("q", spawn "fce4-session-logout")
+    , ("S-p", spawn "xfce4-appfinder")
+    , ("q",   spawn "fce4-session-logout")
+    ]
 
 magnifierKeymap =
-    [ ("+",   sendMessage Mag.MagnifyMore)
-    , ("-",   sendMessage Mag.MagnifyLess)
-    , ("o",   sendMessage Mag.ToggleOff  )
-    , ("S-o", sendMessage Mag.ToggleOn   )
-    , ("m",   sendMessage Mag.Toggle     )
+    [ ("+",   sendMessage Mag.MagnifyMore)  -- More
+    , ("-",   sendMessage Mag.MagnifyLess)  -- Less
+    , ("o",   sendMessage Mag.ToggleOff  )  -- Off
+    , ("S-o", sendMessage Mag.ToggleOn   )  -- On
+    , ("m",   sendMessage Mag.Toggle     )  -- Toggle
     ]
 
 --- workspacesKeymap
@@ -839,31 +849,30 @@ workspacesKeymap =
     , ("S-p",    shiftToPrev)
     , ("C-n",    shiftToNext >> nextWS)
     , ("C-p",    shiftToPrev >> prevWS)
-    , ("<Tab>",  cycleRecentWS' [xK_Super_L, xK_Shift_L] xK_Tab xK_grave)
-    , ("S-z",    killAll >> DO.moveTo Prev HiddenNonEmptyWS)
-    , ("g",      promptedGoto)
-    , ("s",      promptedShift)
-    , ("M-+",    addWorkspacePrompt myXPConfig)
-    , ("M--",    removeWorkspace)
-    , ("S-g",    selectWorkspace myXPConfig)
-    , ("C-<R>",  DO.swapWith Next NonEmptyWS)
-    , ("C-<L>",  DO.swapWith Prev NonEmptyWS)
-    , ("S-<R>",  DO.shiftTo Next HiddenNonEmptyWS)
-    , ("S-<L>",  DO.shiftTo Prev HiddenNonEmptyWS)
-    , ("<R>",    DO.moveTo Next HiddenNonEmptyWS)
-    , ("<L>",    DO.moveTo Prev HiddenNonEmptyWS)
+    , ("<Tab>",  cycleRecentWS' [xK_Super_L, xK_Shift_L] xK_Tab xK_grave) -- Cycle Recent
+    , ("S-z",    killAll >> DO.moveTo Prev HiddenNonEmptyWS) -- Kill All
+    , ("g",      promptedGoto) -- prompted Goto
+    , ("s",      promptedShift) -- prompted Shift
+    , ("M-+",    addWorkspacePrompt myXPConfig) -- Add
+    , ("M--",    removeWorkspace) -- Remove
+    , ("S-g",    selectWorkspace myXPConfig) -- Select
+    , ("C-<R>",  DO.swapWith Next NonEmptyWS) -- Swap Next
+    , ("C-<L>",  DO.swapWith Prev NonEmptyWS) -- Swap Prev
+    , ("S-<R>",  DO.shiftTo Next HiddenNonEmptyWS) -- Shift to Next
+    , ("S-<L>",  DO.shiftTo Prev HiddenNonEmptyWS) -- Shift to Prev
+    , ("<R>",    DO.moveTo Next HiddenNonEmptyWS) -- Move to Next
+    , ("<L>",    DO.moveTo Prev HiddenNonEmptyWS) -- Move to Prev
     ]
 
 topicKeymap =
-    [ ("a",     currentTopicAction myTopicConfig)
-    --, ("g",   promptedGoto)
-    , ("S-g",   promptedShift)
-    , ("S-a",   currentTopicAction myTopicConfig)
-    , ("g",     warpToCentre >> goToSelected gsConfig2)
-    , ("<Tab>", switchNthLastFocused myTopicConfig . succ . length . W.visible . windowset =<< get )
-    , ("s"  ,   warpToCentre >> promptedGoto )
-    , ("S-s",   warpToCentre >> promptedShift)
+    [ ("a",     currentTopicAction myTopicConfig) -- Current Topic Action
+    , ("S-g",   promptedShift) -- Prompted Shift
+    , ("g",     warpToCentre >> goToSelected gsConfig2) -- Goto Selected
+    , ("<Tab>", switchNthLastFocused myTopicConfig . succ . length . W.visible . windowset =<< get ) -- Switch last focused
+    , ("s"  ,   warpToCentre >> promptedGoto ) -- prompted goto
+    , ("S-s",   warpToCentre >> promptedShift) -- prompted shift
     ]
+    --, ("g",   promptedGoto)
 
 
 layoutKeymap = [("f",   sendMessage (Toggle FULL)) --toggle Full
@@ -872,90 +881,93 @@ layoutKeymap = [("f",   sendMessage (Toggle FULL)) --toggle Full
     , ("S-f", sendMessage (Toggle RFULL)) -- Full without panel, border
     , ("t",   withFocused $ windows . W.sink) -- sink focused window
     , ("S-t", sinkAll) -- sink all windows
-    , ("r",   rescreen)
-    , ("2",   layoutSplitScreen 2 $ TwoPane (3/100) (1/2))
-    , ("3",   layoutSplitScreen 3 $ ThreeColMid 1 (3/100) (1/2))
-    , ("4",   layoutSplitScreen 4 $ G.Grid)
-    , ("5",   layoutSplitScreen 5 $ ThreeColMid 1 (3/100) (1/2))
+    , ("r",   rescreen) -- Rescreen
+    , ("2",   layoutSplitScreen 2 $ TwoPane (3/100) (1/2)) -- Split Screen two pane
+    , ("3",   layoutSplitScreen 3 $ ThreeColMid 1 (3/100) (1/2)) -- Split Screen 3 Col
+    , ("4",   layoutSplitScreen 4 $ G.Grid) -- Split Screen Grid
     ]
 
 floatKeymap =
-    [ ("d",   withFocused (keysResizeWindow (-10,-10) (1,1)))
-    , ("s",   withFocused (keysResizeWindow (10,10) (1,1)))
-    , ("S-d", withFocused (keysAbsResizeWindow (-10,-10) (1024,752)))
-    , ("S-s", withFocused (keysAbsResizeWindow (10,10) (1024,752)))
-    , ("c",   withFocused (keysMoveWindowTo (1720,720) (1%2,1%2)))
-    , ("x",   withFocused (keysMoveWindow (10,0) ))
-    , ("y",   withFocused (keysMoveWindow (0,10) ))
-    , ("S-x", withFocused (keysMoveWindow (-10,0)))
-    , ("S-y", withFocused (keysMoveWindow (0,-10)))
-    , ("t",   withFocused $ windows . W.sink)
+    [ ("d",   withFocused (keysResizeWindow (-20,-20) (1,1))) -- Resize Smaller
+    , ("s",   withFocused (keysResizeWindow (20,20) (1,1))) -- Resize Bigger
+    , ("S-d", withFocused (keysAbsResizeWindow (-20,-20) (1024,752))) -- Resize Smaller Abs
+    , ("S-s", withFocused (keysAbsResizeWindow (20,20) (1024,752))) -- Resize Bigger Abs
+    , ("c",   withFocused (keysMoveWindowTo (1720,720) (1%2,1%2))) -- Move to Center
+    , ("x",   withFocused (keysMoveWindow (20,0) )) -- Move Right
+    , ("y",   withFocused (keysMoveWindow (0,20) )) -- Move Down
+    , ("S-x", withFocused (keysMoveWindow (-20,0))) -- Move Left
+    , ("S-y", withFocused (keysMoveWindow (0,-20))) -- Move Up
+    , ("t",   withFocused $ windows . W.sink) -- Sink
     ]
 
 -- BSP layout controls.
 bspKeymap =
-    [ ("<Right>",   sendMessage $ BSP.ExpandTowards R)
-    , ("<Left>",    sendMessage $ BSP.ExpandTowards L)
-    , ("<Up>",      sendMessage $ BSP.ExpandTowards D)
-    , ("<Down>",    sendMessage $ BSP.ExpandTowards U)
-    , ("S-<Right>", sendMessage $ BSP.ShrinkFrom R)
-    , ("S-<Left>",  sendMessage $ BSP.ShrinkFrom L)
-    , ("S-<Down>",  sendMessage $ BSP.ShrinkFrom D)
-    , ("S-<Up>",    sendMessage $ BSP.ShrinkFrom U)
-    , ("r",         sendMessage BSP.Rotate)
-    , ("s",         sendMessage BSP.Swap)
-    , ("p",         sendMessage BSP.FocusParent)
-    , ("n",         sendMessage BSP.SelectNode)
-    , ("m",         sendMessage BSP.MoveNode)
-    , ("b",         sendMessage BSP.Balance)
-    , ("e",         sendMessage BSP.Equalize)
+    [ ("<Right>",   sendMessage $ BSP.ExpandTowards R) -- Expand Right
+    , ("<Left>",    sendMessage $ BSP.ExpandTowards L) -- Expand Left
+    , ("<Up>",      sendMessage $ BSP.ExpandTowards D) -- Expand Down
+    , ("<Down>",    sendMessage $ BSP.ExpandTowards U) -- Expand Up
+    , ("S-<Right>", sendMessage $ BSP.ShrinkFrom R) -- Shrink Right
+    , ("S-<Left>",  sendMessage $ BSP.ShrinkFrom L) -- Shrink Left
+    , ("S-<Down>",  sendMessage $ BSP.ShrinkFrom D) -- Shrink Down
+    , ("S-<Up>",    sendMessage $ BSP.ShrinkFrom U) -- Shrink Up
+    , ("r",         sendMessage BSP.Rotate) -- Rotate
+    , ("s",         sendMessage BSP.Swap) -- Swap
+    , ("p",         sendMessage BSP.FocusParent) -- Focus Parent
+    , ("n",         sendMessage BSP.SelectNode) -- Select Node
+    , ("m",         sendMessage BSP.MoveNode) -- Move Node
+    , ("b",         sendMessage BSP.Balance) -- Balance
+    , ("e",         sendMessage BSP.Equalize) -- Equalize
     ]
 
 raiseKeymap =
-    [ ("v", runOrRaiseNext "Vivaldi" (className =? "Vivaldi"))
-    , ("e", raiseNext (className =? "Emacs"))
-    , ("s", runOrRaise "Slack" (className =? "Slack"))
+    [ ("v", runOrRaiseNext "Vivaldi" (className =? "Vivaldi")) -- Vivaldi
+    , ("e", raiseNext (className =? "Emacs")) -- Emacs cycle
+    , ("s", runOrRaise "Slack" (className =? "Slack")) -- Slack
     ]
+
     -- , ("m", raiseMaybe     (runInTerm "-title mutt" "mutt") (title =? "mutt"))
+    --    , ("M4-S-<Space>",  setLayout $ XMonad.layoutHook conf)
 
 mainKeymap c = mkKeymap c $
-  [ ("M4-S-<Return>",   spawn myTerminal)
-    , ("M4-n",          spawnShell) -- %! Launch terminal
-    , ("M4-S-c",        kill)
-    , ("M4-Insert",     pasteSelection) -- X-selection paste buffer
-
-    , ("M4-<Space>",    sendMessage NextLayout)
-    , ("M4-S-<Space>",  myLayoutPrompt)
---    , ("M4-S-<Space>",  setLayout $ XMonad.layoutHook conf)
+  [ ("M4-S-<Return>",   spawn myTerminal) -- Terminal
+    , ("M4-n",          spawnShell) -- Terminal
+    , ("M4-S-c",        kill) -- Kill window
+    , ("M4-Insert",     pasteSelection) -- Paste selection
+    , ("M4-<Space>",    sendMessage NextLayout) -- Next Layout
+    , ("M4-S-<Space>",  myLayoutPrompt) -- Layout prompt
     , ("M4-k",          nextWindow)
     , ("M4-j",          prevWindow)
-    , ("M4-<Tab>",      nextWindow)
-    , ("M4-S-<Tab>",    prevWindow)
-    , ("M4-d", spawn "exe=`dmenu_run -b -nb black -nf yellow -sf yellow` && eval \"exec $exe\"")
-    , ("M4-g",          promptedGoto)
-    , ("M4-S-g",        promptedShift)
-    , ("M4-s",          sendMessage Shrink)
-    , ("M4-e",          sendMessage Expand)
-    , ("M4-S-b",        sendMessage ToggleStruts)
-    , ("M4-q",          spawn "xmonad --recompile; xmonad --restart")
-    , ("M4-S-q",        io $ exitWith ExitSuccess)
-    , ("M4-C-x",        spawn "xscreensaver-command -lock")
-    , ("M4-x",          spawn "xscreensaver-command -activate")  -- -lock
-    , ("M4-a",          toSubmap c "masterKeymap" masterKeymap)
-    , ("M4-b",          toSubmap c "bspKeymap" bspKeymap)
-    , ("M4-f",          toSubmap c "focusKeymap" focusKeymap)
-    , ("M4-S-f",        toSubmap c "floatKeymap" floatKeymap)
-    , ("M4-l",          toSubmap c "layoutKeymap" layoutKeymap)
-    , ("M4-m",          toSubmap c "musicKeymap" musicKeymap)
-    , ("M4-S-m",        toSubmap c "mainKeymap" [])
-    , ("M4-p",          toSubmap c "promptsKeymap" promptsKeymap)
-    , ("M4-r",          toSubmap c "raiseKeymap" raiseKeymap)
-    , ("M4-.",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap)
-    , ("M4-S-s",        toSubmap c "shotKeymap" shotKeymap)
-    , ("M4-w",          toSubmap c "workspacesKeymap" workspacesKeymap)
-    , ("M4-t",          toSubmap c "topicKeymap" topicKeymap)
-    , ("M4-/",          toSubmap c "promptSearchKeymap" promptSearchKeymap)
-    , ("M4-S-/",        toSubmap c "selectSearchKeymap" selectSearchKeymap)
+    , ("M4-S-k",        windows W.swapUp) -- Swap Up
+    , ("M4-S-j",        windows W.swapDown) -- Swap Down
+    , ("M4-<Tab>",      nextWindow) -- Next Window
+    , ("M4-S-<Tab>",    prevWindow) -- Prev Window
+    , ("M4-d", spawn "exe=`dmenu_run -b -nb black -nf yellow -sf yellow` && eval \"exec $exe\"") -- dmenu
+    , ("M4-g",          promptedGoto) -- Grid Select Workspace
+    , ("M4-u",          goToSelected gsConfig2) -- Grid Select Window
+    , ("M4-S-u",        bringSelected gsConfig2) -- Bring Grid Selected Window
+    , ("M4-S-g",        promptedShift) -- Grid Select Shift
+    , ("M4-s",          sendMessage Shrink) -- Shrink
+    , ("M4-e",          sendMessage Expand) -- Expand
+    , ("M4-S-b",        sendMessage ToggleStruts) -- Toggle Struts
+    , ("M4-q",          spawn "xmonad --recompile; xmonad --restart") -- Restart
+    , ("M4-S-q",        io $ exitWith ExitSuccess) -- Quit
+    , ("M4-C-x",        spawn "xscreensaver-command -lock") -- screen lock
+    , ("M4-x",          spawn "xscreensaver-command -activate")  -- screensaver
+    , ("M4-a",          toSubmap c "masterKeymap" masterKeymap) -- master pane
+    , ("M4-b",          toSubmap c "bspKeymap" bspKeymap) -- BSP
+    , ("M4-f",          toSubmap c "focusKeymap" focusKeymap) -- Focus
+    , ("M4-S-f",        toSubmap c "floatKeymap" floatKeymap) -- Float
+    , ("M4-l",          toSubmap c "layoutKeymap" layoutKeymap) -- Layout
+    , ("M4-m",          toSubmap c "musicKeymap" musicKeymap) -- Music
+    , ("M4-S-m",        toSubmap c "mainKeymap" []) -- Main
+    , ("M4-p",          toSubmap c "promptsKeymap" promptsKeymap) -- Prompts
+    , ("M4-r",          toSubmap c "raiseKeymap" raiseKeymap) -- Raise
+    , ("M4-.",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap) -- Scratchpad
+    , ("M4-S-s",        toSubmap c "shotKeymap" shotKeymap) -- ScreenShot
+    , ("M4-w",          toSubmap c "workspacesKeymap" workspacesKeymap) -- Workspaces
+    , ("M4-t",          toSubmap c "topicKeymap" topicKeymap) -- Topic Space
+    , ("M4-/",          toSubmap c "promptSearchKeymap" promptSearchKeymap) -- Prompt Search
+    , ("M4-S-/",        toSubmap c "selectSearchKeymap" selectSearchKeymap) -- Select Search
     ]
   where nextWindow      = windows W.focusDown
         prevWindow      = windows W.focusUp

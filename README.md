@@ -64,7 +64,8 @@ focusedScreenSize = withWindowSet $ windowScreenSize . fromJust . W.peek
 
 keyColor = "yellow"
 cmdColor = "cyan"
-font = "-*-ubuntu mono-*-*-*-*-*-*-*-*-*-*-*-*"
+-- double quoted so it can make it all the way to dzen.
+dzenFont = "\"-*-ubuntu mono-*-*-*-*-*-*-*-*-*-*-*-*\""
 
 keyMapDoc :: String -> X Handle
 keyMapDoc name = do
@@ -77,7 +78,7 @@ keyMapDoc name = do
                                  show (rect_height ss),
                                  keyColor,
                                  cmdColor,
-                                 font]
+                                 dzenFont]
   return handle
 
 toSubmap :: XConfig l -> String -> [(String, X ())] -> X ()
@@ -85,6 +86,7 @@ toSubmap c name m = do
   pipe <- keyMapDoc name
   submap $ mkKeymap c m
   io $ hClose pipe
+
 
 ```
 
@@ -95,9 +97,11 @@ xmonad.hs for the keymap name and grabbing everything from there to the closing 
 
 ```
 mainKeymap c = mkKeymap c $
-[...
-    , ("M4-r",          toSubmap c "raiseKeymap" raiseKeymap)
-]
+    [
+
+    ("M4-r",          toSubmap c "raiseKeymap" raiseKeymap)
+
+    ]
 
 raiseKeymap =
     [ ("v", runOrRaiseNext "Vivaldi" (className =? "Vivaldi")) -- Vivaldi

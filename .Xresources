@@ -79,7 +79,9 @@ URxvt.perl-ext-common: default,matcher
 URxvt.urlLauncher: vivaldi
 URxvt.matcher.button: 1
 
-!dzen2.font:       -*-profont-*-*-*-*-*-170-*-*-*-*-*-*
-dzen2.font: xft:Source\ Code\ Pro:Regular:size=14
+!dzen2.font: xft:Source\ Code\ Pro:Regular:size=14
+!dzen2.font: -*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*
+!dzen2.font: -*-fixed-*-*-*-*-*-*-*-*-*-*-*-*
+dzen2.font: -*-ubuntu mono-*-*-*-*-*-*-*-*-*-*-*-*
 !dzen2.foreground: #22EE11
 !dzen2.background: black
