@@ -2,13 +2,15 @@
 my setup files for xmonad
 
 Lots of stuff from lots of places.  I'm just hacking at haskell here. I need to take some time to learn it better.
-Still this seems to be working pretty well.  I'm still tweaking it, but it's pretty nice at this point. The keys
+Still this seems to be working pretty well. The keys
 and commands are still in a lot of flux. But I'm slowly exploring everything I have and figuring out what I like and
 don't like. The dzen key hints really helps with exploring and remembering what is there. And also finding things
 that don't work quite the way they should or the way I want.
 
 This is all pretty fresh. I've only been using xmonad 12 since July, 2016. This is my first major refactoring since
 creating my initial xmonad.hs mess.
+
+A couple of things about keys, I'm still figuring what I want, but one of the things that effects my decisions is that I use a dvorak keyboard.  I put my favorite commands on or close to the home row, which may not make sense on a qwerty keyboard.
 
 **Some key features**  
  * EZConfig

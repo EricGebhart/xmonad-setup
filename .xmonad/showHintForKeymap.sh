@@ -20,23 +20,26 @@ COLS=$(($W / $FW))
 
 INFO=$(awk -v cmdcolor=$CMDCOLOR -v keycolor=$KEYCOLOR -v cols=$COLS \
            '/^'"$KEYMAP"'/,/^\s*\]$/ {
-                # get the key entry and any following comment.
-                split($0, fields, " --", seps)
-                match($fields[1], /^.*\(\"(.*)\", *(.+)\).*/, cmd)
+                if ($0 ~ /^ *--+/) next
 
-                # remove any leading spaces
-                gsub(/^[ \t]/, "", cmd[2])
-                gsub(/^[ \t]/, "", fields[2])
+                # get the key entry and any following comment.
+                split($0, splitline, " --", seps)
+                comma_loc=index(splitline[1], "\",")
+                match(substr(splitline[1], 1, comma_loc-1), /^.*\"(.*)/, keys)
+                match(substr(splitline[1], comma_loc+2), /^ *(.*)\)/, command)
+
+                # remove any leading spaces from the comment
+                gsub(/^[ \t]/, "", splitline[2])
 
                 # skip any empty records.
-                if (length(cmd[1]) > 0){
+                if (length(command[1]) > 0){
                     # if there is a comment use that for the description.
-                    if (length(fields[2]) > 0) {
-                            desc=fields[2]
+                    if (length(splitline[2]) > 0) {
+                            desc=splitline[2]
                         } else {
-                            desc=cmd[2]
+                            desc=command[1]
                     }
-                    key_hint[i++] = sprintf (" ^fg(%s)%12s ^fg(%s)%-30s", keycolor, cmd[1], cmdcolor, desc)
+                    key_hint[i++] = sprintf (" ^fg(%s)%14s ^fg(%s)%-30s", keycolor, keys[1], cmdcolor, desc)
                 }
             }
             END {

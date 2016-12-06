@@ -200,7 +200,7 @@ myTopics = [
                                                         spawnInTopicDir "urxvtc")
             ,  TI "code" "Projects" (spawnInTopicDir "emacsn -m")
             ,  TI "elisp" "Projects/emacs-setup" (spawnInTopicDir "emacsn -m")
-            ,  TI "web" "" (spawnInTopicDir "vivaldi" >>
+            ,  TI "comm" "" (spawnInTopicDir "vivaldi" >>
                             spawnInTopicDir "slack" >>
                             spawnInTopicDir "emacsn -e")
             ,  TI "BD" "BD" (spawnShell >>
@@ -925,6 +925,7 @@ raiseKeymap =
     , ("s", runOrRaise "Slack" (className =? "Slack")) -- Slack
     ]
 
+    --    , ("M4-S-<Space>",  setLayout $ XMonad.layoutHook conf)
     -- , ("m", raiseMaybe     (runInTerm "-title mutt" "mutt") (title =? "mutt"))
     --    , ("M4-S-<Space>",  setLayout $ XMonad.layoutHook conf)
 
@@ -942,10 +943,11 @@ mainKeymap c = mkKeymap c $
     , ("M4-<Tab>",      nextWindow) -- Next Window
     , ("M4-S-<Tab>",    prevWindow) -- Prev Window
     , ("M4-d", spawn "exe=`dmenu_run -b -nb black -nf yellow -sf yellow` && eval \"exec $exe\"") -- dmenu
-    , ("M4-g",          promptedGoto) -- Grid Select Workspace
-    , ("M4-u",          goToSelected gsConfig2) -- Grid Select Window
-    , ("M4-S-u",        bringSelected gsConfig2) -- Bring Grid Selected Window
+    , ("M4-t",          promptedGoto) -- Grid Select Workspace
+    , ("M4-h",          goToSelected gsConfig2) -- Grid Select Window
+    , ("M4-S-h",        bringSelected gsConfig2) -- Bring Grid Selected Window
     , ("M4-S-g",        promptedShift) -- Grid Select Shift
+    , ("M4-C-g",        spawnSelected defaultGSConfig ["krita","dolphin","Repetier-Host"]) -- Apps
     , ("M4-s",          sendMessage Shrink) -- Shrink
     , ("M4-e",          sendMessage Expand) -- Expand
     , ("M4-S-b",        sendMessage ToggleStruts) -- Toggle Struts
@@ -965,7 +967,7 @@ mainKeymap c = mkKeymap c $
     , ("M4-.",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap) -- Scratchpad
     , ("M4-S-s",        toSubmap c "shotKeymap" shotKeymap) -- ScreenShot
     , ("M4-w",          toSubmap c "workspacesKeymap" workspacesKeymap) -- Workspaces
-    , ("M4-t",          toSubmap c "topicKeymap" topicKeymap) -- Topic Space
+    , ("M4-S-t",        toSubmap c "topicKeymap" topicKeymap) -- Topic Space
     , ("M4-/",          toSubmap c "promptSearchKeymap" promptSearchKeymap) -- Prompt Search
     , ("M4-S-/",        toSubmap c "selectSearchKeymap" selectSearchKeymap) -- Select Search
     ]
