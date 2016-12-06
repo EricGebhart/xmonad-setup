@@ -33,10 +33,15 @@ Key Hints
 The important bits for keyhints is to put `showHintForKeymap.sh` in your .xmonad directory. If things are displayed to   tightly it may be necessary to increase the line height.  $lh at the top.
  
 If you want to change the font for dzen something like this works in .Xresources.
-```dzen2.font: xft:Source\ Code\ Pro:Regular:size=14```
+
+```dzen2.font: -*-ubuntu mono-*-*-*-*-*-*-*-*-*-*-*-*```
+
+A fixed font of some sort is necessary for this. The code below uses
+the ubuntu mono font.  
 
 **The functionality for keyhints is in this code:**
 
+** Thank you to PCLewis for this **
 ```
  -- Key Map doc ------------------------------------------------
 
@@ -59,6 +64,7 @@ focusedScreenSize = withWindowSet $ windowScreenSize . fromJust . W.peek
 
 keyColor = "yellow"
 cmdColor = "cyan"
+font = "-*-ubuntu mono-*-*-*-*-*-*-*-*-*-*-*-*"
 
 keyMapDoc :: String -> X Handle
 keyMapDoc name = do
@@ -70,7 +76,8 @@ keyMapDoc name = do
                                  show (rect_width ss),
                                  show (rect_height ss),
                                  keyColor,
-                                 cmdColor]
+                                 cmdColor,
+                                 font]
   return handle
 
 toSubmap :: XConfig l -> String -> [(String, X ())] -> X ()
@@ -99,7 +106,9 @@ raiseKeymap =
     ]
 ```
 
-
-
+This will result in a menu something like this when the M4-r keys are pressed.
+```
+    v Vivaldi       e Emacs cycle        s Slack
+```
 
 
