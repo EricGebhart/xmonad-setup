@@ -1,0 +1,41 @@
+#!/usr/bin/env zsh
+
+runemacs=`which emacs`
+
+eval_prefix='--eval "('
+runfunc=""
+
+# $opt will hold the current option
+local opt
+while getopts cemf: opt; do
+    # loop continues till options finished
+    # see which pattern $opt matches...
+    case $opt in
+        (c)
+            runemacs=`which emacsclient`' -c'
+            ;;
+        (e)
+            runfunc=$eval_prefix'mu4e)"'
+            ;;
+        (m)
+            runfunc=$eval_prefix'main-window)"'
+            ;;
+        (f)
+            runfunc=$eval_prefix$OPTARG')"'
+            ;;
+	# matches a question mark
+	# (and nothing else, see text)
+        (\?)
+            print Bad option, aborting.
+            return 1
+            ;;
+    esac
+done
+(( OPTIND > 1 )) && shift $(( OPTIND - 1 ))
+##print Remaining arguments are: $*
+
+mycommand=$runemacs' '${*}' '$runfunc' &'
+
+print "Emacs With Command:" $mycommand
+
+eval $mycommand
