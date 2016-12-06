@@ -818,9 +818,6 @@ namedScratchpadsKeymap =
     , ("o", namedScratchpadAction scratchpads "OSX") -- OS X
     , ("w", namedScratchpadAction scratchpads "MSW") -- MS Windows
     , ("r", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
-    , ("q", spawn "fce4-session-logout")
-    , ("S-p", spawn "xfce4-appfinder")
-    , ("q",   spawn "fce4-session-logout")
     ]
 
 xfceKeymap =
