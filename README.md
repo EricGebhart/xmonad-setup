@@ -118,3 +118,41 @@ This will result in a menu something like this when the M4-r keys are pressed.
 ```
 
 
+Emacs
+-----
+
+I run emacs using my emacsn script.  emacsn basically takes care of running emacs or emacsclient,
+as well as evaluating an elisp function on startup. Any additional arguments like files are passed on
+to emacs in front of the _--eval_. 
+
+* emacsn -e _=>_ emacs --eval "(mu4e)"
+* emacsn -m _=>_ emacs --eval "(main-window)"
+* emacsn -m *.hs _=>_ emacs *.hs --eval "(main-window)"
+* emacsn -f foo _=>_ emacs --eval "(foo)"
+
+Adding -c changes it from _emacs_ to _emacsclient -c_
+
+* emacsn -m -c _=>_ emacsclient -c --eval "(main-window)"
+
+My **main-window** function looks like this:
+
+```
+(defun main-window ()
+  (interactive)
+  (balance-windows)
+  (split-window-horizontally)
+  (split-window-horizontally)
+  (split-window-below))
+ ```
+
+I used to also start a shell, but I use scratchpads for that now.
+
+BC Scratchpad
+-------------
+
+I've been using bc for years and the first thing I want is to change the scale.
+I basically put my startup stuff in _~/.bcstart.bc_ then start bc with `bc ~/.bcstart.bc`.
+of course making that an alias for bc makes a lot of sense.
+
+`alias bc="bc ~/.bcstart.bc"`
+
