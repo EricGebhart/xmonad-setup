@@ -19,7 +19,7 @@ FONT=$8
 COLS=$(($W / $FW))
 
 INFO=$(awk -v cmdcolor=$CMDCOLOR -v keycolor=$KEYCOLOR -v cols=$COLS \
-           '/^'"$KEYMAP"'/,/^\s*\]$/ {
+           '/^'"$KEYMAP"'/,/^\s*\].*$/ {
                 if ($0 ~ /^ *--+/) next
 
                 # get the key entry and any following comment.
@@ -39,7 +39,7 @@ INFO=$(awk -v cmdcolor=$CMDCOLOR -v keycolor=$KEYCOLOR -v cols=$COLS \
                         } else {
                             desc=command[1]
                     }
-                    key_hint[i++] = sprintf (" ^fg(%s)%14s ^fg(%s)%-30s", keycolor, keys[1], cmdcolor, desc)
+                    key_hint[i++] = sprintf (" ^fg(%s)%14.14s ^fg(%s)%-30.30s", keycolor, keys[1], cmdcolor, desc)
                 }
             }
             END {
