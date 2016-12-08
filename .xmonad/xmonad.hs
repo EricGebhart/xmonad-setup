@@ -14,6 +14,7 @@ import System.Exit
 import XMonad hiding ( (|||) )
 import XMonad.Layout.LayoutCombinators
 -- Actions
+-- impor XMonad.Actions.PhysicalScreens
 import XMonad.Actions.FloatKeys
 import XMonad.Actions.WindowGo
 import XMonad.Actions.CycleWindows
@@ -664,7 +665,6 @@ toSubmap c name m = do
   submap $ mkKeymap c m
   io $ hClose pipe
 
-
 ------------------------------------------------------------------------
 -- Key bindings
 --
@@ -810,21 +810,21 @@ promptsKeymap =
         -- , ("e", spawn "exe=`echo | yeganesh -x` && eval \"exec $exe\"")
 
 namedScratchpadsKeymap =
-    [ ("s", namedScratchpadAction scratchpads "term") -- Term
-    , ("d", namedScratchpadAction scratchpads "term2") -- Term2
+    [ ("o", namedScratchpadAction scratchpads "term") -- Term
+    , ("e", namedScratchpadAction scratchpads "term2") -- Term2
     , ("g", namedScratchpadAction scratchpads "ghci") -- ghci
     , ("c", namedScratchpadAction scratchpads "calc") -- calc
     , ("t", namedScratchpadAction scratchpads "top") -- top
     , ("o", namedScratchpadAction scratchpads "OSX") -- OS X
     , ("w", namedScratchpadAction scratchpads "MSW") -- MS Windows
-    , ("r", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
+    , ("u", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
     ]
 
 xfceKeymap =
-    [ ("M4-n",          spawnShell) -- Terminal
-    , ("q", spawn "fce4-session-logout")
-    , ("S-p", spawn "xfce4-appfinder")
-    , ("q",   spawn "fce4-session-logout")
+    [ ("M4-n", spawnShell) -- Terminal
+    , ("q",    spawn "fce4-session-logout")
+    , ("S-p",  spawn "xfce4-appfinder")
+    , ("q",    spawn "fce4-session-logout")
     ]
 
 magnifierKeymap =
@@ -885,17 +885,31 @@ layoutKeymap = [("f",   sendMessage (Toggle FULL)) --toggle Full
     ]
 
 floatKeymap =
-    [ ("d",   withFocused (keysResizeWindow (-20,-20) (1,1))) -- Resize Smaller
-    , ("s",   withFocused (keysResizeWindow (20,20) (1,1))) -- Resize Bigger
-    , ("S-d", withFocused (keysAbsResizeWindow (-20,-20) (1024,752))) -- Resize Smaller Abs
-    , ("S-s", withFocused (keysAbsResizeWindow (20,20) (1024,752))) -- Resize Bigger Abs
-    , ("c",   withFocused (keysMoveWindowTo (1720,720) (1%2,1%2))) -- Move to Center
-    , ("x",   withFocused (keysMoveWindow (20,0) )) -- Move Right
-    , ("y",   withFocused (keysMoveWindow (0,20) )) -- Move Down
-    , ("S-x", withFocused (keysMoveWindow (-20,0))) -- Move Left
-    , ("S-y", withFocused (keysMoveWindow (0,-20))) -- Move Up
-    , ("t",   withFocused $ windows . W.sink) -- Sink
-    ]
+    [ ("d",       withFocused (keysResizeWindow (-20,-20) (1%2,1%2))) -- Resize Smaller
+    , ("s",       withFocused (keysResizeWindow (20,20) (1%2,1%2))) -- Resize Bigger
+    , ("<Right>", withFocused (keysMoveWindow (40,0) )) -- Move Right
+    , ("<Down>",  withFocused (keysMoveWindow (0,40) )) -- Move Down
+    , ("<Left>",  withFocused (keysMoveWindow (-40,0))) -- Move Left
+    , ("<Up>",    withFocused (keysMoveWindow (0,-40))) -- Move Up
+    , ("S-s",     withFocused $ windows . W.sink) -- Sink
+
+    , ("g",  moveFocusedWindowToRel (0,0)) -- Top Left
+    , ("c",  moveFocusedWindowToRel (1%2, 0)) -- Top Center
+    , ("r",  moveFocusedWindowToRel (1,0)) -- Top Right
+    , ("h",  moveFocusedWindowToRel (0, 1%2)) -- Left Center
+    , ("t",  moveFocusedWindowToRel (1%2, 1%2)) -- Center
+    , ("n",  moveFocusedWindowToRel (1, 1%2)) -- Right Center
+    , ("m",  moveFocusedWindowToRel (0,1)) -- Bottom Left
+    , ("w",  moveFocusedWindowToRel (1%2, 1)) -- Bottom Center
+    , ("v",  moveFocusedWindowToRel (1,1)) -- Bottom Right
+    ] where
+         moveFocusedWindowToRel (wMult, hMult) =
+             do screenSize <- focusedScreenSize
+                let screenX = round (wMult * fromIntegral (rect_width screenSize))
+                    screenY = round (hMult * fromIntegral (rect_height screenSize))
+                    sY = (if screenY == 0 then 40 else screenY)
+                    sX = (if screenX == 0 then 40 else screenX)
+                withFocused (keysMoveWindowTo (sX, sY) (wMult, hMult))
 
 -- BSP layout controls.
 bspKeymap =
@@ -943,8 +957,8 @@ mainKeymap c = mkKeymap c $
     , ("M4-t",          promptedGoto) -- Grid Select Workspace
     , ("M4-h",          goToSelected gsConfig2) -- Grid Select Window
     , ("M4-S-h",        bringSelected gsConfig2) -- Bring Grid Selected Window
-    , ("M4-S-g",        promptedShift) -- Grid Select Shift
-    , ("M4-C-g",        spawnSelected defaultGSConfig ["krita","dolphin","Repetier-Host"]) -- Apps
+    , ("M4-S-t",        promptedShift) -- Grid Select Shift
+    , ("M4-C-g",        spawnSelected gsConfig ["krita","dolphin","Repetier-Host"]) -- Apps
     , ("M4-s",          sendMessage Shrink) -- Shrink
     , ("M4-e",          sendMessage Expand) -- Expand
     , ("M4-S-b",        sendMessage ToggleStruts) -- Toggle Struts
@@ -955,16 +969,16 @@ mainKeymap c = mkKeymap c $
     , ("M4-a",          toSubmap c "masterKeymap" masterKeymap) -- master pane
     , ("M4-b",          toSubmap c "bspKeymap" bspKeymap) -- BSP
     , ("M4-f",          toSubmap c "focusKeymap" focusKeymap) -- Focus
-    , ("M4-S-f",        toSubmap c "floatKeymap" floatKeymap) -- Float
+    , ("M4-u",          toSubmap c "floatKeymap" floatKeymap) -- Float
     , ("M4-l",          toSubmap c "layoutKeymap" layoutKeymap) -- Layout
     , ("M4-m",          toSubmap c "musicKeymap" musicKeymap) -- Music
     , ("M4-S-m",        toSubmap c "mainKeymap" []) -- Main
     , ("M4-p",          toSubmap c "promptsKeymap" promptsKeymap) -- Prompts
     , ("M4-r",          toSubmap c "raiseKeymap" raiseKeymap) -- Raise
-    , ("M4-.",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap) -- Scratchpad
+    , ("M4-o",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap) -- Scratchpad
     , ("M4-S-s",        toSubmap c "shotKeymap" shotKeymap) -- ScreenShot
     , ("M4-w",          toSubmap c "workspacesKeymap" workspacesKeymap) -- Workspaces
-    , ("M4-S-t",        toSubmap c "topicKeymap" topicKeymap) -- Topic Space
+    , ("M4-C-t",        toSubmap c "topicKeymap" topicKeymap) -- Topic Space
     , ("M4-/",          toSubmap c "promptSearchKeymap" promptSearchKeymap) -- Prompt Search
     , ("M4-S-/",        toSubmap c "selectSearchKeymap" selectSearchKeymap) -- Select Search
     ]
