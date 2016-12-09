@@ -770,7 +770,7 @@ promptSearchKeymap =
      , ("s", promptSearch myXPConfig scholar) -- Scholar
      , ("S-m", promptSearch myXPConfig mathworld) -- Math World
      , ("c", promptSearch myXPConfig maps) -- Maps / Cartes
-     , ("d", promptSearch myXPConfig dictionary) -- Dictionary
+     , ("S-d", promptSearch myXPConfig dictionary) -- Dictionary
      , ("a", promptSearch myXPConfig alpha) -- Alpha
      , ("l", promptSearch myXPConfig lucky) -- Lucky
      , ("i", promptSearch myXPConfig images) -- Images
@@ -815,9 +815,9 @@ namedScratchpadsKeymap =
     , ("g", namedScratchpadAction scratchpads "ghci") -- ghci
     , ("c", namedScratchpadAction scratchpads "calc") -- calc
     , ("t", namedScratchpadAction scratchpads "top") -- top
-    , ("o", namedScratchpadAction scratchpads "OSX") -- OS X
+    , ("S-o", namedScratchpadAction scratchpads "OSX") -- OS X
     , ("w", namedScratchpadAction scratchpads "MSW") -- MS Windows
-    , ("u", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
+    , ("n", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
     ]
 
 xfceKeymap =
