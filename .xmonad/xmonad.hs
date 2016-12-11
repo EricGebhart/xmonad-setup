@@ -132,6 +132,7 @@ myActiveBorderColor  = "#007c7c"
 
 myFont = "Source Code Pro"
 myMonoFont = "Source Code Pro"
+myfontwsize = "xft:" ++ myFont ++ ":size=16"
 
 -- theme settings for tabs and deco layouts.
 myTheme :: Theme
@@ -598,6 +599,8 @@ viewWeb = windows (W.view webWorkSpaceName)                     -- (0,0a)
 myXPConfig = def --  defaultXPConfig                            -- (23)
     { fgColor = "#a8a3f7"
     , bgColor = "#3f3c6d"
+    , font = "xft:Source Code Pro:size=16"
+    , height = 30
     }
 
 crizer :: String -> Bool -> X(String, String)
@@ -612,7 +615,7 @@ crizer _ True = return ("#657b83", "#fdf6e3")
 
 gsConfig = def {   -- defaultGSConfig
            gs_colorizer = crizer
-        ,  gs_font = "xft:Source Code Pro:pixelsize=14"
+        ,  gs_font = "xft:Source Code Pro:pixelsize=26"
 }
 
 -- I don't know why, but gotoSelected like
@@ -800,7 +803,7 @@ selectSearchKeymap =
 promptsKeymap =
         [ ("d",   changeDir myXPConfig) -- Change Dir
         , ("m",   manPrompt myXPConfig) -- Man Pages
-        , ("r",   spawn "exe=`dmenu_run -b -nb black -nf yellow -sf yellow` && eval \"exec $exe\"") -- dmenu
+        , ("r",   spawn "exe=`dmenu_run -fn myfontwsize -b -nb black -nf yellow -sf yellow` && eval \"exec $exe\"") -- dmenu
         , ("n",   appendFilePrompt myXPConfig "$HOME/NOTES") -- append notes
         , ("S-s", sshPrompt myXPConfig) -- SSH
         , ("z",   shellPrompt myXPConfig) -- Shell
@@ -953,7 +956,7 @@ mainKeymap c = mkKeymap c $
     , ("M4-S-j",        windows W.swapDown) -- Swap Down
     , ("M4-<Tab>",      nextWindow) -- Next Window
     , ("M4-S-<Tab>",    prevWindow) -- Prev Window
-    , ("M4-d", spawn "exe=`dmenu_run -b -nb black -nf yellow -sf yellow` && eval \"exec $exe\"") -- dmenu
+    , ("M4-d", spawn "exe=`dmenu_run -fn myfontwsize -b -nb black -nf yellow -sf yellow` && eval \"exec $exe\"") -- dmenu
     , ("M4-t",          promptedGoto) -- Grid Select Workspace
     , ("M4-h",          goToSelected gsConfig2) -- Grid Select Window
     , ("M4-S-h",        bringSelected gsConfig2) -- Bring Grid Selected Window
