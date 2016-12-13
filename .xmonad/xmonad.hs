@@ -186,38 +186,33 @@ myScreenshot = "screenshot"
 
 -- Workspaces using TopicSpace.
 
--- So search prompt can change to the right workspace.
-webWorkSpaceName = "web"
-
 data TopicItem = TI { topicName :: Topic
                     , topicDir  :: String
                     , topicAct  :: X ()
                     }
 
 myTopics :: [TopicItem]
-myTopics = [
-            TI "main" "" (return ())
-            -- ,  TI "mail" "" (spawnInTopicDir "emacsn -e")
-            ,  TI "yeti" "Projects/Yeti/yeti-stack" (spawnInTopicDir "emacsn -m" >>
-                                                        spawnInTopicDir "urxvtc")
-            ,  TI "code" "Projects" (spawnInTopicDir "emacsn -m")
-            ,  TI "elisp" "Projects/emacs-setup" (spawnInTopicDir "emacsn -m")
-            ,  TI "comm" "" (spawnInTopicDir "vivaldi" >>
-                            spawnInTopicDir "slack" >>
-                            spawnInTopicDir "emacsn -e")
-            ,  TI "BD" "BD" (spawnShell >>
-                                spawnInTopicDir "dolphin")
-            ,  TI "Downloads" "Downloads" (spawnShell >>
-                                            spawnInTopicDir "dolphin")
-            ,  TI "French" "Language/Française" (spawnShell >>
-                                                spawnInTopicDir "dolphin" >>
-                                                spawn "anki")
-            ,  TI "music"  "Music" (spawn "mediacenter22")
-            -- ,  TI "calendar" "" (spawn "vivaldi --app='http://calendar.google.com'")
-            ,  TI "xmonad" ".xmonad" (spawnInTopicDir "emacsn -m *.hs lib/*/*.hs")
-            --,  TI "feeds"  "" (spawn "chromium-browser --app='https://feedbin.me'")
-            --,  TI "stats"  "" (spawnInTopicDir "urxvtc -e htop")
-            ]
+myTopics = [ TI "main" "" (return ())
+           -- ,  TI "mail" "" (spawnInTopicDir "emacsn -e")
+           , TI "yeti" "Projects/Yeti/yeti-stack" (spawnInTopicDir "emacsn -m Yeti")
+           , TI "code" "Projects" (spawnInTopicDir "emacsn -m Code")
+           , TI "elisp" "Projects/emacs-setup" (spawnInTopicDir "emacsn -m Elisp")
+           , TI "comm" "" (spawnInTopicDir "vivaldi" >>
+                           spawnInTopicDir "slack" >>
+                           spawnInTopicDir "emacsn -e")
+           , TI "BD" "BD" (spawnInTopicDir "urxvt -T BD" >>
+                           spawnInTopicDir "dolphin --select ~/BD ~/Downloads")
+           , TI "Downloads" "Downloads" (spawnInTopicDir "urxvt -T Downloads" >>
+                                         spawnInTopicDir "dolphin --select ~/Downloads")
+           , TI "French" "Language/Française" (spawnInTopicDir "urxvt -T Française" >>
+                                               spawnInTopicDir "dolphin --select ~/Language/Française" >>
+                                               spawn "anki")
+           , TI "music"  "Music" (spawn "mediacenter22")
+           -- , TI "calendar" "" (spawn "vivaldi --app='http://calendar.google.com'")
+           , TI "xmonad" ".xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs ") -- lib/*/*.hs
+           --, TI "feeds"  "" (spawn "chromium-browser --app='https://feedbin.me'")
+           --, TI "stats"  "" (spawnInTopicDir "urxvtc -e htop")
+           ]
 
 myTopicNames :: [Topic]
 myTopicNames = map topicName myTopics
@@ -230,6 +225,7 @@ myTopicConfig = TopicConfig
     , maxTopicHistory = 10
     , topicActions = M.fromList $ map (topicName &&& topicAct) myTopics
     }
+
 
 
 -- --- Prompted workspace navigation. ---------------------------------
@@ -351,6 +347,51 @@ scratchpads =
   , NS "OSX"   "vboxmanage startvm El Capitan" (title =? "El Capitan") mySPFloat
   , NS "MSW"   "vboxmanage startvm Windows" (title =? "Windows") mySPFloat
   ]
+
+-- This is how to make a runSelectedAction grid select menu.
+-- A grid select for scratchpads.
+myScratchpadMenu =
+  [ ("Term1", (scratchToggle "term"))
+  , ("Term2", (scratchToggle "term2"))
+  , ("ghci",  (scratchToggle "ghci"))
+  , ("top",   (scratchToggle "top"))
+  , ("sync",  (scratchToggle "sync"))
+  , ("calc",  (scratchToggle "calc"))
+  , ("OSX",   (scratchToggle "OSX"))
+  , ("MSW",   (scratchToggle "MSW"))
+  ]
+
+--- grid select for some apps.
+myApps = [("Terminal",     (spawn     myTerminal))
+
+         -- ,("Sublime Text", (raiseApp' "sublime_text"))
+         -- ,("Firefox",      (raiseApp  "fox" "firefox"))
+         -- ,("Chromium",     (raiseApp  "web" "chromium"))
+
+         -- ,("GVim",         (raiseApp' "gvim"))
+         -- ,("Steam",        (raiseApp  "steam" "steam"))
+         -- ,("Gimp",         (raiseApp  "gimp" "gimp"))
+         -- ,("Win7",         (raiseApp  "Win7" "virtualbox --startvm Win7 --start-paused"))
+         -- ,("Inkscape",     (raiseApp  "ink" "inkscape"))
+
+         -- ,("LibreOffice",  (raiseApp  "doc" "libreoffice"))
+
+         ,("Video",        (spawn     "vlc"))
+         ,("Themes",       (spawn     "lxappearance"))
+
+         -- ,("Wallpaper",    (raiseApp' "nitrogen"))
+
+         ]
+
+  -- where
+  --   raiseApp ws a = (raiseNextMaybe (spawnWS ws a) (appName ~? a)) >> bringMouse
+  --   raiseApp' a = (raiseNextMaybe (spawn a) (appName ~? a)) >> bringMouse
+  --   --raiseClass ws a c = (raiseNextMaybe (spawnWS ws a) (className ~? c)) >> bringMouse
+  --   --raiseClass' a c = (raiseNextMaybe (spawn a) (className ~? c)) >> bringMouse
+  --   --gksuApp ws a = (raiseNextMaybe (spawnWS ws ("gksudo " ++ a)) (appName ~? a)) >> bringMouse
+  --   --myRaiseTerm a d = (raiseNextMaybe (spawnWS a (termApp a d)) (role ~? a)) >> bringMouse
+  --   --termApp a d = myTerm ++ " -r " ++ a ++ " --working-dir=" ++ d ++ " -l " ++ a
+
 
 
 
@@ -571,29 +612,77 @@ cycleRecentWS' = cycleWindowSets options
  where options w = map (W.view `flip` w) (recentTags w)
        recentTags w = map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
 
+-- Warp
+bringMouse = warpToWindow (9/10) (9/10)
 
--- Prompts --------------------------------------------------------
+-- Scratchpad invocation (for brevity)
+scratchToggle a = namedScratchpadAction scratchpads a >> bringMouse
 
+mypromptSearch a = promptSearch myXPConfig a
+
+-- Prompts
 
 -- Extra search engines for promptsearch and select search
 -- Search Perseus for ancient Greek dictionary entries
-greek  = searchEngine "greek"  "http://www.perseus.tufts.edu/hopper/morph?la=greek&l="
-images = searchEngine "images" "http://www.google.com/search?hl=fr&tbm=isch&q="
-reverso = searchEngine "reverso" "http://context.reverso.net/traduction/francais-anglais/"
--- duckduckgo = searchEngine "duckduckgo" "http://duckduckgo.com/&q="
+greek     = searchEngine "greek"      "http://www.perseus.tufts.edu/hopper/morph?la=greek&l="
+images    = searchEngine "images"     "http://www.google.com/search?hl=fr&tbm=isch&q="
+reverso   = searchEngine "reverso"    "http://context.reverso.net/traduction/francais-anglais/"
+arch      = searchEngine "arch"       "http://wiki.archlinux.org/index.php/Special:Search?search="
+archpkgs  = searchEngine "archpkgs"   "https://www.archlinux.org/packages/?sort=&q="
+archaur   = searchEngine "archaur"    "https://aur.archlinux.org/packages/?O=0&K="
+thesaurus = searchEngine "thesaurus"  "http://thesaurus.reference.com/browse/"
+etymology = searchEngine "etymology"  "http://www.etymonline.com/index.php?term="
+synonyms  = searchEngine "synonyms"   "http://www.synonymes.com/synonyme.php?mot="
+-- synonym  = searchEngine "synonymes" "http://www.les-synonymes.com/mot/"
+wiktionnaire = searchEngine "wiktionnaire" "https://fr.wiktionary.org/w/index.php?search="
+clojuredocs = searchEngine "clojuredocs" "https://clojuredocs.org/clojure.core/"
 
--- Prompt search: get input from the user via a prompt, then
---   run the search in firefox and automatically switch to the web
---   workspace
-myPromptSearch (SearchEngine _ site)
-  = inputPrompt myXPConfig "Search" ?+ \s ->                    -- (27)
-      (search "vivaldi" site s >> viewWeb)                      -- (0,20)
+promptSearchMenu =
+     [ ("man",          (manPrompt myXPConfig))
+     , ("google",       (mypromptSearch google))
+     , ("hoogle",       (mypromptSearch hoogle))
+     , ("clojuredocs",  (mypromptSearch clojuredocs))
+     , ("duckduckgo",   (mypromptSearch duckduckgo))
+     , ("wikipedia",    (mypromptSearch wikipedia))
+     , ("hackage",      (mypromptSearch hackage))
+     , ("scholar",      (mypromptSearch scholar))
+     , ("math World",   (mypromptSearch mathworld))
+     , ("Maps",         (mypromptSearch maps))
+     , ("Dictionary",   (mypromptSearch dictionary))
+     , ("Alpha",        (mypromptSearch alpha))
+     , ("Lucky",        (mypromptSearch lucky))
+     , ("Images",       (mypromptSearch images))
+     , ("greek",        (mypromptSearch greek))
+     , ("Reverso",      (mypromptSearch reverso))
+     , ("Arch",         (mypromptSearch arch))
+     , ("Arch Pkg",     (mypromptSearch archpkgs))
+     , ("Arch AUR",     (mypromptSearch archaur))
+     , ("Wiktionnaire", (mypromptSearch wiktionnaire))
+     , ("Synonymes.fr", (mypromptSearch synonyms))
+     ]
 
--- Select search: do a search based on the X selection
-mySelectSearch eng = selectSearch eng >> viewWeb                -- (20)
-
--- Switch to the "web" workspace
-viewWeb = windows (W.view webWorkSpaceName)                     -- (0,0a)
+selectSearchMenu =
+     [ ("google",       (selectSearch google))
+     , ("hoogle",       (selectSearch hoogle))
+     , ("clojuredocs",  (selectSearch clojuredocs))
+     , ("duckduckgo",   (selectSearch duckduckgo))
+     , ("wikipedia",    (selectSearch wikipedia))
+     , ("hackage",      (selectSearch hackage))
+     , ("scholar",      (selectSearch scholar))
+     , ("math World",   (selectSearch mathworld))
+     , ("Maps",         (selectSearch maps))
+     , ("Dictionary",   (selectSearch dictionary))
+     , ("Alpha",        (selectSearch alpha))
+     , ("Lucky",        (selectSearch lucky))
+     , ("Images",       (selectSearch images))
+     , ("greek",        (selectSearch greek))
+     , ("Reverso",      (selectSearch reverso))
+     , ("Arch",         (selectSearch arch))
+     , ("Arch Pkg",     (selectSearch archpkgs))
+     , ("Arch AUR",     (selectSearch archaur))
+     , ("Wiktionnaire", (selectSearch wiktionnaire))
+     , ("Synonymes.fr", (selectSearch synonyms))
+     ]
 
 -- some nice colors for the prompt windows to match the dzen status bar.
 myXPConfig = def --  defaultXPConfig                            -- (23)
@@ -615,14 +704,52 @@ crizer _ True = return ("#657b83", "#fdf6e3")
 
 gsConfig = def {   -- defaultGSConfig
            gs_colorizer = crizer
-        ,  gs_font = "xft:Source Code Pro:pixelsize=26"
+        ,  gs_font = "xft:Source Code Pro:pixelsize=20"
 }
 
 -- I don't know why, but gotoSelected like
-gsConfig2 = def { gs_cellheight = 30, gs_cellwidth = 100 }
+gsConfig2 = def { gs_cellheight = 50
+                , gs_cellwidth = 150
+                , gs_font = "xft:Source Code Pro:pixelsize=20"
+                }
+
+myBack    = "#1a1a1a" -- Bar background
+myFore    = "#999999" -- Bar foreground
+myAcc     = "#25629f" -- Accent color
+myHigh    = "#629f25" -- Highlight color
+myLow     = "#000000" -- Lowlight color
+myVis     = "#9f2562" -- Visible Workspace
+myEmpt    = "#555555" -- Empty workspace
+
+-- GridSelect config
+myGSConfig colorizer = (buildDefaultGSConfig colorizer)
+  {gs_cellheight  = 50
+  ,gs_cellpadding = 5
+  ,gs_cellwidth   = 150
+  , gs_font = "xft:Source Code Pro:pixelsize=20"
+  }
+
+-- Colorizer colors for GridSelect
+--aqua   = myColor "#259f62"
+blue   = myColor "#25629f"
+green  = myColor "#629f25"
+
+-- orange = myColor "#9f6225"
+-- pink   = myColor "#9f2562"
+-- purple = myColor "#62259f"
+
+-- Colorizer generator
+myColor color _ isFg = do
+  return $ if isFg
+           then (color, myLow)
+           else (myLow ,color)
 
 warpToCentre = gets (W.screen . W.current . windowset) >>= \x -> warpToScreen x  0.5 0.5
+selectApps   = runSelectedAction (myGSConfig green) myApps
 
+getScratchpad = runSelectedAction (myGSConfig blue) myScratchpadMenu
+searchStuff = runSelectedAction (myGSConfig green) promptSearchMenu
+selectSearchStuff = runSelectedAction (myGSConfig green) promptSearchMenu
 
  -- Key Map doc ------------------------------------------------
 
@@ -728,41 +855,6 @@ shotKeymap = [ ("c", setContext) -- Set Context
         select        = "-s"
         currentWindow = "-u"
 
--- Perform a search, using the given method, based on a keypress
--- Perform a search, using the given method, based on a keypress
-searchMap method = M.fromList $
-        [ ((0, xK_g), method google)
-        , ((0, xK_w), method wikipedia)
-        , ((0, xK_h), method hoogle)
-        , ((shiftMask, xK_h), method hackage)
-        , ((0, xK_s), method scholar)
-        , ((0, xK_m), method mathworld)
-        , ((0, xK_p), method maps)
-        , ((0, xK_d), method dictionary)
-        , ((0, xK_a), method alpha)
-        , ((0, xK_l), method lucky)
-        , ((0, xK_i), method images)
-        , ((0, xK_k), method greek)
-        , ((0, xK_r), method reverso)
-        ]
-
-
-searchList :: [(String, SearchEngine)]
-searchList = [ ("g", google)
-            , ("h", hoogle)
-            , ("w", wikipedia)
-            , ("h", hackage)
-            , ("s", scholar)
-            , ("m", mathworld)
-            , ("p", maps)
-            , ("d", dictionary)
-            , ("a", alpha)
-            , ("l", lucky)
-            , ("i", images)
-            , ("k", greek)
-            , ("r", reverso)
-            ]
-
 -- Make sure you have $BROWSER set in your environment.
 promptSearchKeymap =
      [ ("m", manPrompt myXPConfig) -- Man Pages
@@ -789,7 +881,7 @@ selectSearchKeymap =
     , ("s", selectSearch scholar) -- Scholar
     , ("m", selectSearch mathworld) -- Mathworld
     , ("c", selectSearch maps) -- Maps / Cartes
-    , ("d", selectSearch dictionary) -- Dictionary
+    , ("S-d", selectSearch dictionary) -- Dictionary
     , ("a", selectSearch alpha) -- Alpha
     , ("l", selectSearch lucky) -- Lucky
     , ("i", selectSearch images) -- Images
@@ -813,13 +905,13 @@ promptsKeymap =
         -- , ("e", spawn "exe=`echo | yeganesh -x` && eval \"exec $exe\"")
 
 namedScratchpadsKeymap =
-    [ ("o", namedScratchpadAction scratchpads "term") -- Term
-    , ("e", namedScratchpadAction scratchpads "term2") -- Term2
-    , ("g", namedScratchpadAction scratchpads "ghci") -- ghci
-    , ("c", namedScratchpadAction scratchpads "calc") -- calc
-    , ("t", namedScratchpadAction scratchpads "top") -- top
-    , ("S-o", namedScratchpadAction scratchpads "OSX") -- OS X
-    , ("w", namedScratchpadAction scratchpads "MSW") -- MS Windows
+    [ ("o", scratchToggle "term") -- Term
+    , ("e", scratchToggle "term2") -- Term2
+    , ("g", scratchToggle "ghci") -- ghci
+    , ("c", scratchToggle "calc") -- calc
+    , ("t", scratchToggle "top") -- top
+    , ("S-o", scratchToggle "OSX") -- OS X
+    , ("w", scratchToggle "MSW") -- MS Windows
     , ("n", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
     ]
 
@@ -863,17 +955,6 @@ workspacesKeymap =
     , ("<R>",    DO.moveTo Next HiddenNonEmptyWS) -- Move to Next
     , ("<L>",    DO.moveTo Prev HiddenNonEmptyWS) -- Move to Prev
     ]
-
-topicKeymap =
-    [ ("a",     currentTopicAction myTopicConfig) -- Current Topic Action
-    , ("S-g",   promptedShift) -- Prompted Shift
-    , ("g",     warpToCentre >> goToSelected gsConfig2) -- Goto Selected
-    , ("<Tab>", switchNthLastFocused myTopicConfig . succ . length . W.visible . windowset =<< get ) -- Switch last focused
-    , ("s"  ,   warpToCentre >> promptedGoto ) -- prompted goto
-    , ("S-s",   warpToCentre >> promptedShift) -- prompted shift
-    ]
-    --, ("g",   promptedGoto)
-
 
 layoutKeymap = [("f",   sendMessage (Toggle FULL)) --toggle Full
     , ("s",   sendMessage (Toggle SIDEBAR)) -- toggle sidebar
@@ -981,36 +1062,14 @@ mainKeymap c = mkKeymap c $
     , ("M4-o",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap) -- Scratchpad
     , ("M4-S-s",        toSubmap c "shotKeymap" shotKeymap) -- ScreenShot
     , ("M4-w",          toSubmap c "workspacesKeymap" workspacesKeymap) -- Workspaces
-    , ("M4-C-t",        toSubmap c "topicKeymap" topicKeymap) -- Topic Space
     , ("M4-/",          toSubmap c "promptSearchKeymap" promptSearchKeymap) -- Prompt Search
     , ("M4-S-/",        toSubmap c "selectSearchKeymap" selectSearchKeymap) -- Select Search
+    , ("M4-z",          getScratchpad)
+    , ("M4-i",          searchStuff)
+    , ("M4-S-i",        selectSearchStuff)
     ]
   where nextWindow      = windows W.focusDown
         prevWindow      = windows W.focusUp
-
---   Two other ways of doing select and prompt search.
--- ++
--- [("M4-s "   ++ k,  promptSearch myXPConfig f) | (k,f) <- searchList]
--- ++
--- [("M4-S-s " ++ k,  selectSearch f) | (k,f) <- searchList]
-
---    , ("M4-/",          submap . searchMap $ myPromptSearch)            -- (19,20)
---    , ("M4-C-/",        submap . searchMap $ mySelectSearch)          -- (19,20)
-
--- myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
---   ----------------------------------------------------------------------
---   myAdditionalKeys = [
---   -- mod-[1..9], Switch to workspace N
---   -- mod-shift-[1..9], Move client to workspace N
---   [((m .|. modMask, k), windows $ f i)
---       | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9]
---       , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]]
---   -- mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3
---   -- mod-shift-{w,e,r}, Move client to screen 1, 2, or 3
---   [((m .|. modMask, key), screenWorkspace sc >>= flip whenJust (windows . f))
---       | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
---       , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
---                      ]
 
 
 ------------------------------------------------------------------------
