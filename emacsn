@@ -4,10 +4,11 @@ runemacs=`which emacs`
 
 eval_prefix='--eval "('
 runfunc=""
+title='-T '
 
 # $opt will hold the current option
 local opt
-while getopts cemf: opt; do
+while getopts cemft: opt; do
     # loop continues till options finished
     # see which pattern $opt matches...
     case $opt in
@@ -16,12 +17,17 @@ while getopts cemf: opt; do
             ;;
         (e)
             runfunc=$eval_prefix'mu4e)"'
+            title=$title"Email"
             ;;
         (m)
             runfunc=$eval_prefix'main-window)"'
+            title=$title$OPTARG
             ;;
         (f)
             runfunc=$eval_prefix$OPTARG')"'
+            ;;
+        (t)
+            title=$title$OPTARG
             ;;
 	# matches a question mark
 	# (and nothing else, see text)
@@ -34,7 +40,7 @@ done
 (( OPTIND > 1 )) && shift $(( OPTIND - 1 ))
 ##print Remaining arguments are: $*
 
-mycommand=$runemacs' '$runfunc' '${*}' &'
+mycommand=$runemacs' '${title}' '${*}' '$runfunc' &'
 
 print "Emacs With Command:" $mycommand
 
