@@ -331,21 +331,23 @@ pangoSanitize = foldr sanitize ""
 
 
 -- Scratch Pads ------------------------------------------------------------
-
--- XXX offset scratchpad windows by a bit --- each one different?
-scratchpadSize = W.RationalRect (1/4) (1/4) (1/3) (1/3)
+-- location and dimension.
+scratchpadSize = W.RationalRect (1/4) (1/4) (1/3) (3/7)
 mySPFloat = customFloating scratchpadSize
 
-customTerm = "urxvt"
+-- with a flexible location.
+flexScratchpadSize dx dy = W.RationalRect (dx) (dy) (1/3) (3/7)
+flexFloatSP dx dy = customFloating (flexScratchpadSize dx dy)
+
 scratchpads =
-  [ NS "term"  (customTerm ++ " -title term") (title =? "term") mySPFloat
-  , NS "term2" (customTerm ++ " -title term2") (title =? "term2") mySPFloat
-  , NS "ghci"  (customTerm ++ " -e ghci") (title =? "ghci") mySPFloat
-  , NS "sync"  (customTerm ++ " -e sy") (title =? "sy") mySPFloat
-  , NS "top"   (customTerm ++ " -e htop") (title =? "htop") mySPFloat
-  , NS "calc"  (customTerm ++ " -e bc") (title =? "bc") mySPFloat
-  , NS "OSX"   "vboxmanage startvm El Capitan" (title =? "El Capitan") mySPFloat
-  , NS "MSW"   "vboxmanage startvm Windows" (title =? "Windows") mySPFloat
+  [ NS "term"  (myTerminal ++ " -title term") (title =? "term") (flexFloatSP (1/10) (1/10))
+  , NS "term2" (myTerminal ++ " -title term2") (title =? "term2") (flexFloatSP (1/3) (1/10))
+  , NS "ghci"  (myTerminal ++ " -e ghci") (title =? "ghci") (flexFloatSP (2/3) (1/10))
+  --, NS "sync"  (myTerminal ++ " -e sy") (title =? "sy") (flexFloatSP (1/10) (2/3))
+  , NS "top"   (myTerminal ++ " -e htop") (title =? "htop") (flexFloatSP (1/4) (1/4))
+  , NS "calc"  (myTerminal ++ " -e bc") (title =? "bc") (flexFloatSP (1/4) (1/4))
+  , NS "OSX"   "vboxmanage startvm El Capitan" (title =? "El Capitan") (flexFloatSP (2/3) (2/3))
+  , NS "MSW"   "vboxmanage startvm Windows" (title =? "Windows") (flexFloatSP (2/3) (2/3))
   ]
 
 -- This is how to make a runSelectedAction grid select menu.
@@ -359,6 +361,7 @@ myScratchpadMenu =
   , ("calc",  (scratchToggle "calc"))
   , ("OSX",   (scratchToggle "OSX"))
   , ("MSW",   (scratchToggle "MSW"))
+  , ("Scratch", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800")
   ]
 
 --- grid select for some apps.
