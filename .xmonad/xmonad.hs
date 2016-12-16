@@ -89,8 +89,9 @@ import qualified Data.Map        as M
 import Data.List
 import Data.Ratio ((%))
 import Data.Maybe (fromMaybe, fromJust)
+import Data.Char (isSpace)
 
-import XMonad.Util.Run(spawnPipe)
+import XMonad.Util.Run
 import XMonad.Util.Paste
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.Scratchpad
@@ -357,7 +358,7 @@ myScratchpadMenu =
   , ("Term2", (scratchToggle "term2"))
   , ("ghci",  (scratchToggle "ghci"))
   , ("top",   (scratchToggle "top"))
-  , ("sync",  (scratchToggle "sync"))
+  --, ("sync",  (scratchToggle "sync"))
   , ("calc",  (scratchToggle "calc"))
   , ("OSX",   (scratchToggle "OSX"))
   , ("MSW",   (scratchToggle "MSW"))
@@ -623,7 +624,32 @@ scratchToggle a = namedScratchpadAction scratchpads a >> bringMouse
 
 mypromptSearch a = promptSearch myXPConfig a
 
--- Prompts
+isGDHist a = (a == "GoldenDict:")
+
+gDPrompt :: XPConfig -> X ()
+gDPrompt c =
+    inputPromptWithCompl c "GoldenDict:" (historyCompletionP isGDHist) ?+ \word ->
+-- -- this causes the full sized goldendict to appear.
+-- runProccessWithInput "goldendict" [] word
+    safeSpawn "goldendict" [word]
+         >> return ()
+
+-- these don't actually work for some reason. The data scrolls out of the dzen bar.
+calcPrompt :: XPConfig -> String -> X ()
+calcPrompt c ans =
+    inputPrompt c (trim ans) ?+ \input ->
+        liftIO(runProcessWithInput "qalc" [input] "") >>= calcPrompt c
+    where
+        trim  = f . f
+            where f = reverse . dropWhile isSpace
+
+sdcvPrompt :: XPConfig -> String -> X ()
+sdcvPrompt c ans =
+    inputPrompt c (trim ans) ?+ \input ->
+        liftIO(runProcessWithInput "sdcv" ["-2 /SSD/usr/share/startdict"] input) >>= sdcvPrompt c
+    where
+        trim  = f . f
+            where f = reverse . dropWhile isSpace
 
 -- Extra search engines for promptsearch and select search
 -- Search Perseus for ancient Greek dictionary entries
@@ -642,6 +668,9 @@ clojuredocs = searchEngine "clojuredocs" "https://clojuredocs.org/clojure.core/"
 
 promptSearchMenu =
      [ ("man",          (manPrompt myXPConfig))
+--     , ("sdcv",         (sdcvPrompt myXPConfig "sdcv"))
+--     , ("calc",         (calcPrompt myXPConfig "calc"))
+     , ("goldendict",   (gDPrompt myXPConfig))
      , ("google",       (mypromptSearch google))
      , ("hoogle",       (mypromptSearch hoogle))
      , ("clojuredocs",  (mypromptSearch clojuredocs))
@@ -666,6 +695,7 @@ promptSearchMenu =
 
 selectSearchMenu =
      [ ("google",       (selectSearch google))
+     , ("goldendict",   (promptSelection "goldendict"))
      , ("hoogle",       (selectSearch hoogle))
      , ("clojuredocs",  (selectSearch clojuredocs))
      , ("duckduckgo",   (selectSearch duckduckgo))
@@ -861,6 +891,7 @@ shotKeymap = [ ("c", setContext) -- Set Context
 -- Make sure you have $BROWSER set in your environment.
 promptSearchKeymap =
      [ ("m", manPrompt myXPConfig) -- Man Pages
+     , ("f", prompt "goldendict" myXPConfig) -- golden dict
      , ("g", promptSearch myXPConfig google) -- Google
      , ("d", promptSearch myXPConfig duckduckgo) -- duck duck go
      , ("w", promptSearch myXPConfig wikipedia) -- wikipedia
@@ -878,6 +909,7 @@ promptSearchKeymap =
 
 selectSearchKeymap =
     [ ("g", selectSearch google) -- Google
+    , ("f", promptSelection "goldendict") -- golden dict
     , ("d", selectSearch duckduckgo) -- Duckduckgo
     , ("w", selectSearch wikipedia) -- Wikipedia
     , ("h", selectSearch hackage) -- hackage
