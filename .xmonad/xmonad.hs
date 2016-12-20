@@ -212,7 +212,11 @@ myTopics = [ TI "main" "" (return ())
            , TI "French" "Language/Française" (spawnInTopicDir "urxvt -T Française" >>
                                                spawnInTopicDir "dolphin --select ~/Language/Française" >>
                                                spawn "anki")
+           , TI "3D" "Projects/3d" (spawnInTopicDir "repetierHost" >>
+                           spawnInTopicDir "openscad" >>
+                           spawnInTopicDir "emacsn -m 3D")
            , TI "music"  "Music" (spawn "mediacenter22")
+           , TI "movies" "Movies" (spawn "vlc")
            -- , TI "calendar" "" (spawn "vivaldi --app='http://calendar.google.com'")
            , TI "xmonad" ".xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs ") -- lib/*/*.hs
            --, TI "feeds"  "" (spawn "chromium-browser --app='https://feedbin.me'")
@@ -372,24 +376,24 @@ myScratchpadMenu =
 --- grid select for some apps.
 myApps = [("Terminal",     (spawn     myTerminal))
 
-         -- ,("Sublime Text", (raiseApp' "sublime_text"))
+         ,("Vivaldi",      (runOrRaiseNext  "vivaldi" (className =? "vivaldi")))
          -- ,("Firefox",      (raiseApp  "fox" "firefox"))
          -- ,("Chromium",     (raiseApp  "web" "chromium"))
 
-         -- ,("GVim",         (raiseApp' "gvim"))
+         ,("Emacs",        (spawn "emacsn -m Code"))
          -- ,("Steam",        (raiseApp  "steam" "steam"))
-         -- ,("Gimp",         (raiseApp  "gimp" "gimp"))
+         ,("Gimp",         (runOrRaise "gimp" (className =? "gimp")))
+         ,("Krita",         (runOrRaise "krita" (className =? "krita")))
          -- ,("Win7",         (raiseApp  "Win7" "virtualbox --startvm Win7 --start-paused"))
          -- ,("Inkscape",     (raiseApp  "ink" "inkscape"))
 
-         -- ,("LibreOffice",  (raiseApp  "doc" "libreoffice"))
+         ,("Dolphin",      (runOrRaise "dolphin" (className =? "dolphin")))
+         ,("LibreOffice",  (runOrRaise "libreoffice" (className =? "libreoffice")))
 
-         ,("Video",        (spawn     "vlc"))
-         ,("Themes",       (spawn     "lxappearance"))
-
-         -- ,("Wallpaper",    (raiseApp' "nitrogen"))
+         ,("Video",        (runOrRaise "vlc" (className =? "vlc")))
 
          ]
+
 
   -- where
   --   raiseApp ws a = (raiseNextMaybe (spawnWS ws a) (appName ~? a)) >> bringMouse
@@ -399,8 +403,6 @@ myApps = [("Terminal",     (spawn     myTerminal))
   --   --gksuApp ws a = (raiseNextMaybe (spawnWS ws ("gksudo " ++ a)) (appName ~? a)) >> bringMouse
   --   --myRaiseTerm a d = (raiseNextMaybe (spawnWS a (termApp a d)) (role ~? a)) >> bringMouse
   --   --termApp a d = myTerm ++ " -r " ++ a ++ " --working-dir=" ++ d ++ " -l " ++ a
-
-
 
 
 ------------------------------------------------------------------------
@@ -809,7 +811,7 @@ focusedScreenSize = withWindowSet $ windowScreenSize . fromJust . W.peek
 
 keyColor = "yellow"
 cmdColor = "cyan"
--- double quoted so it can make it all the way to dzen.
+-- double double quoted so it can make it all the way to dzen.
 dzenFont = "\"-*-ubuntu mono-*-*-*-*-*-*-*-*-*-*-*-*\""
 
 keyMapDoc :: String -> String -> X Handle
@@ -1101,7 +1103,8 @@ mainKeymap c = mkKeymap c $
     , ("M4-h",          goToSelected gsConfig2) -- Grid Select Window
     , ("M4-S-h",        bringSelected gsConfig2) -- Bring Grid Selected Window
     , ("M4-S-t",        promptedShift) -- Grid Select Shift
-    , ("M4-C-g",        spawnSelected gsConfig ["krita","dolphin","Repetier-Host"]) -- Apps
+    , ("M4-C-a",        selectApps) -- Apps
+    --, ("M4-C-a",        spawnSelected gsConfig ["krita","dolphin","repetierHost"]) -- Apps
     , ("M4-s",          sendMessage Shrink) -- Shrink
     , ("M4-z",          sendMessage Expand) -- Expand
     , ("M4-S-b",        sendMessage ToggleStruts) -- Toggle Struts
@@ -1179,10 +1182,11 @@ myStartupHook = return ()
 fadeinactive = fadeInactiveLogHook fadeAmount
    where fadeAmount = 0.7
 
+
 myConfig = do
     dbus <- D.connectSession
     getWellKnownName dbus
-    return $  defaults {
+    return $ defaults {
           logHook = do
             ewmhDesktopsLogHook
             dynamicLogWithPP $ (prettyPrinter dbus)
