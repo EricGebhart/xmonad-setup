@@ -16,6 +16,7 @@ W=$4
 KEYCOLOR=$6
 CMDCOLOR=$7
 FONT=$8
+LABEL=$9
 COLS=$(($W / $FW))
 
 INFO=$(awk -v cmdcolor=$CMDCOLOR -v keycolor=$KEYCOLOR -v cols=$COLS \
@@ -59,7 +60,7 @@ N_LINES=$(wc -l <<< "$INFO")
 Y=$(($3 + $5 - ($LH * ($N_LINES+3))))
 sleep 1
 # $KEYMAP ($2 , $3 , $4 , $5, $LH, $X, $Y, $W, $N_LINES, $COLS
-(echo "^fg($KEYCOLOR)$KEYMAP"
+(echo "^fg($KEYCOLOR)$LABEL"
  echo ""
  echo "$INFO"
  echo ""
