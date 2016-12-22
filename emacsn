@@ -1,17 +1,34 @@
 #!/usr/bin/env zsh
 
+# Run emacs as emacsclient or emacs non-client with -c.
+# Evaluate a lisp function on startup for email or a main
+# code window.
+# my main-window lisp function can be found at
+# http://github.com/EricGebhart/xmonad-setup
+# -e runs mu4e and -m runs (main-window).  -m also takes a name
+# which becomes the title of the emacs session.
+# Any startup lisp function can be run with -f.
+# Use -T to add a title,
+# -t to run emacs with no-window 'emacs -nw' in a terminal.
+
 runemacs=`which emacs`
 
-eval_prefix='--eval "('
+eval_prefix=' --eval "('
 runfunc=""
-title='-T '
+background=" &"
+title=""
+terminal=""
 
 # $opt will hold the current option
 local opt
-while getopts cemft: opt; do
+while getopts cetdhm:f:T: opt; do
     # loop continues till options finished
     # see which pattern $opt matches...
     case $opt in
+        (d)
+            eval "emacs --daemon"
+            exit
+            ;;
         (c)
             runemacs=`which emacsclient`' -c'
             ;;
@@ -21,26 +38,53 @@ while getopts cemft: opt; do
             ;;
         (m)
             runfunc=$eval_prefix'main-window)"'
-            title=$title$OPTARG
+            title=' -T '$OPTARG
             ;;
         (f)
             runfunc=$eval_prefix$OPTARG')"'
             ;;
+        (T)
+            title=' -T '$OPTARG
+            ;;
         (t)
-            title=$title$OPTARG
+            terminal=' -nw '
+            background=''
+            ;;
+        (h)
+            print 'emacsn - helper for running emacs'
+            print ' '
+            print 'Run emacs as emacsclient or emacs non-client'
+            print 'with a title, in a terminal or not,'
+            print 'and with a lisp evaluation function on startup'
+            print ' '
+            print ' -c           use emacsclient'
+            print ' -d           run emacs daemon'
+            print ' -e           Title it Email and eval mu4e'
+            print ' -f lisp-func Evaluate lisp-func on startup.'
+            print ' -m name      Title it name and eval (main-window)'
+            print ' -T title     Give emacs that title.'
+            print ' -t           'emacs -nw' - run in a terminal.'
+            print ' '
+            print 'Run emacs as emacsclient or emacs non-client'
+            print 'the main-window lisp function is available here: '
+            print 'http://github.com/EricGebhart/xmonad-setup'
+            print 'More emacs stuff is available here:'
+            print 'http://github.com/EricGebhart/emacs-setup'
+            print ' '
+            exit
             ;;
 	# matches a question mark
 	# (and nothing else, see text)
         (\?)
             print Bad option, aborting.
             return 1
-            ;;
+                    ;;
     esac
 done
 (( OPTIND > 1 )) && shift $(( OPTIND - 1 ))
 ##print Remaining arguments are: $*
 
-mycommand=$runemacs' '${title}' '${*}' '$runfunc' &'
+mycommand=$runemacs' '${terminal}' '${title}' '${*}' '$runfunc' '${background}
 
 print "Emacs With Command:" $mycommand
 
