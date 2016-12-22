@@ -795,15 +795,14 @@ selectSearchStuff = runSelectedAction (myGSConfig green) promptSearchMenu
 windowScreenSize :: Window -> X (Rectangle)
 windowScreenSize w = withDisplay $ \d -> do
     ws <- gets windowset
-    wa <- io $ getWindowAttributes d w
-    bw <- fi <$> asks (borderWidth . config)
-    sc <- fromMaybe (W.current ws) <$> pointScreen (fi $ wa_x wa) (fi $ wa_y wa)
+    sc <- fromMaybe (W.current ws) <$> pointScreen 10 10 -- who cares where.
 
     return $ screenRect . W.screenDetail $ sc
   where fi x = fromIntegral x
 
 focusedScreenSize :: X (Rectangle)
-focusedScreenSize = withWindowSet $ windowScreenSize . fromJust . W.peek
+focusedScreenSize =
+  withWindowSet $ windowScreenSize . fromJust . W.peek
 
   -- withWindowSet $ \ws -> do
   -- ss <- windowScreenSize $ fromJust $ W.peek ws
