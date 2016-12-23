@@ -19,6 +19,31 @@ background=" &"
 title=""
 terminal=""
 
+help(){
+    print 'emacsn - helper for running emacs'
+    print ' '
+    print 'Run emacs as emacsclient or emacs non-client'
+    print 'with a title, in a terminal or not,'
+    print 'and with a lisp evaluation function on startup'
+    print ' '
+    print ' -c           use emacsclient'
+    print ' -d           run emacs daemon'
+    print ' -e           Title it Email and eval mu4e'
+    print ' -f lisp-func Evaluate lisp-func on startup.'
+    print ' -m name      Title it name and eval (main-window)'
+    print ' -T title     Give emacs that title.'
+    print ' -t           'emacs -nw' - run in a terminal.'
+    print ' '
+    print 'Run emacs as emacsclient or emacs non-client'
+    print 'the main-window lisp function is available here: '
+    print 'http://github.com/EricGebhart/xmonad-setup'
+    print 'More emacs stuff is available here:'
+    print 'http://github.com/EricGebhart/emacs-setup'
+    print ' '
+    exit
+}
+
+
 # $opt will hold the current option
 local opt
 while getopts cetdhm:f:T: opt; do
@@ -51,34 +76,16 @@ while getopts cetdhm:f:T: opt; do
             background=''
             ;;
         (h)
-            print 'emacsn - helper for running emacs'
-            print ' '
-            print 'Run emacs as emacsclient or emacs non-client'
-            print 'with a title, in a terminal or not,'
-            print 'and with a lisp evaluation function on startup'
-            print ' '
-            print ' -c           use emacsclient'
-            print ' -d           run emacs daemon'
-            print ' -e           Title it Email and eval mu4e'
-            print ' -f lisp-func Evaluate lisp-func on startup.'
-            print ' -m name      Title it name and eval (main-window)'
-            print ' -T title     Give emacs that title.'
-            print ' -t           'emacs -nw' - run in a terminal.'
-            print ' '
-            print 'Run emacs as emacsclient or emacs non-client'
-            print 'the main-window lisp function is available here: '
-            print 'http://github.com/EricGebhart/xmonad-setup'
-            print 'More emacs stuff is available here:'
-            print 'http://github.com/EricGebhart/emacs-setup'
-            print ' '
-            exit
+            help
             ;;
 	# matches a question mark
 	# (and nothing else, see text)
         (\?)
-            print Bad option, aborting.
+            print "Bad option:" $*
+            print " "
+            help
             return 1
-                    ;;
+            ;;
     esac
 done
 (( OPTIND > 1 )) && shift $(( OPTIND - 1 ))
