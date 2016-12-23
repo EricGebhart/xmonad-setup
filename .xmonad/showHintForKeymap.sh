@@ -10,18 +10,29 @@
 KEYMAP=$1
 # make FW bigger if the columns don't fit on your screen
 FW=350
-LH=24
+LH=$9
 X=$2
 W=$4
 KEYCOLOR=$6
 CMDCOLOR=$7
 FONT=$8
-LABEL=$9
 COLS=$(($W / $FW))
 
 INFO=$(awk -v cmdcolor=$CMDCOLOR -v keycolor=$KEYCOLOR -v cols=$COLS \
-           '/^'"$KEYMAP"'/,/^\s*\].*$/ {
+           'BEGIN {nr=0}
+            /^'"$KEYMAP"'/,/^\s*\].*$/ {
+                # skip commented lines
                 if ($0 ~ /^ *--+/) next
+
+                if (nr == 0) {
+                    split($0, firstline, " --", seps)
+                    if (length(firstline[2]) > 0){
+                        label=firstline[2]
+                    } else {
+                        label=$1
+                    }
+                }
+                nr=nr+1
 
                 # get the key entry and any following comment.
                 split($0, splitline, " --", seps)
@@ -44,6 +55,8 @@ INFO=$(awk -v cmdcolor=$CMDCOLOR -v keycolor=$KEYCOLOR -v cols=$COLS \
                 }
             }
             END {
+                print "^fg("keycolor")"label
+                print " "
                 rows = int( ((i+1) / cols) +1)
                 for (j=0; j<=i;) {
                     for (k=0; k < rows; k++) {
@@ -51,17 +64,15 @@ INFO=$(awk -v cmdcolor=$CMDCOLOR -v keycolor=$KEYCOLOR -v cols=$COLS \
                     }
                 }
                 for (k=0; k <= rows; k++) {print row[k]}
+                print ""
             }' \
            ~/.xmonad/xmonad.hs)
 
-## echo "30\n22\n20\n15\n3\n" | awk '{print $1 " : " int( (($1+1) / 10) + 1)}'
 echo "$INFO"
+
 N_LINES=$(wc -l <<< "$INFO")
 Y=$(($3 + $5 - ($LH * ($N_LINES+3))))
 sleep 1
 # $KEYMAP ($2 , $3 , $4 , $5, $LH, $X, $Y, $W, $N_LINES, $COLS
-(echo "^fg($KEYCOLOR)$LABEL"
- echo ""
- echo "$INFO"
- echo ""
+(echo "$INFO"
  cat) | dzen2 -l $(($N_LINES+2)) -fn "${FONT}" -h $LH -x $X -y $Y -w $W -e onstart=uncollapse
