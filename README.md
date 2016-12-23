@@ -10,15 +10,23 @@ that don't work quite the way they should or the way I want.
 This is all pretty fresh. I've only been using xmonad 12 since July, 2016. This is my first major refactoring since
 creating my initial xmonad.hs mess.
 
-A couple of things about keys, I'm still figuring what I want, but one of the things that effects my decisions is that I use a dvorak keyboard.  I put my favorite commands on or close to the home row, which may not make sense on a qwerty keyboard.
+A couple of things about keys, I'm still figuring what I want, but one of the things that effects my decisions is that I use a dvorak keyboard.  I put my favorite commands on or close to the home row, which may not make sense on a qwerty keyboard. One menu that really stands out as dvorak specific is the floating window sub menu. It has commands on the right hand to place windows in 9 different places as if your right hand was on a keypad. Any time someone might be tempted to use `hjkl` as arrow keys I use `htns` which is the right hand home row.
 
 **Some key features**  
  * EZConfig
  * topic space 
  * grid select 
+   * workspaces
+   * windows
+   * shift
+   * bring
+   * scratchpads
+   * Prompted Search & Selected search
+   * Applications
+ * Window marking/tagging.
  * prompt & select search 
  * other prompts - man prompt, shell prompt,
- * floatkeys
+ * floatkeys - resize and move floating windows.
  * magnifier 
  * named scratchpads 
  * submap keymaps with key hints popup via dzen2, thank you [pclewis!](https://github.com/pclewis/dotfiles/tree/master/xmonad/.xmonad) , 
@@ -32,9 +40,9 @@ the xfce-panel.  So somethings on the applications menu don't work. But I almost
 
 Key Hints
 ---------
-The important bits for keyhints is to put `showHintForKeymap.sh` in your .xmonad directory. If things are displayed to   tightly it may be necessary to increase the line height.  $lh at the top.
+The important bits for keyhints is to put `showHintForKeymap.sh` in your .xmonad directory. If things are displayed to   tightly it may be necessary to increase the line height. 
  
-If you want to change the font for dzen something like this works in .Xresources.
+If you want to change the font for dzen something like this works in .Xresources. You can also pass the font in to the showhintforkeymap.sh function.
 
 ```dzen2.font: -*-ubuntu mono-*-*-*-*-*-*-*-*-*-*-*-*```
 
@@ -43,16 +51,14 @@ the ubuntu mono font.
 
 **The functionality for keyhints is in this code:**
 
-** Thank you to PCLewis for this **
+** Thank you to PCLewis for the initial version of this **
 ```
  -- Key Map doc ------------------------------------------------
 
 windowScreenSize :: Window -> X (Rectangle)
 windowScreenSize w = withDisplay $ \d -> do
     ws <- gets windowset
-    wa <- io $ getWindowAttributes d w
-    bw <- fi <$> asks (borderWidth . config)
-    sc <- fromMaybe (W.current ws) <$> pointScreen (fi $ wa_x wa) (fi $ wa_y wa)
+    sc <- fromMaybe (W.current ws) <$> pointScreen 10 10
 
     return $ screenRect . W.screenDetail $ sc
   where fi x = fromIntegral x
@@ -68,6 +74,7 @@ keyColor = "yellow"
 cmdColor = "cyan"
 -- double quoted so it can make it all the way to dzen.
 dzenFont = "\"-*-ubuntu mono-*-*-*-*-*-*-*-*-*-*-*-*\""
+lineHeight = "18"
 
 keyMapDoc :: String -> X Handle
 keyMapDoc name = do
@@ -80,7 +87,8 @@ keyMapDoc name = do
                                  show (rect_height ss),
                                  keyColor,
                                  cmdColor,
-                                 dzenFont]
+                                 dzenFont,
+                                 lineHeight]
   return handle
 
 toSubmap :: XConfig l -> String -> [(String, X ())] -> X ()
@@ -92,20 +100,22 @@ toSubmap c name m = do
 
 ```
 
-Creating a submap key menu is easy. If there is a comment at the end of a keymap entry that 
-will be used as the discriptor in the keyhint.  Otherwise the actual command will be used.
+Creating a submap key menu is easy. The key hint label will be the name of the keymap variable, or the comment on the first line.
+In the example below "Raise" will be the title. Without the comment "raiseKeymap" would be the title. 
+If there is a comment at the end of a keymap entry that 
+will be used as the descriptor in the keyhint.  Otherwise the actual command will be used.
 Formatting should be nice, but the parser is fairly tolerant. It works by looking through your
 xmonad.hs for the keymap name and grabbing everything from there to the closing **]**
 
 ```
-mainKeymap c = mkKeymap c $
+mainKeymap c = mkKeymap c $ -- Main Keys
     [
 
     ("M4-r",          toSubmap c "raiseKeymap" raiseKeymap)
 
     ]
 
-raiseKeymap =
+raiseKeymap = -- Raise
     [ ("v", runOrRaiseNext "Vivaldi" (className =? "Vivaldi")) -- Vivaldi
     , ("e", raiseNext (className =? "Emacs")) -- Emacs cycle
     , ("s", runOrRaise "Slack" (className =? "Slack")) -- Slack
@@ -114,6 +124,7 @@ raiseKeymap =
 
 This will result in a menu something like this when the M4-r keys are pressed.
 ```
+                          Raise
     v Vivaldi       e Emacs cycle        s Slack
 ```
 
@@ -124,10 +135,12 @@ Emacs
 I run emacs using my emacsn script.  emacsn basically takes care of running emacs or emacsclient,
 as well as evaluating an elisp function on startup. Any additional arguments like files are passed on
 to emacs in front of the _--eval_. 
+Use help to see more options.
 
-* emacsn -e _=>_ emacs --eval "(mu4e)"
-* emacsn -m _=>_ emacs --eval "(main-window)"
-* emacsn -m *.hs _=>_ emacs *.hs --eval "(main-window)"
+* emacsn -h _=>_  Help!
+* emacsn -e _=>_ emacs -title "Email" --eval "(mu4e)"
+* emacsn -m "Foo" _=>_ emacs -title "Foo" --eval "(main-window)"
+* emacsn -m "haskell" *.hs _=>_ emacs -title "haskell" *.hs --eval "(main-window)"
 * emacsn -f foo _=>_ emacs --eval "(foo)"
 
 Adding -c changes it from _emacs_ to _emacsclient -c_
