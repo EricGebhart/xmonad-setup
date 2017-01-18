@@ -185,4 +185,5 @@ Where to put stuff.
 * .bcstart.bc ==> ~/
 * xmonad.desktop ==> /usr/share/xsessions
 * .Xresources ==> ~/
+* emacsn ==> ~/bin or where ever you put such things.
 
