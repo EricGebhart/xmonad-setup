@@ -15,6 +15,7 @@ You will need:
 * xmonad-log-applet from my repos
 * dzen2
 * dmenu
+* rxvt unicode - or change xmonad.hs to point at your favorite terminal.
 
 
 A couple of things about keys, I'm still figuring what I want, but one of the things that effects my decisions is that I use a dvorak keyboard.  I put my favorite commands on or close to the home row, which may not make sense on a qwerty keyboard. One menu that really stands out as dvorak specific is the floating window sub menu. It has commands on the right hand to place windows in 9 different places as if your right hand was on a keypad. Any time someone might be tempted to use `hjkl` as arrow keys I use `htns` which is the right hand home row.
