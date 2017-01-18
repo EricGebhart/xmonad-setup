@@ -10,13 +10,18 @@ that don't work quite the way they should or the way I want.
 This is all pretty fresh. I've only been using xmonad 12 since July, 2016. This is my first major refactoring since
 creating my initial xmonad.hs mess.
 
+I use arch linux, so these are also the arch package names.
+
 You will need:
 * xmonad
 * xmonad-log-applet from my repos
 * dzen2
 * dmenu
-* rxvt unicode - or change xmonad.hs to point at your favorite terminal.
-
+* rxvt-unicode - or change xmonad.hs to point at your favorite terminal.
+* xcompmgr or compton if you want transparency to work.
+* adobe-source-code-pro-fonts
+* ttf-ubunt-font-family
+* ghc is nice to have for haskell coding. ie. if you modify xmonad.hs.
 
 A couple of things about keys, I'm still figuring what I want, but one of the things that effects my decisions is that I use a dvorak keyboard.  I put my favorite commands on or close to the home row, which may not make sense on a qwerty keyboard. One menu that really stands out as dvorak specific is the floating window sub menu. It has commands on the right hand to place windows in 9 different places as if your right hand was on a keypad. Any time someone might be tempted to use `hjkl` as arrow keys I use `htns` which is the right hand home row.
 
