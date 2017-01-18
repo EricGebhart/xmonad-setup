@@ -38,6 +38,8 @@ A couple of things about keys, I'm still figuring what I want, but one of the th
 I am not currently using this with the xfce-session manager.  I did for a while, but it seems unnecessary. I'm only using
 the xfce-panel.  So somethings on the applications menu don't work. But I almost never use that menu.
 
+See my [xmonad-log-applet](https://github.com/EricGebhart/xmonad-log-applet) repo to get xfce-panel working with xmonad.
+
 Key Hints
 ---------
 The important bits for keyhints is to put `showHintForKeymap.sh` in your .xmonad directory. If things are displayed to   tightly it may be necessary to increase the line height. 
