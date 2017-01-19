@@ -20,7 +20,7 @@ You will need:
 * rxvt-unicode - or change xmonad.hs to point at your favorite terminal.
 * xcompmgr or compton if you want transparency to work.
 * adobe-source-code-pro-fonts
-* ttf-ubunt-font-family
+* ttf-ubuntu-font-family
 * ghc is nice to have for haskell coding. ie. if you modify xmonad.hs.
 
 A couple of things about keys, I'm still figuring what I want, but one of the things that effects my decisions is that I use a dvorak keyboard.  I put my favorite commands on or close to the home row, which may not make sense on a qwerty keyboard. One menu that really stands out as dvorak specific is the floating window sub menu. It has commands on the right hand to place windows in 9 different places as if your right hand was on a keypad. Any time someone might be tempted to use `hjkl` as arrow keys I use `htns` which is the right hand home row.
