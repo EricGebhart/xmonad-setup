@@ -2,10 +2,13 @@
 
 # xinitrc for xmonad with an xfce-panel
 
-eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
-export SSH_AUTH_SOCK
+#xcompmgr -f -C -n -D 3 &
+#xcompmgr -f &
 
-emacs --daemon
+#eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
+#export SSH_AUTH_SOCK
+
+#emacs --daemon
 
 # Load resources
 
@@ -21,13 +24,27 @@ feh --bg-scale /home/eric/Documents/Art/ocean_park_114.jpg
 
 xscreensaver &
 
-if [ -x /usr/bin/nm-applet ] ; then
-    nm-applet & ## if using trayer add: --sm-disable &
-fi
+#gestures and virtual on screen keyboard
+easystroke &
+onboard &
 
-/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-blueberry-tray &
+#if [ -x /usr/bin/nm-applet ] ; then
+#    nm-applet & ## if using trayer add: --sm-disable &
+#fi
+
+nm-applet & ## if using trayer add: --sm-disable &
+
+#/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+#blueberry-tray &
 
 xfce4-panel -d &
+xfce4-power-manager &
 
-xmonad
+#xxrandr --setprovideroutputsource modesetting NVIDIA-0
+#xrandr --auto
+xrandr --fbmm 286x281
+
+xcompmgr -c &
+
+
+exec xmonad

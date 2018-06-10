@@ -1,5 +1,5 @@
 URxvt*termName: rxvt-unicode
-URxvt*geometry: 240x84
+URxvt*geometry: 240x90
 URxvt*loginShell: true
 
 URxvt*scrollColor: #777777
@@ -18,7 +18,8 @@ URxvt*skipScroll: true
 URxvt*scrollBar: false
 URxvt*scrollBar_right: false
 URxvt*scrollBar_floating: false
-
+URxvt.transparent:  false
+Urxvt*shading: 20
 ! URxvt*background: rgba:0000/0000/0000/cccc
 
 URxvt.fading: 70
@@ -40,15 +41,17 @@ urxvt*depth: 32
 URxvt*background: rgba:0000/0000/0200/c800
 
 
-!URxvt*font: -xos4-terminus-medium-*-*-*-14-*-*-*-*-*-iso8859-15,xft:terminus:pixelsize:12
-!URxvt*boldFont: -xos4-terminus-bold-*-*-*-14-*-*-*-*-*-iso8859-15,xft:terminus:bold:pixelsize:12
+!URxvt*font: -xos4-terminus-medium-*-*-*-18-*-*-*-*-*-iso8859-15,xft:terminus:pixelsize:12
+!URxvt*boldFont: -xos4-terminus-bold-*-*-*-18-*-*-*-*-*-iso8859-15,xft:terminus:bold:pixelsize:12
 !URxvt*italicFont: xft:Bitstream Vera Sans Mono:italic:autohint=true:pixelsize=12
 !URxvt*boldItalicFont: xft:Bitstream Vera Sans Mono:bold:italic:autohint=true:pixelsize=12
-
-URxvt*.boldfont: xft:Source\ Code\ Pro:Bold:size=14
-URxvt*.italicfont: xft:Source\ Code\ Pro:Italaic:size=14
-URxvt*.font: xft:Source\ Code\ Pro:Regular:size=14
-Xterm*.font: xft:Source\ Code\ Pro:Regular:size=14
+! this is set in the cosmetic config in emacs.
+!emacs.font: Source\ Code\ Pro-14
+       !full name: Source Code Pro:pixelsize=47:foundry=ADBO:weight=normal:slant=normal:width=normal:spacing=100:scalable=true
+URxvt*.boldfont: xft:Source\ Code\ Pro:Bold:size=10
+URxvt*.italicfont: xft:Source\ Code\ Pro:Italaic:size=10
+URxvt*.font: xft:Source\ Code\ Pro:Regular:size=10
+Xterm*.font: xft:Source\ Code\ Pro:Regular:size=10
 URxvt*buffered: true
 URxvt*hold: false
 URxvt*internalBorder:
@@ -79,9 +82,10 @@ URxvt.perl-ext-common: default,matcher
 URxvt.urlLauncher: vivaldi
 URxvt.matcher.button: 1
 
-!dzen2.font: xft:Source\ Code\ Pro:Regular:size=14
-!dzen2.font: -*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*
+!dzen2.font: xft:Source\ Code\ Pro:Regular:size=18
+!dzen2.font: -*-terminus-*-r-normal-*-*-180-*-*-*-*-iso8859-*
 !dzen2.font: -*-fixed-*-*-*-*-*-*-*-*-*-*-*-*
-dzen2.font: -*-ubuntu mono-*-*-*-*-*-*-*-*-*-*-*-*
+dzen2.font: -*-ubuntu mono-*-*-*-*-*-120-*-*-*-*-*-*
 !dzen2.foreground: #22EE11
 !dzen2.background: black
+!                  xfce4-panel.font: -*-ubuntu mono-*-*-*-*-*-120-*-*-*-*-*-*

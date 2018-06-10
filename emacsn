@@ -59,7 +59,7 @@ while getopts cetdhm:f:T: opt; do
             ;;
         (e)
             runfunc=$eval_prefix'mu4e)"'
-            title=$title"Email"
+            title="-T Email"
             ;;
         (m)
             runfunc=$eval_prefix'main-window)"'

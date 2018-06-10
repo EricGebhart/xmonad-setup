@@ -1,5 +1,5 @@
---
 -- xmonad config
+
 -- Author: Eric Gebhart
 -- http://github.com/EricGebhart
 --
@@ -43,7 +43,9 @@ import XMonad.Hooks.SetWMName
 import XMonad.Hooks.FadeInactive
 import XMonad.Hooks.EwmhDesktops
 
--- Layouts
+import XMonad.Config.Desktop
+
+       -- Layouts
 import XMonad.Layout hiding ( (|||) )
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.Spacing
@@ -124,11 +126,11 @@ myFocusFollowsMouse = True
 -- Terminal
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
---
 myTerminal = "urxvt"
+myTerminal2 = "termite"
 myShell = "zsh"
 
-------------------------------------------------------------------------
+          ------------------------------------------------------------------------
 -- Colors and borders
 --
 myNormalBorderColor  = "#7c7c7c"
@@ -137,35 +139,35 @@ myActiveBorderColor  = "#007c7c"
 
 myFont = "Source Code Pro"
 myMonoFont = "Source Code Pro"
-myfontwsize = "xft:" ++ myFont ++ ":size=16"
+myfontwsize = "xft:" ++ myFont ++ ":size=30"
 
 -- theme settings for tabs and deco layouts.
 myTheme :: Theme
-myTheme = def
-          {fontName = "xft:" ++ myFont ++ ":pixelsize=14"
-          , decoHeight = 20
-          , decoWidth = 400
-          , activeColor = myFocusedBorderColor
-          , inactiveColor = "#262626"
-          , urgentColor = "#073642"
-          , activeBorderColor = myFocusedBorderColor
-          , inactiveBorderColor = "#586e75"
-          , urgentBorderColor = "#586e75"
-          , activeTextColor = "#CEFFAC"
-          , inactiveTextColor = "#839496"
-          , urgentTextColor = "#dc322f"
-          }
+myTheme = def {
+  fontName = "xft:" ++ myFont ++ ":pixelsize=14"
+  , decoHeight = 20
+  , decoWidth = 400
+  , activeColor = myFocusedBorderColor
+  , inactiveColor = "#262626"
+  , urgentColor = "#073642"
+  , activeBorderColor = myFocusedBorderColor
+  , inactiveBorderColor = "#586e75"
+  , urgentBorderColor = "#586e75"
+  , activeTextColor = "#CEFFAC"
+  , inactiveTextColor = "#839496"
+  , urgentTextColor = "#dc322f"
+}
 
 -- my old tab config theme.
 -- Colors for text and backgrounds of each tab when in "Tabbed" layout.
-tabConfig = def {   --defaultTheme
-    fontName = "xft:" ++ myFont ++ ":pixelsize=14",
-    activeBorderColor = "#007C7C",
-    activeTextColor = "#CEFFAC",
-    activeColor = myFocusedBorderColor,
-    inactiveBorderColor = "#7C7C7C",
-    inactiveTextColor = "#EEEEEE",
-    inactiveColor = "#000000"
+tabConfig = def {
+  fontName = "xft:" ++ myFont ++ ":pixelsize=14",
+  activeBorderColor = "#007C7C",
+  activeTextColor = "#CEFFAC",
+  activeColor = myFocusedBorderColor,
+  inactiveBorderColor = "#7C7C7C",
+  inactiveTextColor = "#EEEEEE",
+  inactiveColor = "#000000"
 }
 
 -- Width of the window border in pixels.
@@ -185,8 +187,8 @@ myScreenshot = "screenshot"
 ------------------------------------------------------------------------
 -- Workspaces
 -- The default number of workspaces (virtual screens) and their names.
---
--- Topics replaces this...
+               --
+ -- Topics replaces this...
 -- myWorkspaces = ["1:Code","2:Comm","3:Lang","4:Music","5:media"] ++ map show [6..9]
 
 -- Workspaces using TopicSpace.
@@ -199,28 +201,31 @@ data TopicItem = TI { topicName :: Topic
 myTopics :: [TopicItem]
 myTopics = [ TI "main" "" (return ())
            -- ,  TI "mail" "" (spawnInTopicDir "emacsn -e")
-           , TI "yeti" "Projects/Yeti/yeti-stack" (spawnInTopicDir "emacsn -m Yeti")
-           , TI "code" "Projects" (spawnInTopicDir "emacsn -m Code")
-           , TI "elisp" "Projects/emacs-setup" (spawnInTopicDir "emacsn -m Elisp")
-           , TI "comm" "" (spawnInTopicDir "vivaldi" >>
-                           spawnInTopicDir "slack" >>
-                           spawnInTopicDir "emacsn -e")
-           , TI "BD" "BD" (spawnInTopicDir "urxvt -T BD" >>
-                           spawnInTopicDir "dolphin --select ~/BD ~/Downloads")
-           , TI "Downloads" "Downloads" (spawnInTopicDir "urxvt -T Downloads" >>
-                                         spawnInTopicDir "dolphin --select ~/Downloads")
-           , TI "French" "Language/Française" (spawnInTopicDir "urxvt -T Française" >>
+           , TI "Web" "" (spawnInTopicDir "vivaldi-stable")
+           , TI "Xournal" "Xournal" (spawnInTopicDir "xournal")
+           , TI "Yeti" "Projects/Yeti/yeti-stack" (spawnInTopicDir "emacsn -m Yeti")
+           , TI "Code" "Projects" (spawnInTopicDir "emacsn -m Code")
+           , TI "Elisp" "Projects/emacs-setup" (spawnInTopicDir "emacsn -m Elisp")
+           , TI "Comm" "" (spawnInTopicDir "slack" >>
+                            spawnInTopicDir "emacsn -e")
+           , TI "BD" "BD" (spawnInTopicDir "termite -T BD" >>
+                            spawnInTopicDir "dolphin --select ~/BD ~/Downloads")
+           , TI "DownLoads" "Downloads" (spawnInTopicDir "termite -T Downloads" >>
+                                          spawnInTopicDir "dolphin --select ~/Downloads")
+           , TI "French" "Language/Française" (spawnInTopicDir "termite -T Française" >>
                                                spawnInTopicDir "dolphin --select ~/Language/Française" >>
                                                spawn "anki")
            , TI "3D" "Projects/3d" (spawnInTopicDir "repetierHost" >>
                            spawnInTopicDir "openscad" >>
                            spawnInTopicDir "emacsn -m 3D")
-           , TI "music"  "Music" (spawn "mediacenter22")
-           , TI "movies" "Movies" (spawn "vlc")
-           -- , TI "calendar" "" (spawn "vivaldi --app='http://calendar.google.com'")
-           , TI "xmonad" ".xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs ") -- lib/*/*.hs
-           --, TI "feeds"  "" (spawn "chromium-browser --app='https://feedbin.me'")
-           --, TI "stats"  "" (spawnInTopicDir "urxvtc -e htop")
+           , TI "Music"  "Music" (spawn "mediacenter22")
+           , TI "Movies" "Movies" (spawn "vlc")
+             -- , TI "calendar" "" (spawn "vivaldi --app='http://calendar.google.com'")
+           , TI "XMonad" ".xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs ") -- lib/*/*.hs
+           , TI "Krita" "Drawings" (spawnInTopicDir "krita") -- lib/*/*.hs
+           , TI "Gravit" "Drawings" (spawnInTopicDir "GravitDesigner.AppImage") -- lib/*/*.hs
+             --, TI "feeds"  "" (spawn "chromium-browser --app='https://feedbin.me'")
+           --, TI "stats"  "" (spawnInTopicDir "termite -e htop")
            ]
 
 myTopicNames :: [Topic]
@@ -261,7 +266,7 @@ wsgrid = withWindowSet $ \w -> do
         newnames = filter (\used -> (show used `notElem` (map show myTopicNames))) usednames
     gridselect gsConfig (map (\x -> (x,x)) (myTopicNames ++ newnames))
 
--- gridselect a workspace and view it
+      -- gridselect a workspace and view it
 promptedGoto = wsgrid >>= flip whenJust (switchTopic myTopicConfig)
 -- gridselect a workspace to shift active window to
 promptedShift = wsgrid >>= flip whenJust (windows . W.shift)
@@ -270,8 +275,6 @@ promptedShift = wsgrid >>= flip whenJust (windows . W.shift)
 -- goto :: Topic -> X ()
 -- goto = switchTopic myTopicConfig
 
--- promptedGoto :: X ()
--- promptedGoto = workspacePrompt myXPConfig goto
 
 -- promptedShift :: X ()
 -- promptedShift = workspacePrompt myXPConfig $ windows . W.shift
@@ -285,21 +288,21 @@ promptedShift = wsgrid >>= flip whenJust (windows . W.shift)
 prettyPrinter :: D.Client -> PP
 
 prettyPrinter dbus = def  --defaultPP
-  { ppCurrent         = pangoColor "darkgreen" .wrap "[" "]" . pangoSanitize
-  --, ppVisible         = wrap "<" ">"
-  , ppVisible  = pangoColor "yellow" . wrap "(" ")" . pangoSanitize
-  , ppHidden          = id . noScratchPad
-  , ppHiddenNoWindows = noScratchPad
-  , ppUrgent          = id
-  , ppSep             = "   :   "
-  , ppWsSep           = "   "
-  , ppTitle           = shorten 80
-  , ppLayout          = id
-  , ppOrder           = id
-  , ppOutput          = dbusOutput dbus -- putStrLn
+    { ppCurrent         = pangoColor "darkgreen" .wrap "[" "]" . pangoSanitize
+    --, ppVisible         = wrap "<" ">"
+    , ppVisible  = pangoColor "yellow" . wrap "(" ")" . pangoSanitize
+    , ppHidden          = id . noScratchPad
+    , ppHiddenNoWindows = noScratchPad
+    , ppUrgent          = id
+    , ppSep             = "   :   "
+    , ppWsSep           = "   "
+    , ppTitle           = shorten 80
+    , ppLayout          = id
+    , ppOrder           = id
+    , ppOutput          = dbusOutput dbus -- putStrLn
 --  , ppSort            = getSortByIndex
-  , ppExtras          = []
-  }
+    , ppExtras          = []
+    }
   where noScratchPad ws = if ws == "NSP" then "" else ws
 
 spawnToWorkspace :: String -> String -> X ()
@@ -318,15 +321,15 @@ dbusOutput dbus str = do
     let signal = (D.signal (D.objectPath_ "/org/xmonad/Log")
                   (D.interfaceName_ "org.xmonad.Log")
                   (D.memberName_ "Update")) {
-            D.signalBody = [D.toVariant ("<b>" ++ (UTF8.decodeString str) ++ "</b>")]
-        }
+            D.signalBody = [D.toVariant ("<span size=\"medium\"><b>" ++ (UTF8.decodeString str) ++ "</b></span>")]
+            }
     D.emit dbus signal
 
 
 pangoColor :: String -> String -> String
 pangoColor fg = wrap left right
   where
-    left  = "<span foreground=\"" ++ fg ++ "\">"
+    left  = "<span foreground=\"" ++ fg ++ "\" size=\"medium\">"
     right = "</span>"
 
 pangoSanitize :: String -> String
@@ -344,8 +347,8 @@ pangoSanitize = foldr sanitize ""
 scratchpadSize = W.RationalRect (1/4) (1/4) (1/3) (3/7)
 mySPFloat = customFloating scratchpadSize
 
--- with a flexible location.
-flexScratchpadSize dx dy = W.RationalRect (dx) (dy) (1/3) (3/7)
+            -- with a flexible location.
+flexScratchpadSize dx dy = W.RationalRect (dx) (dy) (1/3) (5/7)
 flexFloatSP dx dy = customFloating (flexScratchpadSize dx dy)
 
 scratchpads =
@@ -370,7 +373,8 @@ myScratchpadMenu =
   , ("calc",  (scratchToggle "calc"))
   , ("OSX",   (scratchToggle "OSX"))
   , ("MSW",   (scratchToggle "MSW"))
-  , ("Scratch", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800")
+  , ("Scratch", scratchpadSpawnActionTerminal  "urxvt")
+  -- , ("Scratch", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800")
   ]
 
 --- grid select for some apps.
@@ -431,7 +435,8 @@ myManageHelpers = composeAll
     , className =? "MPlayer"        --> doFloat
     , className =? "vivaldi"        --> doShift "comm"
     , className =? "VirtualBox"     --> doFloat
-    --, className =? "VirtualBox"     --> doShift "3:Lang"
+    , title     =? "Onboard"        --> doFloat
+      --, className =? "VirtualBox"     --> doShift "3:Lang"
     --, className =? "anki"           --> doShift "3:Lang"
     --, title     =? "Anki"           --> doShift "3:Lang"
     --, className =? "Xchat"          --> doShift "5:media"
@@ -439,8 +444,9 @@ myManageHelpers = composeAll
     , className =? "stalonetray"    --> doIgnore
     , className =? "xfce4-notifyd"  --> doIgnore
     , isFullscreen --> (doF W.focusDown <+> doFullFloat)
-    -- , isDialog -?> doFloat
-    -- , isFullscreen --> doFullFloat
+    , resource =? "Dialog" --> doFloat
+      --, isDialog -?> doFloat
+      -- , isFullscreen --> doFullFloat
   ]
 
 
@@ -521,7 +527,7 @@ myManageHook = myManageHelpers <+>
  --     tiled2 = Tall 1 (3 % 100) (4 % 5)
 
 -- myLayouts = avoidStruts $ smartBorders $
---   onWorkspace "2:im" (named "IM" (reflectHoriz $ withIM (1%8) (Title "Buddy List") (reflectHoriz $ dwmStyle shrinkText myTheme tiled ||| (smartBorders $ tabs)))) $
+    --   onWorkspace "2:im" (named "IM" (reflectHoriz $ withIM (1%8) (Title "Buddy List") (reflectHoriz $ dwmStyle shrinkText myTheme tiled ||| (smartBorders $ tabs)))) $
 --   onWorkspace "3:web" (tabs) $
 --   (tiled ||| named "Mirror" (Mirror tiled) ||| tabs)
 --     where
@@ -539,75 +545,75 @@ myManageHook = myManageHelpers <+>
 
 -- this is so we can have layouts with multi-toggle.
 
-data MyTransformers = SIDEBAR
-                    | MAG
-                    | RFULL
-                    | FULL
-                    deriving (Read, Show, Eq, Typeable)
+-- data MyTransformers = SIDEBAR
+  --                     | MAG
+  --                     | RFULL
+  --                     | FULL
+  --                     deriving (Read, Show, Eq, Typeable)
 
-instance Transformer MyTransformers Window where
-  transform SIDEBAR x k = k (withIM (1/5) (Const True) x) (\(ModifiedLayout _ x') -> x')
-  transform MAG x k = k (Mag.magnifiercz 1.2 x) (\(ModifiedLayout _ x') -> x')
-  transform RFULL x k = k (avoidStrutsOn [] $ noBorders Full) (const x)
-  -- I'm sure I was doing something wrong that caused me to need this.
-  transform FULL x k = k (Full) (const x)
+-- instance Transformer MyTransformers Window where
+  --   transform SIDEBAR x k = k (withIM (1/5) (Const True) x) (\(ModifiedLayout _ x') -> x')
+  --   transform MAG x k = k (Mag.magnifiercz 1.2 x) (\(ModifiedLayout _ x') -> x')
+  --   transform RFULL x k = k (avoidStrutsOn [] $ noBorders Full) (const x)
+  --   -- I'm sure I was doing something wrong that caused me to need this.
+  --   transform FULL x k = k (Full) (const x)
 
--- Change LayoutHintsToCenter to LayoutHints if you like gaps between your windows.
-myLayout = configurableNavigation (navigateColor myActiveBorderColor)
-           $ mkToggle (single RFULL)
-           $ avoidStruts
-           $ mkToggle (single MAG)
-           $ mkToggle (single FULL)
-           $ (onWorkspace "gimp" $ named "gimp" $ withIM (2/11) (Role "gimp-toolbox") $ big')
-           $ mkToggle (single SIDEBAR)
-           $ layouts
+  -- -- Change LayoutHintsToCenter to LayoutHints if you like gaps between your windows.
+  -- myLayout = configurableNavigation (navigateColor myActiveBorderColor)
+  --          $ mkToggle (single RFULL)
+  --          $ avoidStruts
+  --          $ mkToggle (single MAG)
+  --          $ mkToggle (single FULL)
+  --          $ (onWorkspace "gimp" $ named "gimp" $ withIM (2/11) (Role "gimp-toolbox") $ big')
+  --          $ mkToggle (single SIDEBAR)
+  --          $ layouts
+  -- where
+  --   layouts = tall' ||| cols' ||| twopane' ||| rows' ||| tabs'
+  --       ||| grid' ||| big' ||| circle' ||| bsp' ||| accordion' ||| noborders'
+  --   tall'    = named "tall"   $ layoutHintsToCenter $ XMonad.Tall 1 (3/100) (1/2)
+  --   cols'    = named "cols"   $ layoutHintsToCenter $ deco $ multiCol [1] 2 (3/100) (1/2)
+  --   twopane' = named "two"    $ layoutHintsToCenter $ TwoPane (3/100) (3/7)
+  --   rows'    = named "rows"   $ Mirror $ layoutHintsToCenter $ deco $ multiCol [2] 3 (2/100) (4/7)
+  --   tabs'    = named "tab"    $ layoutHintsToCenter $ tabs
+  --   grid'    = named "grid"   $ layoutHintsToCenter $ deco $ Grid (16/10)
+  --   big'     = named "big"    $ layoutHintsToCenter $ deco $ Mirror $ OneBig (3/4) (19/24)
+    --   circle'  = named "circle" $ layoutHintsToCenter $ Circle
+    --   bsp'     = named "BSP"    $ layoutHintsToCenter $ BSP.emptyBSP
+    --   accordion' = named "accordion" $ layoutHintsToCenter $ mirrorAccordion
+    --   noborders' = named "noborders" $ layoutHintsToCenter $ noBorders (fullscreenFull Full)
+    --   -- basic layouts
+    --   tabs     = tabbed shrinkText myTheme
+    --   deco     = dwmStyle shrinkText myTheme
+    --   mirrorAccordion = Mirror (Accordion)
+    --   -- property query
+    --   role = stringProperty "WM_WINDOW_ROLE"
+
+  -- My Original layouts...
+myLayout = avoidStruts (
+  ThreeColMid 1 (3/100) (1/2) |||
+    XMonad.Tall 1 (3/100) (1/2) |||
+    -- Mirror (XMonad.Tall 1 (3/100) (1/2)) |||
+    tabbed shrinkText tabConfig |||
+    -- Full |||
+    -- TwoPane (3/100) (1/2) |||
+    Mag.magnifier BSP.emptyBSP |||
+    Circle |||
+    Mag.magnifier tiled ||| hintedTile XMonad.Layout.HintedTile.Tall ||| hintedTile Wide |||
+    -- Accordion |||
+    mirrorAccordion |||
+    -- Grid |||
+    -- spiral (6/7)
+    noBorders (fullscreenFull Full))
   where
-    layouts = tall' ||| cols' ||| twopane' ||| rows' ||| tabs'
-        ||| grid' ||| big' ||| circle' ||| bsp' ||| accordion' ||| noborders'
-    tall'    = named "tall"   $ layoutHintsToCenter $ XMonad.Tall 1 (3/100) (1/2)
-    cols'    = named "cols"   $ layoutHintsToCenter $ deco $ multiCol [1] 2 (3/100) (1/2)
-    twopane' = named "two"    $ layoutHintsToCenter $ TwoPane (3/100) (3/7)
-    rows'    = named "rows"   $ Mirror $ layoutHintsToCenter $ deco $ multiCol [2] 3 (2/100) (4/7)
-    tabs'    = named "tab"    $ layoutHintsToCenter $ tabs
-    grid'    = named "grid"   $ layoutHintsToCenter $ deco $ Grid (16/10)
-    big'     = named "big"    $ layoutHintsToCenter $ deco $ Mirror $ OneBig (3/4) (19/24)
-    circle'  = named "circle" $ layoutHintsToCenter $ Circle
-    bsp'     = named "BSP"    $ layoutHintsToCenter $ BSP.emptyBSP
-    accordion' = named "accordion" $ layoutHintsToCenter $ mirrorAccordion
-    noborders' = named "noborders" $ layoutHintsToCenter $ noBorders (fullscreenFull Full)
-    -- basic layouts
-    tabs     = tabbed shrinkText myTheme
-    deco     = dwmStyle shrinkText myTheme
     mirrorAccordion = Mirror (Accordion)
-    -- property query
-    role = stringProperty "WM_WINDOW_ROLE"
-
--- -- My Original layouts...
--- myLayout = avoidStruts (
---     ThreeColMid 1 (3/100) (1/2) |||
---     XMonad.Tall 1 (3/100) (1/2) |||
---     -- Mirror (XMonad.Tall 1 (3/100) (1/2)) |||
---     tabbed shrinkText tabConfig |||
---     -- Full |||
---     -- TwoPane (3/100) (1/2) |||
---     Mag.magnifier emptyBSP |||
---     Circle |||
---     Mag.magnifier tiled ||| hintedTile XMonad.Layout.HintedTile.Tall ||| hintedTile Wide |||
---     -- Accordion |||
---     mirrorAccordion |||
---     -- Grid |||
---     -- spiral (6/7)
---     noBorders (fullscreenFull Full))
---         where
---             mirrorAccordion = Mirror (Accordion)
---             tiled = XMonad.Tall tnmaster tdelta ratio
---             tnmaster = 1
---             ratio = 1/2
---             tdelta = 3/100
---             hintedTile = HintedTile hnmaster hdelta hratio TopLeft
---             hnmaster = 1
---             hratio = 1/2
---             hdelta = 3/100
+    tiled = XMonad.Tall tnmaster tdelta ratio
+    tnmaster = 1
+    ratio = 1/2
+    tdelta = 3/100
+    hintedTile = HintedTile hnmaster hdelta hratio TopLeft
+    hnmaster = 1
+    hratio = 1/2
+    hdelta = 3/100
 
 -- layout prompt (w/ auto-completion and all layouts)
 myLayoutPrompt = inputPromptWithCompl mylayoutXPConfig "Layout"
@@ -727,8 +733,8 @@ selectSearchMenu =
 myXPConfig = def --  defaultXPConfig                            -- (23)
     { fgColor = "#a8a3f7"
     , bgColor = "#3f3c6d"
-    , font = "xft:Source Code Pro:size=16"
-    , height = 30
+    , font = "xft:Source Code Pro:size=14"
+    , height = 16
     }
 
 crizer :: String -> Bool -> X(String, String)
@@ -743,13 +749,17 @@ crizer _ True = return ("#657b83", "#fdf6e3")
 
 gsConfig = def {   -- defaultGSConfig
            gs_colorizer = crizer
-        ,  gs_font = "xft:Source Code Pro:pixelsize=20"
-}
+           ,gs_cellheight  = 200
+           ,gs_cellpadding = 5
+           ,gs_cellwidth   = 450
+           ,  gs_font = "xft:Source Code Pro:pixelsize=84"
+           }
 
 -- I don't know why, but gotoSelected like
-gsConfig2 = def { gs_cellheight = 50
-                , gs_cellwidth = 150
-                , gs_font = "xft:Source Code Pro:pixelsize=20"
+gsConfig2 = def { gs_cellheight = 75
+                , gs_cellwidth = 250
+                , bgcolor = #3f6644
+                , gs_font = "xft:Source Code Pro:pixelsize=32"
                 }
 
 myBack    = "#1a1a1a" -- Bar background
@@ -762,11 +772,11 @@ myEmpt    = "#555555" -- Empty workspace
 
 -- GridSelect config
 myGSConfig colorizer = (buildDefaultGSConfig colorizer)
-  {gs_cellheight  = 50
-  ,gs_cellpadding = 5
-  ,gs_cellwidth   = 150
-  , gs_font = "xft:Source Code Pro:pixelsize=20"
-  }
+                       {gs_cellheight  = 100
+                       ,gs_cellpadding = 5
+                       ,gs_cellwidth   = 350
+                       , gs_font = "xft:Source Code Pro:pixelsize=32"
+                       }
 
 -- Colorizer colors for GridSelect
 --aqua   = myColor "#259f62"
@@ -811,23 +821,23 @@ focusedScreenSize =
 keyColor = "yellow"
 cmdColor = "cyan"
 -- double double quoted so it can make it all the way to dzen.
-dzenFont = "\"-*-ubuntu mono-*-*-*-*-*-*-*-*-*-*-*-*\""
-lineHeight = "18"
+dzenFont = "\"-*-ubuntu mono-*-*-*-*-*-80-*-*-*-*-*-*\""
+lineHeight = "24"
 
 keyMapDoc :: String -> X Handle
 keyMapDoc name = do
-  ss <- focusedScreenSize
-  handle <- spawnPipe $ unwords ["~/.xmonad/showHintForKeymap.sh",
-                                 name,
-                                 show (rect_x ss),
-                                 show (rect_y ss),
-                                 show (rect_width ss),
-                                 show (rect_height ss),
-                                 keyColor,
-                                 cmdColor,
-                                 dzenFont,
-                                 lineHeight]
-  return handle
+       ss <- focusedScreenSize
+       handle <- spawnPipe $ unwords ["~/.xmonad/showHintForKeymap.sh",
+                                       name,
+                                       show (rect_x ss),
+                                       show (rect_y ss),
+                                       show (rect_width ss),
+                                       show (rect_height ss),
+                                       keyColor,
+                                               cmdColor,
+                                               dzenFont,
+                                               lineHeight]
+       return handle
 
 toSubmap :: XConfig l -> String -> [(String, X ())] -> X ()
 toSubmap c name m = do
@@ -835,7 +845,7 @@ toSubmap c name m = do
   submap $ mkKeymap c m
   io $ hClose pipe
 
-------------------------------------------------------------------------
+    ------------------------------------------------------------------------
 -- Key bindings
 --
 --
@@ -941,7 +951,7 @@ selectSearchKeymap = -- Search Selected
 promptsKeymap = -- Prompts
         [ ("d",   changeDir myXPConfig) -- Change Dir
         , ("m",   manPrompt myXPConfig) -- Man Pages
-        , ("r",   spawn "exe=`dmenu_run -fn myfontwsize -b -nb black -nf yellow -sf yellow` && eval \"exec $exe\"") -- dmenu
+        , ("r",   spawn "exe=`dmenu_run -fn myfontwize -b -nb black -nf yellow -sf yellow` && eval \"exec $exe\"") -- dmenu
         , ("n",   appendFilePrompt myXPConfig "$HOME/NOTES") -- append notes
         , ("S-s", sshPrompt myXPConfig) -- SSH
         , ("z",   shellPrompt myXPConfig) -- Shell
@@ -956,9 +966,9 @@ namedScratchpadsKeymap = -- Scratch Pads
     , ("g", scratchToggle "ghci") -- ghci
     , ("c", scratchToggle "calc") -- calc
     , ("t", scratchToggle "top") -- top
+    , ("n", scratchpadSpawnActionTerminal "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
     , ("S-o", scratchToggle "OSX") -- OS X
     , ("w", scratchToggle "MSW") -- MS Windows
-    , ("n", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
     ]
 
 xfceKeymap = -- XFCE
@@ -1001,11 +1011,12 @@ workspacesKeymap = -- Workspaces
     ]
 
 layoutKeymap = -- Layout
-    [("f",   sendMessage (Toggle FULL)) --toggle Full
-    , ("s",   sendMessage (Toggle SIDEBAR)) -- toggle sidebar
-    , ("M-d", sendMessage (Toggle MAG)) -- toggle mag
-    , ("S-f", sendMessage (Toggle RFULL)) -- Full without panel, border
-    , ("t",   withFocused $ windows . W.sink) -- sink focused window
+    [
+--("f",   sendMessage (Toggle FULL)) --toggle Full
+--, ("s",   sendMessage (Toggle SIDEBAR)) -- toggle sidebar
+--, ("M-d", sendMessage (Toggle MAG)) -- toggle mag
+--, ("S-f", sendMessage (Toggle RFULL)) -- Full without panel, border
+      ("t",   withFocused $ windows . W.sink) -- sink focused window
     , ("S-t", sinkAll) -- sink all windows
     , ("r",   rescreen) -- Rescreen
     , ("2",   layoutSplitScreen 2 $ TwoPane (3/100) (1/2)) -- Split Screen two pane
@@ -1014,12 +1025,13 @@ layoutKeymap = -- Layout
     ]
 
 floatKeymap = -- Floating Windows
-    [ ("d",       withFocused (keysResizeWindow (-20,-20) (1%2,1%2))) -- Resize Smaller
-    , ("s",       withFocused (keysResizeWindow (20,20) (1%2,1%2))) -- Resize Bigger
+    [
+--	("d",       withFocused (keysResizeWindow (-20,-20) (1%2,1%2))) -- Resize Smaller
+    ("s",       withFocused (keysResizeWindow (20,20) (1%2,1%2))) -- Resize Bigger
     , ("<Right>", withFocused (keysMoveWindow (40,0) )) -- Move Right
     , ("<Down>",  withFocused (keysMoveWindow (0,40) )) -- Move Down
-    , ("<Left>",  withFocused (keysMoveWindow (-40,0))) -- Move Left
-    , ("<Up>",    withFocused (keysMoveWindow (0,-40))) -- Move Up
+--	, ("<Left>",  withFocused (keysMoveWindow (-40,0))) -- Move Left
+--	, ("<Up>",    withFocused (keysMoveWindow (0,-40))) -- Move Up
     , ("S-s",     withFocused $ windows . W.sink) -- Sink
 
     , ("g",  moveFocusedWindowToRel (0,0)) -- Top Left
@@ -1102,11 +1114,10 @@ mainKeymap c = mkKeymap c $ -- Main Keys
     , ("M4-S-<Tab>",    prevWindow) -- Prev Window
     , ("M4-d", spawn "exe=`dmenu_run -fn myfontwsize -b -nb black -nf yellow -sf yellow` && eval \"exec $exe\"") -- dmenu
     , ("M4-t",          promptedGoto) -- Grid Select Workspace
-    , ("M4-e",          selectWorkspace myXPConfig) -- Select Workspace
     , ("M4-h",          goToSelected gsConfig2) -- Grid Select Window
     , ("M4-S-h",        bringSelected gsConfig2) -- Bring Grid Selected Window
     , ("M4-S-t",        promptedShift) -- Grid Select Shift
-    , ("M4-C-a",        selectApps) -- Apps
+    , ("M4-S-a",        selectApps) -- Apps
     --, ("M4-C-a",        spawnSelected gsConfig ["krita","dolphin","repetierHost"]) -- Apps
     , ("M4-s",          sendMessage Shrink) -- Shrink
     , ("M4-z",          sendMessage Expand) -- Expand
@@ -1126,7 +1137,7 @@ mainKeymap c = mkKeymap c $ -- Main Keys
     , ("M4-p",          toSubmap c "promptsKeymap" promptsKeymap) -- Prompts
     , ("M4-r",          toSubmap c "raiseKeymap" raiseKeymap) -- Raise
     , ("M4-o",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap) -- Scratchpad
-    , ("M4-S-o",        getScratchpad) -- grid select scratchpad
+    , ("M4-e",          getScratchpad) -- grid select scratchpad
     , ("M4-S-s",        toSubmap c "shotKeymap" shotKeymap) -- ScreenShot
     , ("M4-w",          toSubmap c "workspacesKeymap" workspacesKeymap) -- Workspaces
     , ("M4-/",          toSubmap c "promptSearchKeymap" promptSearchKeymap) -- Prompt Search
@@ -1187,27 +1198,30 @@ fadeinactive = fadeInactiveLogHook fadeAmount
 
 
 myConfig = do
-    dbus <- D.connectSession
-    getWellKnownName dbus
-    return $ defaults {
-          logHook = do
-            ewmhDesktopsLogHook
-            dynamicLogWithPP $ (prettyPrinter dbus)
-            fadeinactive
+  dbus <- D.connectSession
+  getWellKnownName dbus
+  return $ defaults {
+      logHook = do
+         ewmhDesktopsLogHook
+         dynamicLogWithPP $ (prettyPrinter dbus)
+         fadeinactive
 
-        , manageHook = manageDocks <+> myManageHook <+>
-          namedScratchpadManageHook scratchpads
-        , layoutHook = layoutHook defaults
-        , handleEventHook = ewmhDesktopsEventHook
-        , startupHook = do
-             ewmhDesktopsStartup
-             myStartupHook        -- >> setWMName "LG3D"
-        }
+      , manageHook = manageDocks <+> myManageHook <+> manageHook desktopConfig <+>
+                     namedScratchpadManageHook scratchpads
+      , layoutHook = layoutHook defaults
+      , handleEventHook = docksEventHook <+> handleEventHook desktopConfig
+      , startupHook = do
+          docksStartupHook
+          ewmhDesktopsStartup
+          myStartupHook        -- >> setWMName "LG3D"
+      }
+
+-- docks :: XConfig myConfig -> XConfig myConfig
 
 ------------------------------------------------------------------------
--- Combine it all together
+  -- Combine it all together
 -- A structure containing your configuration settings, overriding
--- fields in the default config. Any you don't override, will
+  -- fields in the default config. Any you don't override, will
 
 -- use the defaults defined in xmonad/XMonad/Config.hs
 --
@@ -1215,25 +1229,26 @@ myConfig = do
 --
 
   -- defaultConfig
+
 defaults = def {
-    -- simple stuff
-    terminal           = myTerminal,
-    focusFollowsMouse  = myFocusFollowsMouse,
-    borderWidth        = myBorderWidth,
-    modMask            = myModMask,
-    workspaces         = myTopicNames,  -- MyWorkspaces
-    normalBorderColor  = myNormalBorderColor,
-    focusedBorderColor = myFocusedBorderColor,
+  -- simple stuff
+   terminal           = myTerminal,
+   focusFollowsMouse  = myFocusFollowsMouse,
+   borderWidth        = myBorderWidth,
+   modMask            = myModMask,
+   workspaces         = myTopicNames,  -- MyWorkspaces
+   normalBorderColor  = myNormalBorderColor,
+   focusedBorderColor = myFocusedBorderColor,
 
-    -- key bindings
-    keys               = mainKeymap,
-    mouseBindings      = myMouseBindings,
+     -- key bindings
+   keys               = mainKeymap,
+   mouseBindings      = myMouseBindings,
 
-    -- hooks, layouts
-    layoutHook         = myLayout, -- smartBorders $ myLayout,
-    manageHook         = myManageHook,
-    startupHook        = myStartupHook
-    } -- `additionalKeysP` myadditionalKeys
+     -- hooks, layouts
+   layoutHook         = myLayout, -- smartBorders $ myLayout,
+   manageHook         = manageDocks <+> myManageHook,
+     startupHook        = myStartupHook
+} -- `additionalKeysP` myadditionalKeys
 
 main :: IO ()
 main = xmonad =<< myConfig
