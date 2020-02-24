@@ -144,7 +144,7 @@ myfontwsize = "xft:" ++ myFont ++ ":size=30"
 -- theme settings for tabs and deco layouts.
 myTheme :: Theme
 myTheme = def {
-  fontName = "xft:" ++ myFont ++ ":pixelsize=14"
+  fontName = "xft:" ++ myFont ++ ":pixelsize=24"
   , decoHeight = 20
   , decoWidth = 400
   , activeColor = myFocusedBorderColor
@@ -161,7 +161,7 @@ myTheme = def {
 -- my old tab config theme.
 -- Colors for text and backgrounds of each tab when in "Tabbed" layout.
 tabConfig = def {
-  fontName = "xft:" ++ myFont ++ ":pixelsize=14",
+  fontName = "xft:" ++ myFont ++ ":pixelsize=24",
   activeBorderColor = "#007C7C",
   activeTextColor = "#CEFFAC",
   activeColor = myFocusedBorderColor,
@@ -203,9 +203,14 @@ myTopics = [ TI "main" "" (return ())
            -- ,  TI "mail" "" (spawnInTopicDir "emacsn -e")
            , TI "Web" "" (spawnInTopicDir "vivaldi-stable")
            , TI "Xournal" "Xournal" (spawnInTopicDir "xournal")
-           , TI "Yeti" "Projects/Yeti/yeti-stack" (spawnInTopicDir "emacsn -m Yeti")
-           , TI "Code" "Projects" (spawnInTopicDir "emacsn -m Code")
-           , TI "Elisp" "Projects/emacs-setup" (spawnInTopicDir "emacsn -m Elisp")
+           , TI "Yeti" "play/Yeti/yeti-stack" (spawnInTopicDir "emacsn -m Yeti")
+           , TI "Code" "play" (spawnInTopicDir "emacsn -m Code")
+           , TI "bgc-ui" "play/bgc-ui" (spawnInTopicDir "emacsn -m bgc-ui")
+           , TI "eg.com" "play/ericgebhart.github.io" (spawnInTopicDir "emacsn -m eg.com")
+           , TI "TB.com" "play/tangobreath.github.io" (spawnInTopicDir "emacsn -m tb.com")
+           , TI "Elisp" "play/emacs-setup" (spawnInTopicDir "emacsn -m Elisp")
+           , TI "QMK" "play/qmk_firmware" (spawnInTopicDir "emacsn -m QMK keyboards/ergodox_ez/keymaps/ericgebhart/keymap.c")
+           , TI "XMonad" ".xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs") -- lib/*/*.hs
            , TI "Comm" "" (spawnInTopicDir "slack" >>
                             spawnInTopicDir "emacsn -e")
            , TI "BD" "BD" (spawnInTopicDir "termite -T BD" >>
@@ -221,7 +226,6 @@ myTopics = [ TI "main" "" (return ())
            , TI "Music"  "Music" (spawn "mediacenter22")
            , TI "Movies" "Movies" (spawn "vlc")
              -- , TI "calendar" "" (spawn "vivaldi --app='http://calendar.google.com'")
-           , TI "XMonad" ".xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs ") -- lib/*/*.hs
            , TI "Krita" "Drawings" (spawnInTopicDir "krita") -- lib/*/*.hs
            , TI "Gravit" "Drawings" (spawnInTopicDir "GravitDesigner.AppImage") -- lib/*/*.hs
              --, TI "feeds"  "" (spawn "chromium-browser --app='https://feedbin.me'")
@@ -352,14 +356,14 @@ flexScratchpadSize dx dy = W.RationalRect (dx) (dy) (1/3) (5/7)
 flexFloatSP dx dy = customFloating (flexScratchpadSize dx dy)
 
 scratchpads =
-  [ NS "term"  (myTerminal ++ " -title term") (title =? "term") (flexFloatSP (1/10) (1/10))
-  , NS "term2" (myTerminal ++ " -title term2") (title =? "term2") (flexFloatSP (1/3) (1/10))
-  , NS "ghci"  (myTerminal ++ " -e ghci") (title =? "ghci") (flexFloatSP (2/3) (1/10))
+  [ NS "term"  (myTerminal2 ++ " -t term") (title =? "term") (flexFloatSP (1/10) (1/10))
+  , NS "term2" (myTerminal2 ++ " -t term2") (title =? "term2") (flexFloatSP (1/3) (1/10))
+  , NS "ghci"  (myTerminal2 ++ " -e ghci") (title =? "ghci") (flexFloatSP (2/3) (1/10))
   --, NS "sync"  (myTerminal ++ " -e sy") (title =? "sy") (flexFloatSP (1/10) (2/3))
-  , NS "top"   (myTerminal ++ " -e htop") (title =? "htop") (flexFloatSP (1/4) (1/4))
-  , NS "calc"  (myTerminal ++ " -e bc") (title =? "bc") (flexFloatSP (1/4) (1/4))
-  , NS "OSX"   "vboxmanage startvm El Capitan" (title =? "El Capitan") (flexFloatSP (2/3) (2/3))
-  , NS "MSW"   "vboxmanage startvm Windows" (title =? "Windows") (flexFloatSP (2/3) (2/3))
+  , NS "top"   (myTerminal2 ++ " -e htop") (title =? "htop") (flexFloatSP (1/4) (1/4))
+  , NS "calc"  (myTerminal2 ++ " -e bcl -t bc") (title =? "bc") (flexFloatSP (1/4) (1/4))
+  --, NS "OSX"   "vboxmanage startvm El Capitan" (title =? "El Capitan") (flexFloatSP (2/3) (2/3))
+  --, NS "MSW"   "vboxmanage startvm Windows" (title =? "Windows") (flexFloatSP (2/3) (2/3))
   ]
 
 -- This is how to make a runSelectedAction grid select menu.
@@ -371,8 +375,8 @@ myScratchpadMenu =
   , ("top",   (scratchToggle "top"))
   --, ("sync",  (scratchToggle "sync"))
   , ("calc",  (scratchToggle "calc"))
-  , ("OSX",   (scratchToggle "OSX"))
-  , ("MSW",   (scratchToggle "MSW"))
+  --, ("OSX",   (scratchToggle "OSX"))
+  --, ("MSW",   (scratchToggle "MSW"))
   , ("Scratch", scratchpadSpawnActionTerminal  "urxvt")
   -- , ("Scratch", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800")
   ]
@@ -733,8 +737,8 @@ selectSearchMenu =
 myXPConfig = def --  defaultXPConfig                            -- (23)
     { fgColor = "#a8a3f7"
     , bgColor = "#3f3c6d"
-    , font = "xft:Source Code Pro:size=14"
-    , height = 16
+    , font = "xft:Source Code Pro:size=24"
+    , height = 24
     }
 
 crizer :: String -> Bool -> X(String, String)
@@ -749,17 +753,19 @@ crizer _ True = return ("#657b83", "#fdf6e3")
 
 gsConfig = def {   -- defaultGSConfig
            gs_colorizer = crizer
-           ,gs_cellheight  = 200
+           ,gs_cellheight  = 75
            ,gs_cellpadding = 5
-           ,gs_cellwidth   = 450
-           ,  gs_font = "xft:Source Code Pro:pixelsize=84"
+           ,gs_cellwidth   = 200
+           ,  gs_font = "xft:Source Code Pro:pixelsize=36"
            }
 
 -- I don't know why, but gotoSelected like
-gsConfig2 = def { gs_cellheight = 75
-                , gs_cellwidth = 250
-                , bgcolor = #3f6644
-                , gs_font = "xft:Source Code Pro:pixelsize=32"
+-- ,bgColor = "#3f6644"
+gsConfig2 = def {
+                gs_cellheight = 75
+                ,gs_cellpadding = 5
+                ,gs_cellwidth = 600
+                , gs_font = "xft:Source Code Pro:pixelsize=36"
                 }
 
 myBack    = "#1a1a1a" -- Bar background
@@ -772,10 +778,10 @@ myEmpt    = "#555555" -- Empty workspace
 
 -- GridSelect config
 myGSConfig colorizer = (buildDefaultGSConfig colorizer)
-                       {gs_cellheight  = 100
+                       {gs_cellheight  = 95
                        ,gs_cellpadding = 5
-                       ,gs_cellwidth   = 350
-                       , gs_font = "xft:Source Code Pro:pixelsize=32"
+                       ,gs_cellwidth   = 250
+                       , gs_font = "xft:Source Code Pro:pixelsize=40"
                        }
 
 -- Colorizer colors for GridSelect
@@ -800,7 +806,7 @@ getScratchpad = runSelectedAction (myGSConfig blue) myScratchpadMenu
 searchStuff = runSelectedAction (myGSConfig green) promptSearchMenu
 selectSearchStuff = runSelectedAction (myGSConfig green) promptSearchMenu
 
- -- Key Map doc ------------------------------------------------
+ -- Key Map doc dzen popup ------------------------------------------------
 
 windowScreenSize :: Window -> X (Rectangle)
 windowScreenSize w = withDisplay $ \d -> do
@@ -821,7 +827,7 @@ focusedScreenSize =
 keyColor = "yellow"
 cmdColor = "cyan"
 -- double double quoted so it can make it all the way to dzen.
-dzenFont = "\"-*-ubuntu mono-*-*-*-*-*-80-*-*-*-*-*-*\""
+dzenFont = "\"-*-ubuntu mono-*-*-*-*-*-60-*-*-*-*-*-*\""
 lineHeight = "24"
 
 keyMapDoc :: String -> X Handle
@@ -1220,7 +1226,7 @@ myConfig = do
 
 ------------------------------------------------------------------------
   -- Combine it all together
--- A structure containing your configuration settings, overriding
+-- A structure containing your confiuration settings, overriding
   -- fields in the default config. Any you don't override, will
 
 -- use the defaults defined in xmonad/XMonad/Config.hs

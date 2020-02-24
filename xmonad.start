@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # xinitrc for xmonad with an xfce-panel
 
 #xcompmgr -f -C -n -D 3 &
@@ -13,6 +14,7 @@
 # Load resources
 
 xrdb -merge ~/.Xresources
+xsetroot -cursor_name left_ptr &
 
 # Set up an icon tray
 #trayer --edge top --align right --SetDockType true --SetPartialStrut true \
@@ -25,8 +27,8 @@ feh --bg-scale /home/eric/Documents/Art/ocean_park_114.jpg
 xscreensaver &
 
 #gestures and virtual on screen keyboard
-easystroke &
-onboard &
+#easystroke &
+#onboard &
 
 #if [ -x /usr/bin/nm-applet ] ; then
 #    nm-applet & ## if using trayer add: --sm-disable &
