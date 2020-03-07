@@ -1,7 +1,7 @@
 # xmonad-setup
 my setup files for xmonad
 
-I've been using xmonad 12 since July, 2016. 
+I've been using xmonad since July, 2016. 
 
 This is a complete configuration, it does not really use the default setup.  All keys are defined here. I did
 stick to the defaults to a point.  But this setup uses sub-menus for the keys to provide more control.
@@ -12,20 +12,21 @@ The keys and commands are still in a lot of flux. But I'm slowly exploring every
 don't like. The dzen key hints really helps with exploring and remembering what is there. And also finding things
 that don't work quite the way they should or the way I want.
 
-I use arch linux, so these are also the arch package names.
+I use arch linux, so these are also the arch package names.  See my (arch-pkgs repo)[http://github.com/ericgebhart/arch-pkgs] for a meta package that will install most of this.
 
 You will need:
 * xmonad
-* xmonad-log-applet from my repos
+* xmonad-log-applet (from my repo)[http://github.com/ericgebhart/xmonad-log-applet]
 * dzen2
 * dmenu
 * rxvt-unicode - or change xmonad.hs to point at your favorite terminal.
+* termite - or change xmonad.hs to point at your favorite terminal.
 * xcompmgr or compton if you want transparency to work.
 * adobe-source-code-pro-fonts
 * ttf-ubuntu-font-family
 * xfce4-panel
 * ghc is nice to have for haskell coding. ie. if you modify xmonad.hs.
-* feh       -- set background image.
+* feh        -- set background image.
 * onboard    -- on screen keyboard
 * easysroke  -- gesture support.
 
@@ -58,7 +59,7 @@ A couple of things about keys, I'm still figuring what I want, but one of the th
 I am not currently using this with the xfce-session manager.  I did for a while, but it seems unnecessary. I'm only using
 the xfce-panel.  So somethings on the applications menu don't work. But I almost never use that menu.
 
-See my [xmonad-log-applet](https://github.com/EricGebhart/xmonad-log-applet) repo to get xfce-panel working with xmonad.
+See my [xmonad-log-applet](https://github.com/EricGebhart/xmonad-log-applet) repo to get xfce-panel  to display xmonad information.
 
 Key Hints
 ---------
@@ -150,47 +151,11 @@ This will result in a menu something like this when the M4-r keys are pressed.
     v Vivaldi       e Emacs cycle        s Slack
 ```
 
-
-Emacs
------
-
-I run emacs using my emacsn script.  emacsn basically takes care of running emacs or emacsclient,
-as well as evaluating an elisp function on startup. Any additional arguments like files are passed on
-to emacs in front of the _--eval_. 
-Use help to see more options.
-
-* emacsn -h                _=>_  Help!
-* emacsn -e                _=>_ emacs -title "Email" --eval "(mu4e)"
-* emacsn -m "Foo"          _=>_ emacs -title "Foo" --eval "(main-window)"
-* emacsn -m "haskell" *.hs _=>_ emacs -title "haskell" *.hs --eval "(main-window)"
-* emacsn -f foo            _=>_ emacs --eval "(foo)"
-
-Adding -c changes it from _emacs_ to _emacsclient -c_
-
-* emacsn -m -c             _=>_ emacsclient -c --eval "(main-window)"
-
-My **main-window** function looks like this:
-
-```
-(defun main-window ()
-  (interactive)
-  (balance-windows)
-  (split-window-horizontally)
-  (split-window-horizontally)
-  (split-window-below))
- ```
-
-I used to also start a shell, but I use scratchpads for that now.
-
 BC Scratchpad
 -------------
 
-I've been using bc for years and the first thing I want is to change the scale.
-I basically put my startup stuff in _~/.bcstart.bc_ then start bc with `bc ~/.bcstart.bc`.
-of course making that an alias for bc makes a lot of sense.
-For more capabilities see my repository (bc-extensions)[https://github.com/ericgebhart/bc-extensions]
+For more information see my repository (bc-extensions)[https://github.com/ericgebhart/bc-extensions]
 
-`alias bc="bc ~/.bcstart.bc"`
 
 Install
 -------
@@ -200,20 +165,14 @@ Where to put stuff.
   * the usual place for xmonad.
 * .xmonad.start ==> ~/   
   * a start script for startx
-* .bcstart.bc ==> ~/     
-  * a startup for bc.
 * xmonad.desktop ==> /usr/share/xsessions    
-  * the entry you need for a display manager
-* .Xresources ==> ~/     
-  * yea. that. fonts colors and what not.
-* emacsn ==> ~/bin or where ever you put such things.  
-  * a shell script to run emacs in various ways.
+  * this is the entry you need for a display manager like _sddm_ or whatever you like.
 
 Use make
 --------
 
-To install just the xmonad parts use 'make' to install the xsession use 'make xsession' which will require root.
-for the emacs script 'make emacsn'.
+To install just the xmonad parts use 'make install'. To install the xsession use 'sudo make xsession'.  This does reference the xmonad.start in your home directory, so perhaps you'll want to
+put that in a more generic place.  I usually just do `startx ./xmonad.start` in my _.zlogin_.
 
 That should do it.
 
