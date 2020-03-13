@@ -1,7 +1,7 @@
 .PHONY: install
 install:
 	cp -r .xmonad $(HOME)/
-        mkdir -p $(HOME)/bin
+	mkdir -p $(HOME)/bin
 	cp xmonad.start $(HOME)/bin/
 	mkdir -p ~/Documents/Art
 	cp ocean_park_114.jpg ~/Documents/Art/
