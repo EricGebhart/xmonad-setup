@@ -214,7 +214,7 @@ myTopics = [ TI "main" "" (return ())
            , TI "Comm" "" (spawnInTopicDir "slack" >>
                             spawnInTopicDir "emacsn -e")
            , TI "BD" "BD" (spawnInTopicDir "termite -T BD" >>
-                            spawnInTopicDir "dolphin --select ~/BD ~/Downloads")
+                            spawnInTopicDir "YACReaderLibrary")
            , TI "DownLoads" "Downloads" (spawnInTopicDir "termite -T Downloads" >>
                                           spawnInTopicDir "dolphin --select ~/Downloads")
            , TI "French" "Language/Française" (spawnInTopicDir "termite -T Française" >>
