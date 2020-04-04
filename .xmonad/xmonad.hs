@@ -139,12 +139,12 @@ myActiveBorderColor  = "#007c7c"
 
 myFont = "Source Code Pro"
 myMonoFont = "Source Code Pro"
-myfontwsize = "xft:" ++ myFont ++ ":size=30"
+myfontwsize = "xft:" ++ myFont ++ ":size=16"
 
 -- theme settings for tabs and deco layouts.
 myTheme :: Theme
 myTheme = def {
-  fontName = "xft:" ++ myFont ++ ":pixelsize=24"
+  fontName = "xft:" ++ myFont ++ ":pixelsize=14"
   , decoHeight = 20
   , decoWidth = 400
   , activeColor = myFocusedBorderColor
@@ -161,7 +161,7 @@ myTheme = def {
 -- my old tab config theme.
 -- Colors for text and backgrounds of each tab when in "Tabbed" layout.
 tabConfig = def {
-  fontName = "xft:" ++ myFont ++ ":pixelsize=24",
+  fontName = "xft:" ++ myFont ++ ":pixelsize=14",
   activeBorderColor = "#007C7C",
   activeTextColor = "#CEFFAC",
   activeColor = myFocusedBorderColor,
@@ -352,16 +352,26 @@ scratchpadSize = W.RationalRect (1/4) (1/4) (1/3) (3/7)
 mySPFloat = customFloating scratchpadSize
 
             -- with a flexible location.
-flexScratchpadSize dx dy = W.RationalRect (dx) (dy) (1/3) (5/7)
-flexFloatSP dx dy = customFloating (flexScratchpadSize dx dy)
+-- Big BSP, Small SSP, Super small,
+--  so size is width and height. - change the fractions to get your sizes right.
+flexScratchpadSize dx dy = W.RationalRect (dx) (dy) (1/2) (5/7)
+flexSScratchpadSize dx dy = W.RationalRect (dx) (dy) (3/5) (5/8)
+flexSSScratchpadSize dx dy = W.RationalRect (dx) (dy) (1/2) (1/2)
+-- pass in a fraction to determine your x,y location. size is derived from that
+-- all based on screen size.
+flexFloatSSP dx dy = customFloating (flexSScratchpadSize dx dy)
+flexFloatSSSP dx dy = customFloating (flexSSScratchpadSize dx dy)
+flexFloatBSP dx dy = customFloating (flexScratchpadSize dx dy)
 
 scratchpads =
-  [ NS "term"  (myTerminal2 ++ " -t term") (title =? "term") (flexFloatSP (1/10) (1/10))
-  , NS "term2" (myTerminal2 ++ " -t term2") (title =? "term2") (flexFloatSP (1/3) (1/10))
-  , NS "ghci"  (myTerminal2 ++ " -e ghci") (title =? "ghci") (flexFloatSP (2/3) (1/10))
+  [ NS "term"  (myTerminal2 ++ " -t term") (title =? "term") (flexFloatBSP (1/20) (1/20))
+  , NS "term2" (myTerminal2 ++ " -t term2") (title =? "term2") (flexFloatBSP (2/20) (2/20))
+  , NS "term3" (myTerminal2 ++ " -t term3") (title =? "term3") (flexFloatBSP (4/20) (4/20))
+  , NS "term4" (myTerminal2 ++ " -t term4") (title =? "term4") (flexFloatBSP (6/20) (4/20))
+  , NS "ghci"  (myTerminal2 ++ " -e ghci") (title =? "ghci") (flexFloatBSP (6/20) (1/10))
   --, NS "sync"  (myTerminal ++ " -e sy") (title =? "sy") (flexFloatSP (1/10) (2/3))
-  , NS "top"   (myTerminal2 ++ " -e htop") (title =? "htop") (flexFloatSP (1/4) (1/4))
-  , NS "calc"  (myTerminal2 ++ " -e bcl -t bc") (title =? "bc") (flexFloatSP (1/4) (1/4))
+  , NS "top"   (myTerminal2 ++ " -e htop") (title =? "htop") (flexFloatSSP (1/4) (1/4))
+  , NS "calc"  (myTerminal2 ++ " -e bcl -t bc") (title =? "bc") (flexFloatSSSP (1/4) (1/4))
   --, NS "OSX"   "vboxmanage startvm El Capitan" (title =? "El Capitan") (flexFloatSP (2/3) (2/3))
   --, NS "MSW"   "vboxmanage startvm Windows" (title =? "Windows") (flexFloatSP (2/3) (2/3))
   ]
@@ -371,6 +381,8 @@ scratchpads =
 myScratchpadMenu =
   [ ("Term1", (scratchToggle "term"))
   , ("Term2", (scratchToggle "term2"))
+  , ("Term3", (scratchToggle "term3"))
+  , ("Term4", (scratchToggle "term4"))
   , ("ghci",  (scratchToggle "ghci"))
   , ("top",   (scratchToggle "top"))
   --, ("sync",  (scratchToggle "sync"))
@@ -739,8 +751,8 @@ selectSearchMenu =
 myXPConfig = def --  defaultXPConfig                            -- (23)
     { fgColor = "#a8a3f7"
     , bgColor = "#3f3c6d"
-    , font = "xft:Source Code Pro:size=24"
-    , height = 24
+    , font = "xft:Source Code Pro:size=14"
+    , height = 96
     }
 
 crizer :: String -> Bool -> X(String, String)
@@ -971,6 +983,8 @@ promptsKeymap = -- Prompts
 namedScratchpadsKeymap = -- Scratch Pads
     [ ("o", scratchToggle "term") -- Term
     , ("e", scratchToggle "term2") -- Term2
+    , ("u", scratchToggle "term3") -- Term2
+    , ("h", scratchToggle "term4") -- Term2
     , ("g", scratchToggle "ghci") -- ghci
     , ("c", scratchToggle "calc") -- calc
     , ("t", scratchToggle "top") -- top
@@ -1152,6 +1166,8 @@ mainKeymap c = mkKeymap c $ -- Main Keys
     , ("M4-S-/",        toSubmap c "selectSearchKeymap" selectSearchKeymap) -- Select Search
     , ("M4-i",          searchStuff) -- Search
     , ("M4-S-i",        selectSearchStuff) -- Search Selected
+    , ("M4-c",          spawn "cellwriter@point") -- cellwriter at point.
+    , ("M4-S-o",        spawn "onboard") -- onboard keyboard.
     ]
   where nextWindow      = windows W.focusDown
         prevWindow      = windows W.focusUp
