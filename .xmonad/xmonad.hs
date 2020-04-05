@@ -289,14 +289,16 @@ promptedShift = wsgrid >>= flip whenJust (windows . W.shift)
 -- pretty communication with the the dbus. ie. xfce-panel.
 -- I use a completely transparent panel for this. The background image
 -- has a nice multi-colored bar across the top of it. - oceanpark114.jpg
+-- https://hackage.haskell.org/package/xmonad-contrib-0.16/docs/XMonad-Hooks-DynamicLog.html
+
 prettyPrinter :: D.Client -> PP
 
 prettyPrinter dbus = def  --defaultPP
     { ppCurrent         = pangoColor "darkgreen" .wrap "[" "]" . pangoSanitize
     --, ppVisible         = wrap "<" ">"
-    , ppVisible  = pangoColor "yellow" . wrap "(" ")" . pangoSanitize
+--    , ppVisible  = pangoColor "yellow" . wrap "(" ")" . pangoSanitize
     , ppHidden          = id . noScratchPad
-    , ppHiddenNoWindows = noScratchPad
+--    , ppHiddenNoWindows = noScratchPad
     , ppUrgent          = id
     , ppSep             = "   :   "
     , ppWsSep           = "   "
@@ -313,7 +315,7 @@ spawnToWorkspace :: String -> String -> X ()
 spawnToWorkspace program workspace = do
   spawn program
   windows $ W.greedyView workspace
-
+  
 getWellKnownName :: D.Client -> IO ()
 getWellKnownName dbus = do
   D.requestName dbus (D.busName_ "org.xmonad.Log")
@@ -325,7 +327,7 @@ dbusOutput dbus str = do
     let signal = (D.signal (D.objectPath_ "/org/xmonad/Log")
                   (D.interfaceName_ "org.xmonad.Log")
                   (D.memberName_ "Update")) {
-            D.signalBody = [D.toVariant ("<span size=\"medium\"><b>" ++ (UTF8.decodeString str) ++ "</b></span>")]
+            D.signalBody = [D.toVariant ("<span size=\"small\"><b>" ++ (UTF8.decodeString str) ++ "</b></span>")]
             }
     D.emit dbus signal
 
@@ -333,7 +335,7 @@ dbusOutput dbus str = do
 pangoColor :: String -> String -> String
 pangoColor fg = wrap left right
   where
-    left  = "<span foreground=\"" ++ fg ++ "\" size=\"medium\">"
+    left  = "<span foreground=\"" ++ fg ++ "\" size=\"small\">"
     right = "</span>"
 
 pangoSanitize :: String -> String
@@ -349,6 +351,7 @@ pangoSanitize = foldr sanitize ""
 -- Scratch Pads ------------------------------------------------------------
 -- location and dimension.
 scratchpadSize = W.RationalRect (1/4) (1/4) (1/3) (3/7)
+  
 mySPFloat = customFloating scratchpadSize
 
             -- with a flexible location.
@@ -841,7 +844,7 @@ focusedScreenSize =
 keyColor = "yellow"
 cmdColor = "cyan"
 -- double double quoted so it can make it all the way to dzen.
-dzenFont = "\"-*-ubuntu mono-*-*-*-*-*-60-*-*-*-*-*-*\""
+dzenFont = "\"-*-ubuntu mono-*-*-*-*-*-96-*-*-*-*-*-*\""
 lineHeight = "24"
 
 keyMapDoc :: String -> X Handle
@@ -983,8 +986,8 @@ promptsKeymap = -- Prompts
 namedScratchpadsKeymap = -- Scratch Pads
     [ ("o", scratchToggle "term") -- Term
     , ("e", scratchToggle "term2") -- Term2
-    , ("u", scratchToggle "term3") -- Term2
-    , ("h", scratchToggle "term4") -- Term2
+    , ("u", scratchToggle "term3") -- Term3
+    , ("h", scratchToggle "term4") -- Term4
     , ("g", scratchToggle "ghci") -- ghci
     , ("c", scratchToggle "calc") -- calc
     , ("t", scratchToggle "top") -- top
