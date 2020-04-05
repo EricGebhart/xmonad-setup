@@ -14,6 +14,9 @@ import System.Exit
 import XMonad hiding ( (|||) )
 import XMonad.Layout.LayoutCombinators
 
+-- For KDE
+-- import XMonad.Config.Kde
+
 -- Actions
 
 -- import XMonad.Actions.PhysicalScreens
@@ -773,8 +776,8 @@ gsConfig = def {   -- defaultGSConfig
            gs_colorizer = crizer
            ,gs_cellheight  = 200
            ,gs_cellpadding = 5
-           ,gs_cellwidth   = 400
-           ,  gs_font = "xft:Source Code Pro:pixelsize=48"
+           ,gs_cellwidth   = 600
+           ,  gs_font = "xft:Source Code Pro:pixelsize=78"
            }
 
 -- I don't know why, but gotoSelected like
@@ -1224,6 +1227,7 @@ myStartupHook = return ()
 fadeinactive = fadeInactiveLogHook fadeAmount
    where fadeAmount = 0.7
 
+--     , manageHook = manageHook kdeConfig <+> myManageHook
 
 myConfig = do
   dbus <- D.connectSession
@@ -1235,6 +1239,8 @@ myConfig = do
          fadeinactive
 
       , manageHook = manageDocks <+> myManageHook <+> manageHook desktopConfig <+>
+-- for kde
+--                   manageHook kdeConfig <+>
                      namedScratchpadManageHook scratchpads
       , layoutHook = layoutHook defaults
       , handleEventHook = docksEventHook <+> handleEventHook desktopConfig
@@ -1280,3 +1286,27 @@ defaults = def {
 
 main :: IO ()
 main = xmonad =<< myConfig
+
+
+-- For KDE.
+-- A kde example
+
+-- import XMonad.Config.Kde
+
+-- main = xmonad kdeConfig
+--     { modMask = mod4Mask -- use the Windows button as mod
+--     , manageHook = manageHook kdeConfig <+> myManageHook
+--     }
+
+-- For floats.
+--
+-- myManageHook = composeAll . concat $
+--     [ [ className   =? c --> doFloat           | c <- myFloats]
+--     , [ title       =? t --> doFloat           | t <- myOtherFloats]
+--     , [ className   =? c --> doF (W.shift "2") | c <- webApps]
+--     , [ className   =? c --> doF (W.shift "3") | c <- ircApps]
+--     ]
+--   where myFloats      = ["MPlayer", "Gimp"]
+--         myOtherFloats = ["alsamixer"]
+--         webApps       = ["Firefox-bin", "Opera"] -- open on desktop 2
+--         ircApps       = ["Ksirc"]                -- open on desktop 3
