@@ -203,8 +203,9 @@ myTopics = [ TI "main" "" (return ())
            -- ,  TI "mail" "" (spawnInTopicDir "emacsn -e")
            , TI "Web" "" (spawnInTopicDir "vivaldi-stable")
            , TI "Xournal" "Xournal" (spawnInTopicDir "xournal")
-           , TI "Yeti" "play/Yeti/yeti-stack" (spawnInTopicDir "emacsn -m Yeti")
+--           , TI "Yeti" "play/Yeti/yeti-stack" (spawnInTopicDir "emacsn -m Yeti")
            , TI "Code" "play" (spawnInTopicDir "emacsn -m Code")
+           , TI "Arch-Setup" "Arch-Setup" (spawnInTopicDir "emacsn -m Arch-Setup")
            , TI "bgc-ui" "play/bgc-ui" (spawnInTopicDir "emacsn -m bgc-ui")
            , TI "eg.com" "play/ericgebhart.github.io" (spawnInTopicDir "emacsn -m eg.com")
            , TI "TB.com" "play/tangobreath.github.io" (spawnInTopicDir "emacsn -m tb.com")
@@ -315,7 +316,7 @@ spawnToWorkspace :: String -> String -> X ()
 spawnToWorkspace program workspace = do
   spawn program
   windows $ W.greedyView workspace
-  
+
 getWellKnownName :: D.Client -> IO ()
 getWellKnownName dbus = do
   D.requestName dbus (D.busName_ "org.xmonad.Log")
@@ -351,7 +352,7 @@ pangoSanitize = foldr sanitize ""
 -- Scratch Pads ------------------------------------------------------------
 -- location and dimension.
 scratchpadSize = W.RationalRect (1/4) (1/4) (1/3) (3/7)
-  
+
 mySPFloat = customFloating scratchpadSize
 
             -- with a flexible location.
@@ -770,10 +771,10 @@ crizer _ True = return ("#657b83", "#fdf6e3")
 
 gsConfig = def {   -- defaultGSConfig
            gs_colorizer = crizer
-           ,gs_cellheight  = 75
+           ,gs_cellheight  = 200
            ,gs_cellpadding = 5
-           ,gs_cellwidth   = 200
-           ,  gs_font = "xft:Source Code Pro:pixelsize=36"
+           ,gs_cellwidth   = 400
+           ,  gs_font = "xft:Source Code Pro:pixelsize=48"
            }
 
 -- I don't know why, but gotoSelected like
@@ -857,9 +858,9 @@ keyMapDoc name = do
                                        show (rect_width ss),
                                        show (rect_height ss),
                                        keyColor,
-                                               cmdColor,
-                                               dzenFont,
-                                               lineHeight]
+                                       cmdColor,
+                                       dzenFont,
+                                       lineHeight]
        return handle
 
 toSubmap :: XConfig l -> String -> [(String, X ())] -> X ()
