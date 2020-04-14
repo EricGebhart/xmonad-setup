@@ -211,12 +211,14 @@ myTopics = [ TI "main" "" (return ())
            , TI "Arch-Setup" "Arch-Setup" (spawnInTopicDir "emacsn -m Arch-Setup")
            , TI "bgc-ui" "play/bgc-ui" (spawnInTopicDir "emacsn -m bgc-ui")
            , TI "eg.com" "play/ericgebhart.github.io" (spawnInTopicDir "emacsn -m eg.com")
-           , TI "TB.com" "play/tangobreath.github.io" (spawnInTopicDir "emacsn -m tb.com")
-           , TI "Elisp" "play/emacs-setup" (spawnInTopicDir "emacsn -m Elisp")
+           , TI "tb.com" "play/tangobreath.github.io" (spawnInTopicDir "emacsn -m tb.com")
+           , TI "Elisp" "elisp" (spawnInTopicDir "emacsn -m Elisp")
+           , TI "Closh" "play/closh" (spawnInTopicDir "emacsn -m closh")
            , TI "QMK" "play/qmk_firmware" (spawnInTopicDir "emacsn -m QMK keyboards/ergodox_ez/keymaps/ericgebhart/keymap.c")
            , TI "XMonad" ".xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs") -- lib/*/*.hs
            , TI "Comm" "" (spawnInTopicDir "slack" >>
                             spawnInTopicDir "emacsn -e")
+
            , TI "BD" "BD" (spawnInTopicDir "termite -T BD" >>
                             spawnInTopicDir "YACReaderLibrary")
            , TI "DownLoads" "Downloads" (spawnInTopicDir "termite -T Downloads" >>
@@ -617,16 +619,16 @@ myManageHook = myManageHelpers <+>
 myLayout = avoidStruts (
   ThreeColMid 1 (3/100) (1/2) |||
     XMonad.Tall 1 (3/100) (1/2) |||
-    -- Mirror (XMonad.Tall 1 (3/100) (1/2)) |||
+    Mirror (XMonad.Tall 1 (3/100) (1/2)) |||
     tabbed shrinkText tabConfig |||
-    -- Full |||
-    -- TwoPane (3/100) (1/2) |||
+    Full |||
+    TwoPane (3/100) (1/2) |||
     Mag.magnifier BSP.emptyBSP |||
     Circle |||
     Mag.magnifier tiled ||| hintedTile XMonad.Layout.HintedTile.Tall ||| hintedTile Wide |||
-    -- Accordion |||
+    Accordion |||
     mirrorAccordion |||
-    -- Grid |||
+    Grid (8/4) |||
     -- spiral (6/7)
     noBorders (fullscreenFull Full))
   where
@@ -774,10 +776,10 @@ crizer _ True = return ("#657b83", "#fdf6e3")
 
 gsConfig = def {   -- defaultGSConfig
            gs_colorizer = crizer
-           ,gs_cellheight  = 200
+           ,gs_cellheight  = 150
            ,gs_cellpadding = 5
-           ,gs_cellwidth   = 600
-           ,  gs_font = "xft:Source Code Pro:pixelsize=78"
+           ,gs_cellwidth   = 400
+           ,  gs_font = "xft:Source Code Pro:pixelsize=48"
            }
 
 -- I don't know why, but gotoSelected like
