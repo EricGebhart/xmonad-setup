@@ -1,141 +1,123 @@
 # xmonad-setup
 my setup files for xmonad
 
-I've been using xmonad since July, 2016. 
+I've been using xmonad since July, 2014
 
 This is a complete configuration, it does not really use the default setup.  All keys are defined here. I did
 stick to the defaults to a point.  But this setup uses sub-menus for the keys to provide more control.
 It also provides a popup menu of keystroke possibities, very much like emacs. So it's easy to find what keystrokes do what.
 
+Xmonad is a big universe. The dzen key hints really helps with exploring and remembering what is there.  
+Make a submap of commands you wonder about, try them out. Rearrange as needed.
 
-The keys and commands are still in a lot of flux. But I'm slowly exploring everything I have and figuring out what I like and
-don't like. The dzen key hints really helps with exploring and remembering what is there. And also finding things
-that don't work quite the way they should or the way I want.
+`M4-S-m` to get a pop up of the top level key commands.
 
-I use arch linux, so these are also the arch package names.  See my (arch-pkgs repo)[http://github.com/ericgebhart/arch-pkgs] for a meta package that will install most of this.
+I use arch linux, so these are also the arch package names. 
+See my (arch-pkgs repo)[http://github.com/ericgebhart/arch-pkgs] for a meta package that will install most of this.
+There, just do a `make Xmonad` and you should be good for packages from the AUR or otherwise. 
+
+There are lots of choices for status bars around. I've used xmobar, xfce-panel, kde-panel, and now I'm back
+to what seems the simplest and best. polybar.   For all the various desktop panels see my xmonad-log-applet repo.
+
+I recently added rofi, but I'm not sure it's any better than dmenu. I know it's not _just_ dmenu, but that's all
+that I can think of to use it for. Conky is fine and pretty, but htop is just so simple.
+
+This repo is for configurations and etc. Just do a `make all` here.  If you need to install things 
+and you use an Arch Linux based distro then go get my [arch-pkgs](http://github.com/ericgebhart/arch-pkgs) or 
+my more comprehensive [Arch-Setup](http://github.com/ericgebhart/Arch-Setup) 
 
 You will need:
 * xmonad
 * xmonad-log-applet (from my repo)[http://github.com/ericgebhart/xmonad-log-applet]
 * dzen2
 * dmenu
+* rofi
+* polybar
+* conky
 * rxvt-unicode - or change xmonad.hs to point at your favorite terminal.
 * termite - or change xmonad.hs to point at your favorite terminal.
 * xcompmgr or compton if you want transparency to work.
 * adobe-source-code-pro-fonts
 * ttf-ubuntu-font-family
-* xfce4-panel
-* ghc is nice to have for haskell coding. ie. if you modify xmonad.hs.
+* awesome-terminal-fonts - perhaps.
+* ghci is nice to have for haskell coding. ie. if you modify xmonad.hs.
 * feh        -- set background image.
-* onboard    -- on screen keyboard
-* easysroke  -- gesture support.
+* For touch screens
+    * onboard    -- on screen keyboard 
+    * easysroke  -- gesture support.
 
-A couple of things about keys, I'm still figuring what I want, but one of the things that effects my decisions is that I use a dvorak keyboard.  I put my favorite commands on or close to the home row, which may not make sense on a qwerty keyboard. One menu that really stands out as dvorak specific is the floating window sub menu. It has commands on the right hand to place windows in 9 different places as if your right hand was on a keypad. Any time someone might be tempted to use `hjkl` as arrow keys I use `htns` which is the right hand home row.
+A couple of things about keys, I'm still figuring what I want, but one of the things that effects my decisions is that I use a dvorak keyboard.  I put my favorite commands on or close to the home row, which may not make sense on a qwerty keyboard. One menu that really stands out as dvorak specific is the floating window sub menu. It has commands on the right hand to place windows in 9 different places as if your right hand was on a keypad. Another difference
+is any time someone might be tempted to use `hjkl` as arrow keys I use `htns` which is the right hand home row.
+
+If there is a grid-select, there is probably also a submap key menu and a prompt version as well.
+Grid Select uses the default navigation, vi, arrows, and / to search. Enter or click to choose, Escape...
 
 **Some key features**  
- * EZConfig
- * topic space 
- * grid select 
+ * EZConfig - Emacs style keybindings and submenus.
+ * Key hints - Emacs style popup of key command choices.
+ * topic space -- automatically start applications when going to a workspace
+ * per-workspace layouts -- different default layouts and layout choices by workspace
+ * grid select  - popup menu of choices.
    * workspaces
+   * layouts
    * windows
-   * shift
-   * bring
-   * scratchpads
-   * Prompted Search & Selected search
-   * Applications
+   * shift window to workspace
+   * bring window to workspace
+   * named scratchpads
+   * Prompted & Selected search, man, duckduckgo, hoogle, Arch, Wiktionary, etc.
+   * Applications - never use.
  * Window marking/tagging.
  * prompt & select search 
  * other prompts - man prompt, shell prompt,
  * floatkeys - resize and move floating windows.
- * magnifier 
- * named scratchpads 
- * submap keymaps with key hints popup via dzen2, thank you [pclewis!](https://github.com/pclewis/dotfiles/tree/master/xmonad/.xmonad) , 
+ * magnifier layouts 
+ * named scratchpads , terminals, bc, Htop, conky, pavucontrol, alsamixer, ghci
  * working screenshot
- * dmenu 
- * xfce-panel
+ * dmenu / rofi
+ * polybar, xfce-panel
  * cellwriter  - if you want pen gesture support.
- * emacs script to start emacs as client, or standalone, and to call an elisp function on startup. -- I use standalone emacs running mu4e for email and a separate emacs session for coding. Sometimes I want coding sessions to be homogoneous through emacs client and sometimes I want them standalone. This script takes care of that for me in a nice way.
+ 
+ 
+ Any custom scripts I use are in my *necessities* package.  emacsn and bcl my bc calculator setup are there among others.
+*emacsn*
+ is script to start emacs as client, or standalone, and to call an elisp function on startup. -- I use standalone emacs running mu4e for email and a separate emacs session for coding. Sometimes I want coding sessions to be homogoneous through emacs client and sometimes I want them standalone. This script takes care of that for me in a nice way.
 
-I am not currently using this with the xfce-session manager.  I did for a while, but it seems unnecessary. I'm only using
-the xfce-panel.  So somethings on the applications menu don't work. But I almost never use that menu.
-
-See my [xmonad-log-applet](https://github.com/EricGebhart/xmonad-log-applet) repo to get xfce-panel  to display xmonad information.
+*xfce-panel*
+I no longer use this. I use polybar instead. If you wish to use xfce-panel with dbus etc. then
+see my [xmonad-log-applet](https://github.com/EricGebhart/xmonad-log-applet) repo to get xfce-panel  to display xmonad information.
 
 Key Hints
 ---------
-The important bits for keyhints is to put `showHintForKeymap.sh` in your .xmonad directory. If things are displayed to   tightly it may be necessary to increase the line height. 
+Emacs style popup key hints via dzen2, 
+thank you [pclewis!](https://github.com/pclewis/dotfiles/tree/master/xmonad/.xmonad) for the original idea and code!
+
+The important bits for keyhints is `showHintForKeymap.sh`, an awk program that lives in your .xmonad directory. 
+If things are displayed too tightly, or dropping off, it may be necessary to increase the line height
+your xmonad.hs.  Hopefully it's obvious.
  
-If you want to change the font for dzen something like this works in .Xresources. You can also pass the font in to the showhintforkeymap.sh function.
+If you want to change the font for dzen something like this works in .Xresources. You can also pass the font in to the showhintforkeymap.sh function.  -- all of this is taken care of with the install. But mind that I have a hi-dpi monitor and I have settings for that as well. So *big* fonts sometimes. You'll want to read the code...
+
+Everything you need is in this project, so go explore.
 
 ```dzen2.font: -*-ubuntu mono-*-*-*-*-*-*-*-*-*-*-*-*```
 
-A fixed font of some sort is necessary for this. The code below uses
-the ubuntu mono font.  
-
-**The functionality for keyhints is in this code:**
-
-** Thank you to PCLewis for the initial version of this **
-```
- -- Key Map doc ------------------------------------------------
-
-windowScreenSize :: Window -> X (Rectangle)
-windowScreenSize w = withDisplay $ \d -> do
-    ws <- gets windowset
-    sc <- fromMaybe (W.current ws) <$> pointScreen 10 10
-
-    return $ screenRect . W.screenDetail $ sc
-  where fi x = fromIntegral x
-
-focusedScreenSize :: X (Rectangle)
-focusedScreenSize = withWindowSet $ windowScreenSize . fromJust . W.peek
-
-  -- withWindowSet $ \ws -> do
-  -- ss <- windowScreenSize $ fromJust $ W.peek ws
-  -- return ss
-
-keyColor = "yellow"
-cmdColor = "cyan"
--- double quoted so it can make it all the way to dzen.
-dzenFont = "\"-*-ubuntu mono-*-*-*-*-*-*-*-*-*-*-*-*\""
-lineHeight = "18"
-
-keyMapDoc :: String -> X Handle
-keyMapDoc name = do
-  ss <- focusedScreenSize
-  handle <- spawnPipe $ unwords ["~/.xmonad/showHintForKeymap.sh",
-                                 name,
-                                 show (rect_x ss),
-                                 show (rect_y ss),
-                                 show (rect_width ss),
-                                 show (rect_height ss),
-                                 keyColor,
-                                 cmdColor,
-                                 dzenFont,
-                                 lineHeight]
-  return handle
-
-toSubmap :: XConfig l -> String -> [(String, X ())] -> X ()
-toSubmap c name m = do
-  pipe <- keyMapDoc name
-  submap $ mkKeymap c m
-  io $ hClose pipe
-
-
-```
+ All the fonts and colors are near the top of xmonad.hs with the rest of them. So adjust accordingly.
 
 Creating a submap key menu is easy. The key hint label will be the name of the keymap variable, or the comment on the first line.
 In the example below "Raise" will be the title. Without the comment "raiseKeymap" would be the title. 
 If there is a comment at the end of a keymap entry that 
 will be used as the descriptor in the keyhint.  Otherwise the actual command will be used.
-Formatting should be nice, but the parser is fairly tolerant. It works by looking through your
+Formatting should be nice, but the awk parser is fairly tolerant. It works by looking through your
 xmonad.hs for the keymap name and grabbing everything from there to the closing **]**
 
 ```
 mainKeymap c = mkKeymap c $ -- Main Keys
     [
+    ...
 
     ("M4-r",          toSubmap c "raiseKeymap" raiseKeymap)
 
+    ...
     ]
 
 raiseKeymap = -- Raise
@@ -155,24 +137,20 @@ BC Scratchpad
 -------------
 
 For more information see my repository (bc-extensions)[https://github.com/ericgebhart/bc-extensions]
+This is also part of my [Arch-Setup repo](https://github.com/ericgebhart/Arch-Setup)which has makefiles and repos for all sorts of things.
 
 
 Install
 -------
-Where to put stuff. 
+Just do a `make all`  But if you want to be cautious and know what is going where, read the Makefile.
+Maybe you have a .xresources, a .xinitrc, your own xmonad.hs and other stuff.
+Everything is here, so have at it.
 
-* .xmonad ==> ~/         
-  * the usual place for xmonad.
-* .xmonad.start ==> ~/   
-  * a start script for startx
-* xmonad.desktop ==> /usr/share/xsessions    
-  * this is the entry you need for a display manager like _sddm_ or whatever you like.
-
-Use make
---------
-
-To install just the xmonad parts use 'make install'. To install the xsession use 'sudo make xsession'.  This does reference the xmonad.start in your home directory, so perhaps you'll want to
+To install just the xmonad parts use 'make install'. To install the xsession use 'sudo make xsession'.  
+This does reference the xmonad.start in your home directory, so perhaps you'll want to
 put that in a more generic place.  I usually just do `startx ./xmonad.start` in my _.zlogin_.
+Optionally, use the .xinitrc which is exactly the same. But allows for a display manager or just `startx`.
+Whatever you want...
 
-That should do it.
+That should be enough rattling around, have fun.
 

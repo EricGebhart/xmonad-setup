@@ -1,4 +1,5 @@
 .PHONY: install
+
 install:
 	cp -r .xmonad $(HOME)/
 	mkdir -p $(HOME)/bin
@@ -9,6 +10,21 @@ install:
 .PHONY: xsession
 xsession:
 	sudo cp xmonad.desktop /usr/share/xsessions/
+
+startup:
+	sudo cp .xinitrc $(HOME)/
 	sudo cp xmonad.start /usr/local/bin/
 
-all: install xsession
+polybar:
+	mkdir -p $(HOME)/.config
+	cp -r .config/polybar 	$(HOME)/.config/
+
+conky:
+	mkdir -p $(HOME)/.config
+	cp -r .config/conky 	$(HOME)/.config/
+
+rofi:
+	mkdir -p $(HOME)/.config
+	cp -r .config/rofi 	$(HOME)/.config/
+
+all: install xsession polybar conky rofi startup

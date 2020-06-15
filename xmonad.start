@@ -39,8 +39,9 @@ nm-applet & ## if using trayer add: --sm-disable &
 #/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 #blueberry-tray &
 
-xfce4-panel -d &
-xfce4-power-manager &
+#xfce4-panel -d &
+#xfce4-power-manager &
+~/.config/polybar/launch.sh &
 
 #xxrandr --setprovideroutputsource modesetting NVIDIA-0
 #xrandr --auto

@@ -61,18 +61,24 @@ import XMonad.Layout.ResizableTile -- (5)  resize non-master windows too
 import XMonad.Layout.LayoutHints
 import XMonad.Layout.MultiColumns
 import XMonad.Layout.OneBig
+import XMonad.Layout.Dishes
+import XMonad.Layout.LimitWindows
+import XMonad.Layout.Reflect
 import XMonad.Layout.TwoPane
 import XMonad.Layout.DwmStyle
 import XMonad.Layout.IM
 import XMonad.Layout.Fullscreen
 import XMonad.Layout.NoBorders
-import XMonad.Layout.Spiral
+import qualified XMonad.Layout.Dwindle as DW  -- Dwindle,Spiral and Squeeze.
 import qualified XMonad.Layout.BinarySpacePartition as BSP
 import XMonad.Layout.Tabbed
+import XMonad.Layout.Roledex
 import XMonad.Layout.Circle
+import XMonad.Layout.Cross
 import qualified XMonad.Layout.Grid as G
 import XMonad.Layout.GridVariants ( Grid(..) )
-import XMonad.Layout.HintedTile
+import qualified XMonad.Layout.HintedTile as HT
+import XMonad.Layout.StackTile
 import XMonad.Layout.Accordion
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.ThreeColumns
@@ -139,10 +145,108 @@ myShell = "zsh"
 myNormalBorderColor  = "#7c7c7c"
 myFocusedBorderColor = "#000000" -- "#ffb6b0"
 myActiveBorderColor  = "#007c7c"
+-- Colours
+fg        = "#ebdbb2"
+bg        = "#282828"
+gray      = "#a89984"
+bg1       = "#3c3836"
+bg2       = "#505050"
+bg3       = "#665c54"
+bg4       = "#7c6f64"
 
+pbGreen     = "#08cc86"
+pbDarkgreen = "#000a06"
+pbRed       = "#fb4934"
+pbDarkred   = "#cc241d"
+pbYellow    = "#fabd2f"
+pbBlue      = "#83a598"
+pbPurple    = "#fab6fb"
+pbCyan      = "#00FFFF"
+pbAqua      = "#8ec07c"
+pbWhite     = "#eeeeee"
+
+pbBlue2     = "#2266d0"
+
+-- orange = myColor "#9f6225"
+-- pink   = myColor "#9f2562"
+-- purple = myColor "#62259f"
+myBack    = "#1a1a1a" -- Bar background
+myFore    = "#999999" -- Bar foreground
+myAcc     = "#25629f" -- Accent color
+myHigh    = "#629f25" -- Highlight color
+myLow     = "#000000" -- Lowlight color
+myVis     = "#9f2562" -- Visible Workspace
+myEmpt    = "#555555" -- Empty workspace
+
+crizer :: String -> Bool -> X(String, String)
+crizer _ False = return ("#002b36", "#839496")
+crizer _ True = return ("#839596", "#002b36")
+
+-- Colorizer generator
+myColor color _ isFg = do
+  return $ if isFg
+           then (color, myLow)
+           else (myLow ,color)
+
+-- Colorizer colors for GridSelect
+--aqua   = myColor "#259f62"
+blue   = myColor "#25629f"
+green  = myColor "#629f25"
+red    = myColor "#964400"
+
+-- basically tabs since I don't have anything else
 myFont = "Source Code Pro"
 myMonoFont = "Source Code Pro"
 myfontwsize = "xft:" ++ myFont ++ ":size=16"
+
+
+-----------------------------------------
+-- Settings for the dzen sub-keymap popup
+
+menuPopKeyColor = "yellow"
+menuPopCmdColor = "cyan"
+-- double double quoted so it can make it all the way to dzen.
+menuPopLineHeight = "24"
+menuPopDzenFont = "\"-*-ubuntu mono-*-*-*-*-*-96-*-*-*-*-*-*\""
+
+-------------------------------------------------------------------------
+--Xmonad prompt and GridSelect configs.
+
+-- some nice colors for the prompt windows to match the dzen status bar.
+myXPConfig = def --  defaultXPConfig                            -- (23)
+    { fgColor = "#a8a3f7"
+    , bgColor = "#3f3c6d"
+    , font = "xft:Source Code Pro:size=14"
+    , height = 96
+    }
+
+-- grid select workspaces
+workspaceGsConfig = def -- defaultGSConfig
+           {gs_colorizer = crizer
+           , gs_cellheight  = 150
+           , gs_cellpadding = 5
+           , gs_cellwidth   = 400
+           , gs_font = "xft:Source Code Pro:pixelsize=48"
+           }
+
+-- goto selected, bring to selected
+gotoBringGsConfig = def
+                {gs_cellheight = 75
+                , gs_cellpadding = 5
+                , gs_cellwidth = 600
+                , gs_font = "xft:Source Code Pro:pixelsize=36"
+                }
+
+
+-- GridSelect config
+-- get scratchpads, searchstuff, selectSearchStuff
+-- give it a color for the grid when you use it.
+coloredGSConfig colorizer = (buildDefaultGSConfig colorizer)
+                       { gs_cellheight  = 95
+                       , gs_cellpadding = 5
+                       , gs_cellwidth   = 250
+                       , gs_font = "xft:Source Code Pro:pixelsize=40"
+                       }
 
 -- theme settings for tabs and deco layouts.
 myTheme :: Theme
@@ -187,14 +291,13 @@ mySelectScreenshot = "select-screenshot"
 -- The command to take a fullscreen screenshot.
 myScreenshot = "screenshot"
 
-------------------------------------------------------------------------
 -- Workspaces
 -- The default number of workspaces (virtual screens) and their names.
                --
- -- Topics replaces this...
--- myWorkspaces = ["1:Code","2:Comm","3:Lang","4:Music","5:media"] ++ map show [6..9]
-
 -- Workspaces using TopicSpace.
+-- When a workspace is selected, if there are no windows present, open
+-- whatever should be there, in the directory it should be focused on.
+-- To reset a workspace, just make it empty, then change out and back.
 
 data TopicItem = TI { topicName :: Topic
                     , topicDir  :: String
@@ -214,6 +317,7 @@ myTopics = [ TI "main" "" (return ())
            , TI "tb.com" "play/tangobreath.github.io" (spawnInTopicDir "emacsn -m tb.com")
            , TI "Elisp" "elisp" (spawnInTopicDir "emacsn -m Elisp")
            , TI "Closh" "play/closh" (spawnInTopicDir "emacsn -m closh")
+           , TI "Mal" "play/mal" (spawnInTopicDir "emacsn -m mal")
            , TI "QMK" "play/qmk_firmware" (spawnInTopicDir "emacsn -m QMK keyboards/ergodox_ez/keymaps/ericgebhart/keymap.c")
            , TI "XMonad" ".xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs") -- lib/*/*.hs
            , TI "Comm" "" (spawnInTopicDir "slack" >>
@@ -229,11 +333,12 @@ myTopics = [ TI "main" "" (return ())
            , TI "3D" "Projects/3d" (spawnInTopicDir "repetierHost" >>
                            spawnInTopicDir "openscad" >>
                            spawnInTopicDir "emacsn -m 3D")
-           , TI "Music"  "Music" (spawn "mediacenter22")
+           , TI "Music"  "Music" (spawn "mediacenter26")
            , TI "Movies" "Movies" (spawn "vlc")
              -- , TI "calendar" "" (spawn "vivaldi --app='http://calendar.google.com'")
-           , TI "Krita" "Drawings" (spawnInTopicDir "krita") -- lib/*/*.hs
-           , TI "Gravit" "Drawings" (spawnInTopicDir "GravitDesigner.AppImage") -- lib/*/*.hs
+           , TI "Krita" "Drawings" (spawnInTopicDir "krita")
+           , TI "Inkscape" "Drawings" (spawnInTopicDir "inkscape")
+           , TI "Gravit" "Drawings" (spawnInTopicDir "GravitDesigner.AppImage")
              --, TI "feeds"  "" (spawn "chromium-browser --app='https://feedbin.me'")
            --, TI "stats"  "" (spawnInTopicDir "termite -e htop")
            ]
@@ -249,8 +354,6 @@ myTopicConfig = TopicConfig
     , maxTopicHistory = 10
     , topicActions = M.fromList $ map (topicName &&& topicAct) myTopics
     }
-
-
 
 -- --- Prompted workspace navigation. ---------------------------------
 
@@ -270,35 +373,42 @@ spawnShell = currentTopicDir myTopicConfig >>= spawnShellIn
 
 spawnIn act dir = spawn $ "cd " ++ dir ++ "; " ++ act
 
-wsgrid = withWindowSet $ \w -> do
-    let wss = W.workspaces w
-        usednames = map W.tag $  wss
-        newnames = filter (\used -> (show used `notElem` (map show myTopicNames))) usednames
-    gridselect gsConfig (map (\x -> (x,x)) (myTopicNames ++ newnames))
-
-      -- gridselect a workspace and view it
-promptedGoto = wsgrid >>= flip whenJust (switchTopic myTopicConfig)
--- gridselect a workspace to shift active window to
-promptedShift = wsgrid >>= flip whenJust (windows . W.shift)
 
 -- --- Choose your method:  prompts or Grid select.  - These are prompts.
 -- goto :: Topic -> X ()
 -- goto = switchTopic myTopicConfig
 
-
 -- promptedShift :: X ()
 -- promptedShift = workspacePrompt myXPConfig $ windows . W.shift
 
 --------------------------------------------------------------------------------
-
-
--- pretty communication with the the dbus. ie. xfce-panel.
+-- Polybar, xmobar, xfce4-panel, gnome-panel, kde-panel, etc.
+--
+-- pretty communication with the the dbus.
 -- I use a completely transparent panel for this. The background image
 -- has a nice multi-colored bar across the top of it. - oceanpark114.jpg
 -- https://hackage.haskell.org/package/xmonad-contrib-0.16/docs/XMonad-Hooks-DynamicLog.html
 
-prettyPrinter :: D.Client -> PP
+-- this one is for polybar
 
+myPPPolybar :: D.Client -> PP
+myPPPolybar dbus = def
+    { ppOutput   = dbusPPOutput dbus
+    , ppCurrent  = wrap ("%{F" ++ pbGreen ++ "}%{u" ++ pbGreen ++ "}%{+u}") " %{F- -u}"
+    , ppVisible  = wrap ("%{F" ++ pbBlue ++ "} ") " %{F-}"
+    , ppUrgent   = wrap ("%{F" ++ pbRed ++ "} ") " %{F-}"
+    --, ppHidden = wrap " " " "
+    , ppLayout   = wrap ("%{F" ++ pbCyan ++ "} ") " %{F-}"
+    , ppHidden   = id . noScratchPad
+    , ppWsSep    = "   "
+    , ppSep      = "  |  "
+    --, ppTitle = myAddSpaces 25
+    , ppTitle           = shorten 80
+    }
+  where noScratchPad ws = if ws == "NSP" then "" else ws
+
+-- this one for xfce4-panel or other panels that use pango/html type formatting
+prettyPrinter :: D.Client -> PP
 prettyPrinter dbus = def  --defaultPP
     { ppCurrent         = pangoColor "darkgreen" .wrap "[" "]" . pangoSanitize
     --, ppVisible         = wrap "<" ">"
@@ -317,6 +427,7 @@ prettyPrinter dbus = def  --defaultPP
     }
   where noScratchPad ws = if ws == "NSP" then "" else ws
 
+--- unused at the moment.
 spawnToWorkspace :: String -> String -> X ()
 spawnToWorkspace program workspace = do
   spawn program
@@ -327,6 +438,15 @@ getWellKnownName dbus = do
   D.requestName dbus (D.busName_ "org.xmonad.Log")
                 [D.nameAllowReplacement, D.nameReplaceExisting, D.nameDoNotQueue]
   return ()
+
+dbusPPOutput :: D.Client -> String -> IO ()
+dbusPPOutput dbus str = do
+    let signal = (D.signal (D.objectPath_ "/org/xmonad/Log")
+                  (D.interfaceName_ "org.xmonad.Log")
+                  (D.memberName_ "Update")) {
+            D.signalBody = [D.toVariant (UTF8.decodeString str)]
+            }
+    D.emit dbus signal
 
 dbusOutput :: D.Client -> String -> IO ()
 dbusOutput dbus str = do
@@ -354,8 +474,11 @@ pangoSanitize = foldr sanitize ""
     sanitize x    xs = x:xs
 
 
+----------------------------------------------------------------------------
 -- Scratch Pads ------------------------------------------------------------
+
 -- location and dimension.
+
 scratchpadSize = W.RationalRect (1/4) (1/4) (1/3) (3/7)
 
 mySPFloat = customFloating scratchpadSize
@@ -372,8 +495,11 @@ flexFloatSSP dx dy = customFloating (flexSScratchpadSize dx dy)
 flexFloatSSSP dx dy = customFloating (flexSSScratchpadSize dx dy)
 flexFloatBSP dx dy = customFloating (flexScratchpadSize dx dy)
 
+
 scratchpads =
-  [ NS "term"  (myTerminal2 ++ " -t term") (title =? "term") (flexFloatBSP (1/20) (1/20))
+  [ NS "conky"   spawnConky findConky manageConky
+  , NS "pavuControl"   spawnPavu findPavu managePavu
+  , NS "term"  (myTerminal2 ++ " -t term") (title =? "term") (flexFloatBSP (1/20) (1/20))
   , NS "term2" (myTerminal2 ++ " -t term2") (title =? "term2") (flexFloatBSP (2/20) (2/20))
   , NS "term3" (myTerminal2 ++ " -t term3") (title =? "term3") (flexFloatBSP (4/20) (4/20))
   , NS "term4" (myTerminal2 ++ " -t term4") (title =? "term4") (flexFloatBSP (6/20) (4/20))
@@ -381,14 +507,31 @@ scratchpads =
   --, NS "sync"  (myTerminal ++ " -e sy") (title =? "sy") (flexFloatSP (1/10) (2/3))
   , NS "top"   (myTerminal2 ++ " -e htop") (title =? "htop") (flexFloatSSP (1/4) (1/4))
   , NS "calc"  (myTerminal2 ++ " -e bcl -t bc") (title =? "bc") (flexFloatSSSP (1/4) (1/4))
-  --, NS "OSX"   "vboxmanage startvm El Capitan" (title =? "El Capitan") (flexFloatSP (2/3) (2/3))
-  --, NS "MSW"   "vboxmanage startvm Windows" (title =? "Windows") (flexFloatSP (2/3) (2/3))
+  , NS "alsaMixer"  (myTerminal2 ++ " -e alsamixer -t alsamixer") (title =? "alsamixer") (flexFloatSSSP (1/4) (1/4))
   ]
+  where
+    spawnConky  = "conky -c ~/.config/conky/AUR-Lazuli-Azul.conkyrc" -- launch Conky
+    findConky   = title =? "system_conky"   -- its window,  has a own_window_title of "system_conky"
+    manageConky = (flexFloatSSP (1/4) (1/4))
+    spawnPavu  = "pavucontrol"
+    findPavu   = title =? "pavucontrol"
+    managePavu = (flexFloatSSP (1/4) (1/4))
+
+-- Scratchpad invocation / Dismissal
+-- Warp
+bringMouse = warpToWindow (9/10) (9/10)
+scratchToggle a = namedScratchpadAction scratchpads a >> bringMouse
+
+----------------------------------------------------------------
+-- Grid-Select menu --------------------------------------------
 
 -- This is how to make a runSelectedAction grid select menu.
 -- A grid select for scratchpads.
 myScratchpadMenu =
-  [ ("Term1", (scratchToggle "term"))
+  [ ("Conky", (scratchToggle "conky"))
+  , ("Volume",(scratchToggle "pavuControl"))
+  , ("AlsaMixer", (scratchToggle "alsaMixer"))
+  , ("Term1", (scratchToggle "term"))
   , ("Term2", (scratchToggle "term2"))
   , ("Term3", (scratchToggle "term3"))
   , ("Term4", (scratchToggle "term4"))
@@ -402,6 +545,34 @@ myScratchpadMenu =
   -- , ("Scratch", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800")
   ]
 
+-- The scratch pad sub keymap
+namedScratchpadsKeymap = -- Scratch Pads
+    [ ("o", scratchToggle "term") -- Term
+    , ("e", scratchToggle "term2") -- Term2
+    , ("u", scratchToggle "term3") -- Term3
+    , ("h", scratchToggle "term4") -- Term4
+    , ("g", scratchToggle "ghci") -- ghci
+    , ("c", scratchToggle "calc") -- calc
+    , ("C", scratchToggle "conky") -- Conky
+    , ("v", scratchToggle "pavuControl") -- Pavu Control
+    , ("a", scratchToggle "alsaMixer") -- Pavu Control
+    , ("t", scratchToggle "top") -- top
+    , ("n", scratchpadSpawnActionTerminal "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
+    ]
+
+manageScratchPad :: ManageHook
+manageScratchPad = scratchpadManageHook (W.RationalRect l t w h)
+  where
+    h = 0.6
+    w = 0.5
+    t = 1 - h
+    l = 1 - w
+
+----------------------------------------------------------------
+-- Grid-Select menu --------------------------------------------
+
+-- More grid select Menus
+-- I just never use these. Leaving in case I change my mind.
 --- grid select for some apps.
 myApps = [("Terminal",     (spawn     myTerminal))
 
@@ -423,17 +594,6 @@ myApps = [("Terminal",     (spawn     myTerminal))
 
          ]
 
-
-  -- where
-  --   raiseApp ws a = (raiseNextMaybe (spawnWS ws a) (appName ~? a)) >> bringMouse
-  --   raiseApp' a = (raiseNextMaybe (spawn a) (appName ~? a)) >> bringMouse
-  --   --raiseClass ws a c = (raiseNextMaybe (spawnWS ws a) (className ~? c)) >> bringMouse
-  --   --raiseClass' a c = (raiseNextMaybe (spawn a) (className ~? c)) >> bringMouse
-  --   --gksuApp ws a = (raiseNextMaybe (spawnWS ws ("gksudo " ++ a)) (appName ~? a)) >> bringMouse
-  --   --myRaiseTerm a d = (raiseNextMaybe (spawnWS a (termApp a d)) (role ~? a)) >> bringMouse
-  --   --termApp a d = myTerm ++ " -r " ++ a ++ " --working-dir=" ++ d ++ " -l " ++ a
-
-
 ------------------------------------------------------------------------
 -- Window rules
 -- Execute arbitrary actions and WindowSet manipulations when managing
@@ -441,57 +601,27 @@ myApps = [("Terminal",     (spawn     myTerminal))
 -- particular program, or have a client always appear on a particular
 -- workspace.
 --
+-- Pretty much I either float them, or ignore them. Shifting them, with
+-- doShift, on invocation to another desktop is something I never do.
+-- Topics automatically launches things by workspace, So I never have
+-- a need for that.
+--
 -- To find the property name associated with a program, use
 -- > xprop | grep WM_CLASS
 -- and click on the client you're interested in.
+-- To match on the WM_NAME use 'title'
 --
--- To match on the WM_NAME, you can use 'title' in the same way that
--- 'className' and 'resource' are used below.
---
-myManageHelpers = composeAll
-    [
-    resource  =? "desktop_window" --> doIgnore
-    --, className =? "Chromium"       --> doShift "2:Comm"
-    --, className =? "Google-chrome"  --> doShift "comm"
-    , className =? "Galculator"     --> doFloat
-    , className =? "Steam"          --> doFloat
-    , className =? "Gimp"           --> doFloat
-    , appName =? "JRiver Popup Class"         --> doFloat
-    , className =? "Media_Center_26"         --> doFloat
-    , resource  =? "gpicview"       --> doFloat
-    , className =? "MPlayer"        --> doFloat
-    , className =? "vivaldi"        --> doShift "comm"
-    , className =? "VirtualBox"     --> doFloat
-    , title     =? "Onboard"        --> doFloat
-      --, className =? "VirtualBox"     --> doShift "3:Lang"
-    --, className =? "anki"           --> doShift "3:Lang"
-    --, title     =? "Anki"           --> doShift "3:Lang"
-    --, className =? "Xchat"          --> doShift "5:media"
-    , className =? "stalonetray"    --> doIgnore
-    , className =? "stalonetray"    --> doIgnore
-    , className =? "xfce4-notifyd"  --> doIgnore
-    , isFullscreen --> (doF W.focusDown <+> doFullFloat)
-    , resource =? "Dialog" --> doFloat
-      --, isDialog -?> doFloat
-      -- , isFullscreen --> doFullFloat
-  ]
-
-
-myMoreManageHelpers = composeAll . concat $
-   [ [ className =? "Firefox-bin" --> doShift "web" ]
-   , [ className =? "Gajim.py"    --> doShift "jabber" ]
-   , [(className =? "Firefox" <&&> resource =? "Dialog") --> doFloat]
-
-     -- using list comprehensions and partial matches
-   , [ className =?  c --> doFloat | c <- myFloatsC ]
-   , [ fmap ( c `isInfixOf`) className --> doFloat | c <- myMatchAnywhereFloatsC ]
-   , [ fmap ( c `isInfixOf`) title     --> doFloat | c <- myMatchAnywhereFloatsT ]
-   ]
-   -- in a composeAll hook, you'd use: fmap ("VLC" `isInfixOf`) title --> doFloat
-  where
-    myFloatsC = ["Gajim.py", "Xmessage"]
-    myMatchAnywhereFloatsC = ["Google","Pidgin"]
-    myMatchAnywhereFloatsT = ["VLC","El_Capitan"]
+myManageHelpers = composeAll . concat $
+    [ [ className   =? c --> doFloat           | c <- classFloats]
+    , [ title       =? t --> doFloat           | t <- titleFloats]
+    , [ resource    =? r --> doFloat           | r <- resourceFloats]
+    , [ title       =? c --> doIgnore          | c <- titleIgnores]
+    , [(className =? "Firefox" <&&> resource =? "Dialog") --> doFloat]
+    ]
+  where classFloats    = ["Galculator", "Steam", "Media_Center_26", "MPlayer", "Gimp", "Gajim.py", "Xmessage"]
+        titleFloats    = ["Volume Control", "alsamixer", "Onboard"]
+        resourceFloats = ["desktop_window", "Dialog", "gpicview"]
+        titleIgnores   = ["stalonetray", "xfce4-notifyd"]
 
 -- -- move and resize on float.  what size and where ?
 -- -- Set x, y, gx1, gy1, dx, dy, gx2 and gy2 accordingly.
@@ -506,148 +636,218 @@ myMoreManageHelpers = composeAll . concat $
 --                               }
 --                           )
 
-
-manageScratchPad :: ManageHook
-manageScratchPad = scratchpadManageHook (W.RationalRect l t w h)
-  where
-    h = 0.6
-    w = 0.5
-    t = 1 - h
-    l = 1 - w
-
 myManageHook = myManageHelpers <+>
-    myMoreManageHelpers <+>
     manageScratchPad
 
+------------------------------------------------------------------------------------
+--Layouts --------------------------------------------------------------------------
 
-------------------------------------------------------------------------
--- Layouts
--- Per workspace layouts. without multi-toggle.
--- You can specify and transform your layouts by modifying these values.
--- If you change layout bindings be sure to use 'mod-shift-space' after
--- restarting (with 'mod-q') to reset your layout state to the new
--- defaults, as xmonad preserves your old layout settings by default.
---
--- The available layouts.  Note that each layout is separated by |||,
--- which denotes layout choice.
---
--- perworkspace layouts....
- -- layoutH = layoutHints . smartBorders
- --        $ onWorkspace "music"   (tiled
- --                                ||| Mirror tiled
- --                                ||| Full
- --                                )
- --        $ onWorkspace "chat"    (tiled
- --                                ||| Mirror tiled
- --                                ||| Full
- --                                )
- --        $ onWorkspace "web"     (Mirror tiled2
- --                                ||| tiled2
- --                                ||| Full
- --                                )
- --        $ Mirror tiled
- --            ||| tiled
- --            ||| Full
- --            ||| dragPane Horizontal 0.1 0.5
- --  where
- --     tiled  = Tall 1 (3 % 100) (3 % 5)
- --     tiled2 = Tall 1 (3 % 100) (4 % 5)
+-- So Many layouts. Giving them names, keeping it down to ones that I use or used.
+-- It's a bit easier to deal with individually Instead of with a big
+-- intertwined where, mixed with the onworkspace directives it's too much.
 
--- myLayouts = avoidStruts $ smartBorders $
-    --   onWorkspace "2:im" (named "IM" (reflectHoriz $ withIM (1%8) (Title "Buddy List") (reflectHoriz $ dwmStyle shrinkText myTheme tiled ||| (smartBorders $ tabs)))) $
---   onWorkspace "3:web" (tabs) $
---   (tiled ||| named "Mirror" (Mirror tiled) ||| tabs)
---     where
---       tiled = named "Tall" (ResizableTall 1 (3/100) (1/2) [])
---       tabs = named "Tabs" (tabbed shrinkText myTheme)
+myBSP             = BSP.emptyBSP
+myCross           = simpleCross
+myStackTile       = StackTile 1 (3/100) (1/2)
+myHintedGrid      = G.GridRatio (4/3)
+myDishes          = Dishes 2 (1/6)
+myDwindle         = DW.Dwindle DW.R DW.CW (3/2) (11/10)
+mySpiral          = DW.Spiral DW.L DW.CW (3/2) (11/10)
+mySqueeze         = DW.Squeeze DW.D (3/2) (11/10)
+myCols            = multiCol [1] 2 (3/100) (1/2)
+my3ColMid         = ThreeColMid 1 (3/100) (1/2)
+myBook            = ThreeColMid nmaster delta ratio
+    where
+        nmaster = 1
+        -- Percent of screen to increment by when resizing panes
+        delta   = 3/100
+        -- Default proportion of screen occupied by master pane
+        ratio   = 2/3
 
--- -- this is one of the layouts provided by grid variants
--- SplitGrid L 2 3 (2/3) (16/10) (5/100)
--- ((modm .|. shiftMask, xK_equal), sendMessage $ IncMasterCols 1),
---  ((modm .|. shiftMask, xK_minus), sendMessage $ IncMasterCols (-1)),
---  ((modm .|. controlMask,  xK_equal), sendMessage $ IncMasterRows 1),
---  ((modm .|. controlMask,  xK_minus), sendMessage $ IncMasterRows (-1))
--- ------------------------------------------------------------------------
--- -- Layouts:
+myTwoPane         = TwoPane (3/100) (1/2)
+myTall            = Tall 1 (3/100) (1/2)
+myTabbed          = tabbed shrinkText tabConfig
+myGrid            = Grid (8/4)
+myNoBorders       = noBorders (fullscreenFull Full)
+myAccordion       = Accordion
+myMAccordion      = Mirror (Accordion)
+myWide2           = Mirror (Tall 1 (3/100) (1/2))
 
--- this is so we can have layouts with multi-toggle.
+myWide            = Mirror $ Tall nmaster delta ratio
+    where
+        -- The default number of windows in the master pane
+        nmaster = 1
+        -- Percent of screen to increment by when resizing panes
+        delta   = 3/100
+        -- Default proportion of screen occupied by master pane
+        ratio   = 80/100
 
--- data MyTransformers = SIDEBAR
-  --                     | MAG
-  --                     | RFULL
-  --                     | FULL
-  --                     deriving (Read, Show, Eq, Typeable)
+-- Magnifier layouts.
+-- Increase the size of the window that has focus by a custom zoom, unless if it is the master window.
+-- myCode            = limitWindows 3 $ magnifiercz' 1.4 $ FixedColumn 1 20 80 10
 
--- instance Transformer MyTransformers Window where
-  --   transform SIDEBAR x k = k (withIM (1/5) (Const True) x) (\(ModifiedLayout _ x') -> x')
-  --   transform MAG x k = k (Mag.magnifiercz 1.2 x) (\(ModifiedLayout _ x') -> x')
-  --   transform RFULL x k = k (avoidStrutsOn [] $ noBorders Full) (const x)
-  --   -- I'm sure I was doing something wrong that caused me to need this.
-  --   transform FULL x k = k (Full) (const x)
+myMagBSP          = Mag.magnifier BSP.emptyBSP
 
-  -- -- Change LayoutHintsToCenter to LayoutHints if you like gaps between your windows.
-  -- myLayout = configurableNavigation (navigateColor myActiveBorderColor)
-  --          $ mkToggle (single RFULL)
-  --          $ avoidStruts
-  --          $ mkToggle (single MAG)
-  --          $ mkToggle (single FULL)
-  --          $ (onWorkspace "gimp" $ named "gimp" $ withIM (2/11) (Role "gimp-toolbox") $ big')
-  --          $ mkToggle (single SIDEBAR)
-  --          $ layouts
-  -- where
-  --   layouts = tall' ||| cols' ||| twopane' ||| rows' ||| tabs'
-  --       ||| grid' ||| big' ||| circle' ||| bsp' ||| accordion' ||| noborders'
-  --   tall'    = named "tall"   $ layoutHintsToCenter $ XMonad.Tall 1 (3/100) (1/2)
-  --   cols'    = named "cols"   $ layoutHintsToCenter $ deco $ multiCol [1] 2 (3/100) (1/2)
-  --   twopane' = named "two"    $ layoutHintsToCenter $ TwoPane (3/100) (3/7)
-  --   rows'    = named "rows"   $ Mirror $ layoutHintsToCenter $ deco $ multiCol [2] 3 (2/100) (4/7)
-  --   tabs'    = named "tab"    $ layoutHintsToCenter $ tabs
-  --   grid'    = named "grid"   $ layoutHintsToCenter $ deco $ Grid (16/10)
-  --   big'     = named "big"    $ layoutHintsToCenter $ deco $ Mirror $ OneBig (3/4) (19/24)
-    --   circle'  = named "circle" $ layoutHintsToCenter $ Circle
-    --   bsp'     = named "BSP"    $ layoutHintsToCenter $ BSP.emptyBSP
-    --   accordion' = named "accordion" $ layoutHintsToCenter $ mirrorAccordion
-    --   noborders' = named "noborders" $ layoutHintsToCenter $ noBorders (fullscreenFull Full)
-    --   -- basic layouts
-    --   tabs     = tabbed shrinkText myTheme
-    --   deco     = dwmStyle shrinkText myTheme
-    --   mirrorAccordion = Mirror (Accordion)
-    --   -- property query
-    --   role = stringProperty "WM_WINDOW_ROLE"
+mySplit = Mag.magnifiercz' 1.4 $ Tall nmaster delta ratio
+    where
+        -- The default number of windows in the master pane
+        nmaster = 1
+        -- Percent of screen to increment by when resizing panes
+        delta   = 3/100
+        -- Default proportion of screen occupied by master pane
+        ratio   = 60/100
 
-  -- My Original layouts...
-myLayout = avoidStruts (
-  ThreeColMid 1 (3/100) (1/2) |||
-    XMonad.Tall 1 (3/100) (1/2) |||
-    Mirror (XMonad.Tall 1 (3/100) (1/2)) |||
-    tabbed shrinkText tabConfig |||
-    Full |||
-    TwoPane (3/100) (1/2) |||
-    Mag.magnifier BSP.emptyBSP |||
-    Circle |||
-    Mag.magnifier tiled ||| hintedTile XMonad.Layout.HintedTile.Tall ||| hintedTile Wide |||
-    Accordion |||
-    mirrorAccordion |||
-    Grid (8/4) |||
-    -- spiral (6/7)
-    noBorders (fullscreenFull Full))
+myMagTiled = Mag.magnifier tiled
   where
-    mirrorAccordion = Mirror (Accordion)
-    tiled = XMonad.Tall tnmaster tdelta ratio
+    tiled = Tall tnmaster tdelta ratio
     tnmaster = 1
     ratio = 1/2
     tdelta = 3/100
-    hintedTile = HintedTile hnmaster hdelta hratio TopLeft
-    hnmaster = 1
-    hratio = 1/2
-    hdelta = 3/100
+
+myHTTall = hintedTile HT.Tall
+  where
+     hintedTile = HT.HintedTile nmaster delta ratio HT.TopLeft
+     nmaster    = 1
+     ratio      = 1/2
+     delta      = 3/100
+
+myHTWide = hintedTile HT.Wide
+  where
+     hintedTile = HT.HintedTile nmaster delta ratio HT.TopLeft
+     nmaster    = 1
+     ratio      = 1/2
+     delta      = 3/100
+
+-- with IM to get a sidebar with grid in the other part
+myChat' l = withIM size roster l
+    where
+        -- Ratio of screen roster will occupy
+        size = 1%5
+        -- Match roster window
+        roster = Title "Buddy List"
+myChat = myChat' G.Grid
+
+-- For tailing logs ?
+myDish = limitWindows 5 $ Dishes nmaster ratio
+    where
+        -- The default number of windows in the master pane
+        nmaster = 1
+        -- Default proportion of screen occupied by other panes
+        ratio = 1/5
+
+-- example of withIM
+-- Dishes with a sidebar for ProcMeter3 or whatever
+myDishBar' l = reflectHoriz $ withIM procmeterSize procmeter $
+              reflectHoriz $ l
+    where
+        -- Ratio of screen procmeter will occupy
+        procmeterSize = 1%7
+        -- Match procmeter
+        procmeter = ClassName "ProcMeter3"
+myDishesSidebar = myDishBar' myDish
+
+-----------------------------------------------------------------------
+-- Group the layouts and assign them to workspaces.
+
+genLayouts = avoidStruts (
+    named "BSP" BSP.emptyBSP |||
+    named "GGrid" G.Grid |||
+    named "GridH" myGrid |||
+    named "3ColMid" my3ColMid |||
+    named "Columns" myCols |||
+    named "Tall" myTall |||
+    named "Wide" myWide |||
+    named "Wide2" myWide2 |||
+    named "Dishes" myDish |||
+    named "HintTall" myHTTall |||
+    named "HintWide" myHTWide |||
+    named "Tabbed" myTabbed |||
+    named "Roledex" Roledex |||
+    named "TwoPane" myTwoPane |||
+    named "Circle" Circle |||
+    named "Cross" myCross |||
+    named "Book" myBook |||
+    named "Mag BSP" myMagBSP |||
+    named "Mag Tiled" myMagTiled |||
+    named "Stack Tile" myStackTile |||
+    named "Accordion" myAccordion |||
+    named "Accordion V" myMAccordion |||
+    named "Spiral" mySpiral |||
+    named "Squeeze" mySqueeze |||
+    named "Dwindle" myDwindle |||
+    named "Full" Full |||
+    named "NoBorders" myNoBorders)
+
+---------------------------------------------------------
+-- A menu/grid-select menu for the named layouts above.
+-- All the names. For the prompt and the GridSelect.
+allLayouts = ["BSP"
+             , "GGrid"
+             , "GridH"
+             , "3ColMid"
+             , "Columns"
+             , "Tall"
+             , "Wide"
+             , "Wide2"
+             , "Dishes"
+             , "HintTall"
+             , "HintWide"
+             , "Tabbed"
+             , "Roledex"
+             , "TwoPane"
+             , "Circle"
+             , "Cross"
+             , "Book"
+             , "Mag BSP"
+             , "Mag Tiled"
+             , "Stack Tile"
+             , "Accordion"
+             , "Accordion V"
+             , "Spiral"
+             , "Squeeze"
+             , "Dwindle"
+             , "Full"
+             , "NoBorders"
+             ]
+
+-- The gridSelect menu.
+layoutsGS = [ (s, sendMessage $ JumpToLayout s) | s <- allLayouts ]
+
+myLayout = avoidStruts $
+  onWorkspace "Web" simpleSquares $
+  onWorkspaces ["Code", "QMK", "Xmonad", "Elisp", "Arch Setup"] codeLayouts $
+
+  onWorkspace "kicad" kicadLayouts $
+  onWorkspace "comm" commLayouts $
+
+  onWorkspaces ["krita", "inkscape", "gravit", "Xournal"] artLayouts $
+
+  onWorkspace "3D" threeDLayouts $
+  onWorkspace "BD" bdLayouts $
+
+  onWorkspace "Music" mediaLayouts $
+  onWorkspace "Movies" mediaLayouts $
+  onWorkspace "French" langLayouts $
+  onWorkspace "Downloads" bdLayouts $
+
+  genLayouts
+    where
+        simpleSquares = myTwoPane ||| myMagTiled   ||| myTall       ||| myCols       ||| myGrid      ||| myMagTiled
+        kicadLayouts  = myMagBSP  ||| myMagTiled   ||| myTall       ||| myCross      ||| Circle
+        codeLayouts   = myMAccordion ||| myTall    ||| myGrid       ||| Roledex
+        commLayouts   = myMagBSP  ||| myMagTiled   ||| myTall       ||| myBSP        ||| myStackTile ||| myGrid
+        artLayouts    = Full      ||| myMagBSP     ||| myMAccordion ||| myTall       ||| myDwindle   ||| Circle
+        threeDLayouts = myMagBSP  ||| myMagTiled   ||| myMAccordion ||| myDwindle    ||| mySpiral
+        bdLayouts     = mySplit   ||| myMAccordion ||| myMagTiled   ||| myStackTile
+        mediaLayouts  = Full      ||| myNoBorders  ||| myGrid       ||| Circle       ||| myCross     ||| myTall
+        langLayouts   = mySqueeze ||| myMagBSP     ||| myMagTiled   ||| myMAccordion ||| myDwindle   ||| mySpiral
 
 -- layout prompt (w/ auto-completion and all layouts)
 myLayoutPrompt = inputPromptWithCompl mylayoutXPConfig "Layout"
                     (mkComplFunFromList' allLayouts)
                     ?+ (sendMessage . JumpToLayout)
+
 mylayoutXPConfig = def { autoComplete = Just 1000 }
-allLayouts = ["tall", "wide", "circle", "full", "tabbed", "accordion"]
 
 -- modified variant of cycleRecentWS from XMonad.Actions.CycleRecentWS (17)
 -- which does not include visible but non-focused workspaces in the cycle
@@ -655,11 +855,9 @@ cycleRecentWS' = cycleWindowSets options
  where options w = map (W.view `flip` w) (recentTags w)
        recentTags w = map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
 
--- Warp
-bringMouse = warpToWindow (9/10) (9/10)
 
--- Scratchpad invocation (for brevity)
-scratchToggle a = namedScratchpadAction scratchpads a >> bringMouse
+------------------------------------------------------------------------------------------
+-- Prompts and searches and stuff.   GridSelect...
 
 mypromptSearch a = promptSearch myXPConfig a
 
@@ -704,6 +902,9 @@ synonyms  = searchEngine "synonyms"   "http://www.synonymes.com/synonyme.php?mot
 -- synonym  = searchEngine "synonymes" "http://www.les-synonymes.com/mot/"
 wiktionnaire = searchEngine "wiktionnaire" "https://fr.wiktionary.org/w/index.php?search="
 clojuredocs = searchEngine "clojuredocs" "https://clojuredocs.org/clojure.core/"
+
+----------------------------------------------------------------
+-- Grid-Select menus -------------------------------------------
 
 promptSearchMenu =
      [ ("man",          (manPrompt myXPConfig))
@@ -756,80 +957,40 @@ selectSearchMenu =
      , ("Synonymes.fr", (selectSearch synonyms))
      ]
 
--- some nice colors for the prompt windows to match the dzen status bar.
-myXPConfig = def --  defaultXPConfig                            -- (23)
-    { fgColor = "#a8a3f7"
-    , bgColor = "#3f3c6d"
-    , font = "xft:Source Code Pro:size=14"
-    , height = 96
-    }
+-------------------------------------------------------------------------------------------
+-- Grid-select
+-- The actual grid-select menu functions.
+-- Automatic workspace grid select by getting the names from the topicspace.
 
-crizer :: String -> Bool -> X(String, String)
-crizer _ False = return ("#002b36", "#839496")
-crizer _ True = return ("#839596", "#002b36")
+-- Default navigation.  arrows/vi (hjkl) '/' for string search.
 
-{-
-crizer :: String -> Bool -> X(String, String)
-crizer _ False = return ("#fdf6e3", "#657b83")
-crizer _ True = return ("#657b83", "#fdf6e3")
--}
+wsgrid = withWindowSet $ \w -> do
+    let wss = W.workspaces w
+        usednames = map W.tag $  wss
+        newnames = filter (\used -> (show used `notElem` (map show myTopicNames))) usednames
+    gridselect workspaceGsConfig (map (\x -> (x,x)) (myTopicNames ++ newnames))
 
-gsConfig = def {   -- defaultGSConfig
-           gs_colorizer = crizer
-           ,gs_cellheight  = 150
-           ,gs_cellpadding = 5
-           ,gs_cellwidth   = 400
-           ,  gs_font = "xft:Source Code Pro:pixelsize=48"
-           }
+-- gridselect a workspace and view it
+promptedGoto = wsgrid >>= flip whenJust (switchTopic myTopicConfig)
 
--- I don't know why, but gotoSelected like
--- ,bgColor = "#3f6644"
-gsConfig2 = def {
-                gs_cellheight = 75
-                ,gs_cellpadding = 5
-                ,gs_cellwidth = 600
-                , gs_font = "xft:Source Code Pro:pixelsize=36"
-                }
-
-myBack    = "#1a1a1a" -- Bar background
-myFore    = "#999999" -- Bar foreground
-myAcc     = "#25629f" -- Accent color
-myHigh    = "#629f25" -- Highlight color
-myLow     = "#000000" -- Lowlight color
-myVis     = "#9f2562" -- Visible Workspace
-myEmpt    = "#555555" -- Empty workspace
-
--- GridSelect config
-myGSConfig colorizer = (buildDefaultGSConfig colorizer)
-                       {gs_cellheight  = 95
-                       ,gs_cellpadding = 5
-                       ,gs_cellwidth   = 250
-                       , gs_font = "xft:Source Code Pro:pixelsize=40"
-                       }
-
--- Colorizer colors for GridSelect
---aqua   = myColor "#259f62"
-blue   = myColor "#25629f"
-green  = myColor "#629f25"
-
--- orange = myColor "#9f6225"
--- pink   = myColor "#9f2562"
--- purple = myColor "#62259f"
-
--- Colorizer generator
-myColor color _ isFg = do
-  return $ if isFg
-           then (color, myLow)
-           else (myLow ,color)
+-- gridselect a workspace to shift active window to
+promptedShift = wsgrid >>= flip whenJust (windows . W.shift)
 
 warpToCentre = gets (W.screen . W.current . windowset) >>= \x -> warpToScreen x  0.5 0.5
-selectApps   = runSelectedAction (myGSConfig green) myApps
 
-getScratchpad = runSelectedAction (myGSConfig blue) myScratchpadMenu
-searchStuff = runSelectedAction (myGSConfig green) promptSearchMenu
-selectSearchStuff = runSelectedAction (myGSConfig green) promptSearchMenu
-
- -- Key Map doc dzen popup ------------------------------------------------
+selectApps   = runSelectedAction (coloredGSConfig green) myApps
+getScratchpad = runSelectedAction (coloredGSConfig blue) myScratchpadMenu
+searchStuff = runSelectedAction (coloredGSConfig green) promptSearchMenu
+selectSearchStuff = runSelectedAction (coloredGSConfig green) selectSearchMenu
+layoutGridSelect = runSelectedAction (coloredGSConfig red) layoutsGS
+---------------------------------------------------------------------------
+--- Key Map doc dzen popup ------------------------------------------------
+---------------------------------------------------------------------------
+-- Basically, this uses an awk script to parse xmonad.hs for the keymaps.
+-- When you hit a key combo that has a subkeymap this script parses xmonad.hs
+-- and displays a dzen popup with the possible completion choices for that
+-- key submap.  so M-o gives me a popup of the possible scrathpads and their
+-- corresponding key...  There might be a better way. But this works fine.
 
 windowScreenSize :: Window -> X (Rectangle)
 windowScreenSize w = withDisplay $ \d -> do
@@ -843,15 +1004,6 @@ focusedScreenSize :: X (Rectangle)
 focusedScreenSize =
   withWindowSet $ windowScreenSize . fromJust . W.peek
 
-  -- withWindowSet $ \ws -> do
-  -- ss <- windowScreenSize $ fromJust $ W.peek ws
-  -- return ss
-
-keyColor = "yellow"
-cmdColor = "cyan"
--- double double quoted so it can make it all the way to dzen.
-dzenFont = "\"-*-ubuntu mono-*-*-*-*-*-96-*-*-*-*-*-*\""
-lineHeight = "24"
 
 keyMapDoc :: String -> X Handle
 keyMapDoc name = do
@@ -862,26 +1014,28 @@ keyMapDoc name = do
                                        show (rect_y ss),
                                        show (rect_width ss),
                                        show (rect_height ss),
-                                       keyColor,
-                                       cmdColor,
-                                       dzenFont,
-                                       lineHeight]
+                                       menuPopKeyColor,
+                                       menuPopCmdColor,
+                                       menuPopDzenFont,
+                                       menuPopLineHeight]
        return handle
 
+-- send it off to awk. -> showHintForKeymap
 toSubmap :: XConfig l -> String -> [(String, X ())] -> X ()
 toSubmap c name m = do
   pipe <- keyMapDoc name
   submap $ mkKeymap c m
   io $ hClose pipe
 
-    ------------------------------------------------------------------------
--- Key bindings
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+-- Key bindings  EZ, lots of submaps.  Scratchpads are up above with
+-- their friends.
 --
---
--- Note: Formatting is important for script
+-- Note: Formatting is important for script.  The comment becomes the menu text.
 focusKeymap = -- Focus
-  [ ("v",       focus "vivaldi")
-  , ("e",       focus "emacs")
+  [ ("v",       focus "vivaldi") -- Focus Vivaldi
+  , ("e",       focus "emacs") -- Focuse Emacs
   , ("m",       windows W.focusMaster) -- Focus Master
   , ("s",       windows W.swapMaster) -- Swap Master
   , ("/",       spawn menu) -- Menu
@@ -891,7 +1045,7 @@ focusKeymap = -- Focus
   , ("z",       rotOpposite) -- Rotate Opposite
   , ("i",       rotUnfocusedUp) -- Rotate UnFocused UP
   , ("d",       rotUnfocusedDown) -- Rotate Focused Down
-  , ("r",       refresh)
+  , ("r",       refresh) -- Refresh
   , ("<Right>", sendMessage MirrorExpand) -- Mirror Expand
   , ("<Left>",  sendMessage MirrorShrink) -- Mirror Shrink
   , ("n",       shiftToNext) -- -> Next
@@ -989,18 +1143,6 @@ promptsKeymap = -- Prompts
 
         -- , ("e", spawn "exe=`echo | yeganesh -x` && eval \"exec $exe\"")
 
-namedScratchpadsKeymap = -- Scratch Pads
-    [ ("o", scratchToggle "term") -- Term
-    , ("e", scratchToggle "term2") -- Term2
-    , ("u", scratchToggle "term3") -- Term3
-    , ("h", scratchToggle "term4") -- Term4
-    , ("g", scratchToggle "ghci") -- ghci
-    , ("c", scratchToggle "calc") -- calc
-    , ("t", scratchToggle "top") -- top
-    , ("n", scratchpadSpawnActionTerminal "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
-    , ("S-o", scratchToggle "OSX") -- OS X
-    , ("w", scratchToggle "MSW") -- MS Windows
-    ]
 
 xfceKeymap = -- XFCE
     [ ("M4-n", spawnShell) -- Terminal
@@ -1057,8 +1199,8 @@ layoutKeymap = -- Layout
 
 floatKeymap = -- Floating Windows
     [
---	("d",       withFocused (keysResizeWindow (-20,-20) (1%2,1%2))) -- Resize Smaller
-    ("s",       withFocused (keysResizeWindow (20,20) (1%2,1%2))) -- Resize Bigger
+    ("d",       withFocused (keysResizeWindow (0, 0) (0.5, 0.5))) -- Resize Smaller
+    , ("s",       withFocused (keysResizeWindow (50,50) (1%2,1%2))) -- Resize Bigger
     , ("<Right>", withFocused (keysMoveWindow (40,0) )) -- Move Right
     , ("<Down>",  withFocused (keysMoveWindow (0,40) )) -- Move Down
 --	, ("<Left>",  withFocused (keysMoveWindow (-40,0))) -- Move Left
@@ -1131,50 +1273,98 @@ raiseKeymap = -- Raise
     -- , ("m", raiseMaybe     (runInTerm "-title mutt" "mutt") (title =? "mutt"))
     --    , ("M4-S-<Space>",  setLayout $ XMonad.layoutHook conf)
 
+
+-- M4-S-m to get a menu of this in the dzen popup.  Comment is menu entry if present code otherwise.
 mainKeymap c = mkKeymap c $ -- Main Keys
-  [ ("M4-S-<Return>",   spawn myTerminal) -- Terminal
+    [ ("M4-S-m",          toSubmap c "mainKeymap" []) -- Main (This) Keymap
+    , ("M4-<Return>",     spawn myTerminal) -- Terminal
     , ("M4-S-c",        kill) -- Kill window
     , ("M4-Insert",     pasteSelection) -- Paste selection
     , ("M4-<Space>",    sendMessage NextLayout) -- Next Layout
-    , ("M4-S-<Space>",  myLayoutPrompt) -- Layout prompt
-    , ("M4-k",          nextWindow)
-    , ("M4-j",          prevWindow)
-    , ("M4-S-k",        windows W.swapUp) -- Swap Up
-    , ("M4-S-j",        windows W.swapDown) -- Swap Down
-    , ("M4-<Tab>",      nextWindow) -- Next Window
-    , ("M4-S-<Tab>",    prevWindow) -- Prev Window
+--    , ("M4-S-l",        myLayoutPrompt) -- Layout prompt
+    , ("M4-<R>",          nextWindow)
+    , ("M4-<L>",          prevWindow)
+    , ("M4-<U>",        windows W.swapUp) -- Swap Up
+    , ("M4-<D>",        windows W.swapDown) -- Swap Down
+--    , ("M4-<Tab>",      nextWindow) -- Next Window
+--    , ("M4-S-<Tab>",    prevWindow) -- Prev Window
     , ("M4-d", spawn "exe=`dmenu_run -fn myfontwsize -b -nb black -nf yellow -sf yellow` && eval \"exec $exe\"") -- dmenu
-    , ("M4-t",          promptedGoto) -- Grid Select Workspace
-    , ("M4-h",          goToSelected gsConfig2) -- Grid Select Window
-    , ("M4-S-h",        bringSelected gsConfig2) -- Bring Grid Selected Window
-    , ("M4-S-t",        promptedShift) -- Grid Select Shift
-    , ("M4-S-a",        selectApps) -- Apps
-    --, ("M4-C-a",        spawnSelected gsConfig ["krita","dolphin","repetierHost"]) -- Apps
+    , ("M4-S-d",        spawn "rofi -show drun") -- Rofi
+
+-- Grid Select
+    , ("M4-t",          promptedGoto) -- Workspaces -GS
+    , ("M4-l",          layoutGridSelect) -- Layouts -GS
+    , ("M4-h",          goToSelected gotoBringGsConfig) -- Windows -GS
+    , ("M4-S-h",        bringSelected gotoBringGsConfig) -- Bring Window to Selected  -GS
+    , ("M4-S-t",        promptedShift) -- Shift Window to Selected -GS
+    , ("M4-S-a",        selectApps) -- Apps -GS
+    , ("M4-i",          searchStuff) -- Search
+    , ("M4-S-i",        selectSearchStuff) -- Search Selected
+    , ("M4-e",          getScratchpad) -- grid select scratchpad
+    --, ("M4-C-a",        spawnSelected workspaceG sConfig ["krita","dolphin","repetierHost"]) -- Apps
+
+    , ("M4-<Tab>",      cycleRecentWS' [xK_Super_L, xK_Shift_L] xK_Tab xK_grave) -- Cycle Recent
+
+-- prompted things
+    , ("M4-p",          toSubmap c "promptsKeymap" promptsKeymap) -- Prompts
+    -- tend to use "i" instead
+    , ("M4-C-m",        manPrompt myXPConfig) -- Man Pages
+
+ -- Scratchpads
+    , ("M4-o",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap) -- Scratchpad
+--  Or on the home row with M4-Control
+    , ("M4-C-a", scratchToggle "term") -- Term
+    , ("M4-C-o", scratchToggle "term2") -- Term2
+    , ("M4-C-e", scratchToggle "term3") -- Term3
+    , ("M4-C-u", scratchToggle "term4") -- Term4
+    , ("M4-C-g", scratchToggle "ghci") -- ghci
+    , ("M4-C-c", scratchToggle "calc") -- calc
+    , ("M4-C-t", scratchToggle "top") -- top
+    , ("M4-C-s", scratchToggle "conky") -- Conky
+    , ("M4-C-v", scratchToggle "pavuControl") -- Pavu Control
+    , ("M4-C-S-v", scratchToggle "alsaMixer") -- Pavu Control
+    , ("M4-C-n", scratchpadSpawnActionTerminal "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
+
+    -- Sink
+    , ("M4-r",   withFocused $ windows . W.sink) -- sink focused window
+    , ("M4-S-r", sinkAll) -- sink all windows
+
     , ("M4-s",          sendMessage Shrink) -- Shrink
     , ("M4-z",          sendMessage Expand) -- Expand
     , ("M4-S-b",        sendMessage ToggleStruts) -- Toggle Struts
+
+ -- recompile/reload - Quit
     , ("M4-q",          spawn "xmonad --recompile; xmonad --restart") -- Restart
     , ("M4-S-q",        io $ exitWith ExitSuccess) -- Quit
+
+-- Screensaver
     , ("M4-C-x",        spawn "xscreensaver-command -lock") -- screen lock
     , ("M4-x",          spawn "xscreensaver-command -activate")  -- screensaver
-    , ("M4-v",          toSubmap c "tagWindowKeymap" tagWindowKeymap) -- tagged windows
-    , ("M4-a",          toSubmap c "masterKeymap" masterKeymap) -- master pane
+
+    -- Mark windows and manipluate with tags.
+    , ("M4-m",          toSubmap c "tagWindowKeymap" tagWindowKeymap) -- tagged windows
+
+
+-- window and workspace manipulations
+-- bsp layout manipulations
     , ("M4-b",          toSubmap c "bspKeymap" bspKeymap) -- BSP
+    , ("M4-a",          toSubmap c "masterKeymap" masterKeymap) -- master pane
     , ("M4-f",          toSubmap c "focusKeymap" focusKeymap) -- Focus
     , ("M4-u",          toSubmap c "floatKeymap" floatKeymap) -- Float
-    , ("M4-l",          toSubmap c "layoutKeymap" layoutKeymap) -- Layout
-    , ("M4-m",          toSubmap c "musicKeymap" musicKeymap) -- Music
-    , ("M4-S-m",        toSubmap c "mainKeymap" []) -- Main
-    , ("M4-p",          toSubmap c "promptsKeymap" promptsKeymap) -- Prompts
-    , ("M4-r",          toSubmap c "raiseKeymap" raiseKeymap) -- Raise
-    , ("M4-o",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap) -- Scratchpad
-    , ("M4-e",          getScratchpad) -- grid select scratchpad
-    , ("M4-S-s",        toSubmap c "shotKeymap" shotKeymap) -- ScreenShot
     , ("M4-w",          toSubmap c "workspacesKeymap" workspacesKeymap) -- Workspaces
-    , ("M4-/",          toSubmap c "promptSearchKeymap" promptSearchKeymap) -- Prompt Search
-    , ("M4-S-/",        toSubmap c "selectSearchKeymap" selectSearchKeymap) -- Select Search
-    , ("M4-i",          searchStuff) -- Search
-    , ("M4-S-i",        selectSearchStuff) -- Search Selected
+    --, ("M4-l",          toSubmap c "layoutKeymap" layoutKeymap) -- Layout
+    , ("M4-m",          toSubmap c "musicKeymap" musicKeymap) -- Music
+    , ("M4-r",          toSubmap c "raiseKeymap" raiseKeymap) -- Raise
+
+-- screenshots
+    , ("M4-S-s",        toSubmap c "shotKeymap" shotKeymap) -- ScreenShot
+
+-- dzen prompt search
+--    , ("M4-/",          toSubmap c "promptSearchKeymap" promptSearchKeymap) -- Prompt Search
+    -- dont really like this, going to to the prompt in the browser.
+    -- , ("M4-S-/",        toSubmap c "selectSearchKeymap" selectSearchKeymap) -- Select Search
+
+-- keyboardless needs
     , ("M4-c",          spawn "cellwriter@point") -- cellwriter at point.
     , ("M4-S-o",        spawn "onboard") -- onboard keyboard.
     ]
@@ -1201,18 +1391,6 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
   ]
 
 
-------------------------------------------------------------------------
--- Status bars and logging
--- Perform an arbitrary action on each internal state change or X event.
--- See the 'DynamicLog' extension for examples.
---
--- To emulate dwm's status bar
---
--- > logHook = dynamicLogDzen
---
-
-
-------------------------------------------------------------------------
 -- Startup hook
 -- Perform an arbitrary action each time xmonad starts or is restarted
 -- with mod-q.  Used by, e.g., XMonad.Layout.PerWorkspace to initialize
@@ -1237,7 +1415,8 @@ myConfig = do
   return $ defaults {
       logHook = do
          ewmhDesktopsLogHook
-         dynamicLogWithPP $ (prettyPrinter dbus)
+         -- dynamicLogWithPP $ (prettyPrinter dbus)
+         dynamicLogWithPP $ (myPPPolybar dbus)
          fadeinactive
 
       , manageHook = manageDocks <+> myManageHook <+> manageHook desktopConfig <+>
@@ -1283,7 +1462,7 @@ defaults = def {
      -- hooks, layouts
    layoutHook         = myLayout, -- smartBorders $ myLayout,
    manageHook         = manageDocks <+> myManageHook,
-     startupHook        = myStartupHook
+   startupHook        = myStartupHook
 } -- `additionalKeysP` myadditionalKeys
 
 main :: IO ()
@@ -1296,19 +1475,6 @@ main = xmonad =<< myConfig
 -- import XMonad.Config.Kde
 
 -- main = xmonad kdeConfig
---     { modMask = mod4Mask -- use the Windows button as mod
+--     {
 --     , manageHook = manageHook kdeConfig <+> myManageHook
 --     }
-
--- For floats.
---
--- myManageHook = composeAll . concat $
---     [ [ className   =? c --> doFloat           | c <- myFloats]
---     , [ title       =? t --> doFloat           | t <- myOtherFloats]
---     , [ className   =? c --> doF (W.shift "2") | c <- webApps]
---     , [ className   =? c --> doF (W.shift "3") | c <- ircApps]
---     ]
---   where myFloats      = ["MPlayer", "Gimp"]
---         myOtherFloats = ["alsamixer"]
---         webApps       = ["Firefox-bin", "Opera"] -- open on desktop 2
---         ircApps       = ["Ksirc"]                -- open on desktop 3

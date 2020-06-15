@@ -15,8 +15,8 @@ import XMonad hiding ( (|||) )
 import XMonad.Layout.LayoutCombinators
 import XMonad.Config.Kde
 
-import Control.OldException
-
+-- For KDE
+-- import XMonad.Config.Kde
 
 -- Actions
 
@@ -112,10 +112,6 @@ import qualified DBus as D
 import qualified DBus.Client as D
 import qualified Codec.Binary.UTF8.String as UTF8
 
--- import DBus
-mport DBus.Connection as DC
-import DBus.Message
-
 import Control.Arrow hiding ((|||), (<+>))
 
 -------------------------------------------------------------------------
@@ -138,7 +134,28 @@ myTerminal = "urxvt"
 myTerminal2 = "termite"
 myShell = "zsh"
 
-          ------------------------------------------------------------------------
+-- startupCommands = [
+--                   ,"xrandr --fbmm 286x281"
+--                   ,"xcompmgr -c"
+--                   ,"xsetroot -cursor_name left_ptr"
+--                   ,"xrandr --output HDMI-1 --right-of DP-1"
+--                   ,"~/.config/polybar/launch.sh"
+--                   ,"xfce4-panel -d"
+--                   ,"xfce4-power-manager"
+--                   ,"/home/ben/bin/run_wallpaper.sh"
+--                   ,"redshift"
+--                   ,"xscreensaver"
+--                   ,"feh --bg-scale /home/eric/Documents/Art/ocean_park_114.jpg"
+--                   ,"easystroke"
+--                   ,"onboard"
+--                   ,"emacs --daemon"
+--                   ,"nm-applet & ## if using trayer add: --sm-disable"
+--                   ,"blueberry-tray"
+--                   ]
+
+
+
+------------------------------------------------------------------------
 -- Colors and borders
 --
 myNormalBorderColor  = "#7c7c7c"
@@ -216,12 +233,14 @@ myTopics = [ TI "main" "" (return ())
            , TI "Arch-Setup" "Arch-Setup" (spawnInTopicDir "emacsn -m Arch-Setup")
            , TI "bgc-ui" "play/bgc-ui" (spawnInTopicDir "emacsn -m bgc-ui")
            , TI "eg.com" "play/ericgebhart.github.io" (spawnInTopicDir "emacsn -m eg.com")
-           , TI "TB.com" "play/tangobreath.github.io" (spawnInTopicDir "emacsn -m tb.com")
-           , TI "Elisp" "play/emacs-setup" (spawnInTopicDir "emacsn -m Elisp")
+           , TI "tb.com" "play/tangobreath.github.io" (spawnInTopicDir "emacsn -m tb.com")
+           , TI "Elisp" "elisp" (spawnInTopicDir "emacsn -m Elisp")
+           , TI "Closh" "play/closh" (spawnInTopicDir "emacsn -m closh")
            , TI "QMK" "play/qmk_firmware" (spawnInTopicDir "emacsn -m QMK keyboards/ergodox_ez/keymaps/ericgebhart/keymap.c")
            , TI "XMonad" ".xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs") -- lib/*/*.hs
            , TI "Comm" "" (spawnInTopicDir "slack" >>
                             spawnInTopicDir "emacsn -e")
+
            , TI "BD" "BD" (spawnInTopicDir "termite -T BD" >>
                             spawnInTopicDir "YACReaderLibrary")
            , TI "DownLoads" "Downloads" (spawnInTopicDir "termite -T Downloads" >>
@@ -293,40 +312,27 @@ promptedShift = wsgrid >>= flip whenJust (windows . W.shift)
 -- promptedShift = workspacePrompt myXPConfig $ windows . W.shift
 
 --------------------------------------------------------------------------------
---- DBUS For sending stuff to a panel log applet.!!!!
+
 
 -- pretty communication with the the dbus. ie. xfce-panel.
 -- I use a completely transparent panel for this. The background image
 -- has a nice multi-colored bar across the top of it. - oceanpark114.jpg
 -- https://hackage.haskell.org/package/xmonad-contrib-0.16/docs/XMonad-Hooks-DynamicLog.html
-
-  --------------------------------------------------------
-  --  From the kde-log-plasmoid example.
--- prettyPrinter :: DC.Connection -> PP
--- prettyPrinter dbus = defaultPP
---     { ppOutput   = dbusOutput dbus
---     , ppCurrent  = wrap "[" "]"
---     , ppSep      = " | "
---     }
-
--- getWellKnownName :: DC.Connection -> IO ()
--- getWellKnownName dbus = tryGetName `catchDyn` (\(DBus.Error _ _) -> getWellKnownName dbus)
---   where
---     tryGetName = do
---         namereq <- newMethodCall serviceDBus pathDBus interfaceDBus "RequestName"
---         addArgs namereq [String "org.xmonad.Log", Word32 5]
---         sendWithReplyAndBlock dbus namereq 0
---         return ()
-
--- dbusOutput :: DC.Connection -> String -> IO ()
--- dbusOutput dbus str = do
---     msg <- newSignal "/org/xmonad/Log" "org.xmonad.Log" "Update"
---     addArgs msg [String (UTF8.decodeString str)]
---     -- If the send fails, ignore it.
---     send dbus msg 0 `catchDyn` (\(DBus.Error _ _) -> return 0)
---     return ()
-
-  --------------------------------------------------------
+myPPPolybar :: D.Client -> PP
+myPPPolybar dbus = def
+    { ppOutput   = dbusOutput dbus
+    , ppCurrent  = wrap ("%{F" ++ blue2 ++ "} ") " %{F-}"
+    , ppVisible  = wrap ("%{F" ++ blue ++ "} ") " %{F-}"
+    , ppUrgent   = wrap ("%{F" ++ red ++ "} ") " %{F-}"
+    --, ppHidden = wrap " " " "
+    , ppLayout   = id
+    , ppHidden          = id . noScratchPad
+    , ppWsSep    = " "
+    , ppSep      = " | "
+    --, ppTitle = myAddSpaces 25
+    , ppTitle           = shorten 80
+    }
+  where noScratchPad ws = if ws == "NSP" then "" else ws
 
 prettyPrinter :: D.Client -> PP
 
@@ -479,50 +485,61 @@ myApps = [("Terminal",     (spawn     myTerminal))
 -- To match on the WM_NAME, you can use 'title' in the same way that
 -- 'className' and 'resource' are used below.
 --
-myManageHelpers = composeAll
-    [
-    resource  =? "desktop_window" --> doIgnore
-    --, className =? "Chromium"       --> doShift "2:Comm"
-    --, className =? "Google-chrome"  --> doShift "comm"
-    , className =? "Galculator"     --> doFloat
-    , className =? "Steam"          --> doFloat
-    , className =? "Gimp"           --> doFloat
-    , appName =? "JRiver Popup Class"         --> doFloat
-    , className =? "Media_Center_26"         --> doFloat
-    , resource  =? "gpicview"       --> doFloat
-    , className =? "MPlayer"        --> doFloat
-    , className =? "vivaldi"        --> doShift "comm"
-    , className =? "VirtualBox"     --> doFloat
-    , title     =? "Onboard"        --> doFloat
-      --, className =? "VirtualBox"     --> doShift "3:Lang"
-    --, className =? "anki"           --> doShift "3:Lang"
-    --, title     =? "Anki"           --> doShift "3:Lang"
-    --, className =? "Xchat"          --> doShift "5:media"
-    , className =? "stalonetray"    --> doIgnore
-    , className =? "stalonetray"    --> doIgnore
-    , className =? "xfce4-notifyd"  --> doIgnore
-    , isFullscreen --> (doF W.focusDown <+> doFullFloat)
-    , resource =? "Dialog" --> doFloat
-      --, isDialog -?> doFloat
-      -- , isFullscreen --> doFullFloat
-  ]
+myManageHelpers = composeAll . concat $
+    [ [ className   =? c --> doFloat           | c <- classFloats]
+    , [ title       =? t --> doFloat           | t <- titleFloats]
+    , [ resource    =? r --> doFloat           | r <- resourceFloats]
+    , [ title       =? c --> doIgnore          | c <- titleIgnores]
+    , [(className =? "Firefox" <&&> resource =? "Dialog") --> doFloat]
+--    , [ className   =? c --> doF (W.shift "2") | c <- webApps]
+--    , [ className   =? c --> doF (W.shift "3") | c <- ircApps]
+    ]
+  where classFloats    = ["Galculator", "Steam", "Media_Center_26", "MPlayer", "Gimp", "Gajim.py", "Xmessage"]
+        titleFloats    = ["alsamixer", "Onboard"]
+        resourceFloats = ["desktop_window", "Dialog", "gpicview"]
+        titleIgnores   = ["stalonetray", "xfce4-notifyd"]
+--        webApps      = ["Firefox-bin", "Opera"] -- open on desktop 2
+--        ircApps      = ["Ksirc"]                -- open on desktop 3
 
+-- From I3 with kde config
+-- for_window [class="plasmashell"] floating enable
+-- for_window [class="Plasma"] floating enable
+-- for_window [title="plasma-desktop"] floating enable
+-- for_window [class="Plasmoidviewer"] floating enable
 
-myMoreManageHelpers = composeAll . concat $
-   [ [ className =? "Firefox-bin" --> doShift "web" ]
-   , [ className =? "Gajim.py"    --> doShift "jabber" ]
-   , [(className =? "Firefox" <&&> resource =? "Dialog") --> doFloat]
+-- # Float by type
+-- for_window [window_role="pop-up"] floating enable
+-- for_window [window_role="task_dialog"] floating enable
+-- for_window [window_type="dialog"] floating enable
+-- for_window [window_type="menu"] floating enable
 
-     -- using list comprehensions and partial matches
-   , [ className =?  c --> doFloat | c <- myFloatsC ]
-   , [ fmap ( c `isInfixOf`) className --> doFloat | c <- myMatchAnywhereFloatsC ]
-   , [ fmap ( c `isInfixOf`) title     --> doFloat | c <- myMatchAnywhereFloatsT ]
-   ]
-   -- in a composeAll hook, you'd use: fmap ("VLC" `isInfixOf`) title --> doFloat
-  where
-    myFloatsC = ["Gajim.py", "Xmessage"]
-    myMatchAnywhereFloatsC = ["Google","Pidgin"]
-    myMatchAnywhereFloatsT = ["VLC","El_Capitan"]
+-- myManageHelpers = composeAll
+--     [
+--     resource  =? "desktop_window" --> doIgnore
+--     --, className =? "Chromium"       --> doShift "2:Comm"
+--     --, className =? "Google-chrome"  --> doShift "comm"
+--     , className =? "Galculator"     --> doFloat
+--     , className =? "Steam"          --> doFloat
+--     , className =? "Gimp"           --> doFloat
+--     , appName =? "JRiver Popup Class"         --> doFloat
+--     , className =? "Media_Center_26"         --> doFloat
+--     , resource  =? "gpicview"       --> doFloat
+--     , className =? "MPlayer"        --> doFloat
+--     , className =? "vivaldi"        --> doShift "comm"
+--     , className =? "VirtualBox"     --> doFloat
+--     , title     =? "Onboard"        --> doFloat
+--       --, className =? "VirtualBox"     --> doShift "3:Lang"
+--     --, className =? "anki"           --> doShift "3:Lang"
+--     --, title     =? "Anki"           --> doShift "3:Lang"
+--     --, className =? "Xchat"          --> doShift "5:media"
+--     , className =? "stalonetray"    --> doIgnore
+--     , className =? "stalonetray"    --> doIgnore
+--     , className =? "xfce4-notifyd"  --> doIgnore
+--     , isFullscreen --> (doF W.focusDown <+> doFullFloat)
+--     , resource =? "Dialog" --> doFloat
+--       --, isDialog -?> doFloat
+--       -- , isFullscreen --> doFullFloat
+--   ]
 
 -- -- move and resize on float.  what size and where ?
 -- -- Set x, y, gx1, gy1, dx, dy, gx2 and gy2 accordingly.
@@ -547,7 +564,6 @@ manageScratchPad = scratchpadManageHook (W.RationalRect l t w h)
     l = 1 - w
 
 myManageHook = myManageHelpers <+>
-    myMoreManageHelpers <+>
     manageScratchPad
 
 
@@ -650,16 +666,16 @@ myManageHook = myManageHelpers <+>
 myLayout = avoidStruts (
   ThreeColMid 1 (3/100) (1/2) |||
     XMonad.Tall 1 (3/100) (1/2) |||
-    -- Mirror (XMonad.Tall 1 (3/100) (1/2)) |||
+    Mirror (XMonad.Tall 1 (3/100) (1/2)) |||
     tabbed shrinkText tabConfig |||
-    -- Full |||
-    -- TwoPane (3/100) (1/2) |||
+    Full |||
+    TwoPane (3/100) (1/2) |||
     Mag.magnifier BSP.emptyBSP |||
     Circle |||
     Mag.magnifier tiled ||| hintedTile XMonad.Layout.HintedTile.Tall ||| hintedTile Wide |||
-    -- Accordion |||
+    Accordion |||
     mirrorAccordion |||
-    -- Grid |||
+    Grid (8/4) |||
     -- spiral (6/7)
     noBorders (fullscreenFull Full))
   where
@@ -807,10 +823,10 @@ crizer _ True = return ("#657b83", "#fdf6e3")
 
 gsConfig = def {   -- defaultGSConfig
            gs_colorizer = crizer
-           ,gs_cellheight  = 200
+           ,gs_cellheight  = 150
            ,gs_cellpadding = 5
-           ,gs_cellwidth   = 600
-           ,  gs_font = "xft:Source Code Pro:pixelsize=78"
+           ,gs_cellwidth   = 400
+           ,  gs_font = "xft:Source Code Pro:pixelsize=48"
            }
 
 -- I don't know why, but gotoSelected like
@@ -1088,8 +1104,8 @@ layoutKeymap = -- Layout
 
 floatKeymap = -- Floating Windows
     [
---	("d",       withFocused (keysResizeWindow (-20,-20) (1%2,1%2))) -- Resize Smaller
-    ("s",       withFocused (keysResizeWindow (20,20) (1%2,1%2))) -- Resize Bigger
+    ("d",       withFocused (keysResizeWindow (0, 0) (0.5, 0.5))) -- Resize Smaller
+    , ("s",       withFocused (keysResizeWindow (50,50) (1%2,1%2))) -- Resize Bigger
     , ("<Right>", withFocused (keysMoveWindow (40,0) )) -- Move Right
     , ("<Down>",  withFocused (keysMoveWindow (0,40) )) -- Move Down
 --	, ("<Left>",  withFocused (keysMoveWindow (-40,0))) -- Move Left
@@ -1199,11 +1215,13 @@ mainKeymap c = mkKeymap c $ -- Main Keys
     , ("M4-p",          toSubmap c "promptsKeymap" promptsKeymap) -- Prompts
     , ("M4-r",          toSubmap c "raiseKeymap" raiseKeymap) -- Raise
     , ("M4-o",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap) -- Scratchpad
+    , ("M4-n",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap) -- Scratchpad
     , ("M4-e",          getScratchpad) -- grid select scratchpad
     , ("M4-S-s",        toSubmap c "shotKeymap" shotKeymap) -- ScreenShot
     , ("M4-w",          toSubmap c "workspacesKeymap" workspacesKeymap) -- Workspaces
     , ("M4-/",          toSubmap c "promptSearchKeymap" promptSearchKeymap) -- Prompt Search
-    , ("M4-S-/",        toSubmap c "selectSearchKeymap" selectSearchKeymap) -- Select Search
+    -- dont really like this, going to to the prompt in the browser.
+    -- , ("M4-S-/",        toSubmap c "selectSearchKeymap" selectSearchKeymap) -- Select Search
     , ("M4-i",          searchStuff) -- Search
     , ("M4-S-i",        selectSearchStuff) -- Search Selected
     , ("M4-c",          spawn "cellwriter@point") -- cellwriter at point.
@@ -1260,8 +1278,6 @@ myStartupHook = return ()
 fadeinactive = fadeInactiveLogHook fadeAmount
    where fadeAmount = 0.7
 
---     , manageHook = manageHook kdeConfig <+> myManageHook
-
 myConfig = do
   dbus <- D.connectSession
   getWellKnownName dbus
@@ -1272,7 +1288,6 @@ myConfig = do
          fadeinactive
 
       , manageHook = manageDocks <+> myManageHook <+> manageHook desktopConfig <+>
--- for kde
                      manageHook kdeConfig <+>
                      namedScratchpadManageHook scratchpads
       , layoutHook = layoutHook defaults
@@ -1297,7 +1312,7 @@ myConfig = do
 
   -- defaultConfig
 
-defaults = def {
+defaults = kde4Config {
   -- simple stuff
    terminal           = myTerminal,
    focusFollowsMouse  = myFocusFollowsMouse,
@@ -1330,25 +1345,3 @@ main = xmonad =<< myConfig
 --     { modMask = mod4Mask -- use the Windows button as mod
 --     , manageHook = manageHook kdeConfig <+> myManageHook
 --     }
-
--- For floats.
---
--- myManageHook = composeAll . concat $
---     [ [ className   =? c --> doFloat           | c <- myFloats]
---     , [ title       =? t --> doFloat           | t <- myOtherFloats]
---     , [ className   =? c --> doF (W.shift "2") | c <- webApps]
---     , [ className   =? c --> doF (W.shift "3") | c <- ircApps]
---     ]
---   where myFloats      = ["MPlayer", "Gimp"]
---         myOtherFloats = ["alsamixer"]
---         webApps       = ["Firefox-bin", "Opera"] -- open on desktop 2
---         ircApps       = ["Ksirc"]                -- open on desktop 3
-
-
-
-main :: IO ()
-main =  withConnection Session $ \dbus -> do
-    getWellKnownName dbus
-    xmonad $ kdeConfig
-         { logHook = dynamicLogWithPP (prettyPrinter dbus)
-         }
