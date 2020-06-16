@@ -970,6 +970,20 @@ wsgrid = withWindowSet $ \w -> do
         newnames = filter (\used -> (show used `notElem` (map show myTopicNames))) usednames
     gridselect workspaceGsConfig (map (\x -> (x,x)) (myTopicNames ++ newnames))
 
+-- ppSort = fmap (.scratchpadFilterOutWorkspace) getSortByTag
+-- where noScratchPad ws = if ws == "NSP" then "" else ws
+
+-- getSortByIndexNoNSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByIndex
+-- getSortByIndexNoNSP =
+--   fmap ((. namedScratchpadFilterOutWorkspace) . (. filter (\(W.Workspace tag _ _) -> tag /= "0"))) getSortByIndex
+-- getSortByIndexNoNSP =
+--   fmap (. filter (\(W.Workspace tag _ _) -> tag /= "0" && tag /= "NSP" && tag /= "NSP1")) getSortByIndex
+
+-- myExtraWSs =  ["0","NSP","NSP1"]
+-- myWorkspaces = map show [1..9] ++ myExtraWSs
+-- getSortByIndexNoNSP = fmap (. filter (\(W.Workspace tag _ _) -> not (tag `elem` myExtraWSs))) getSortByIndex
+
+
 -- gridselect a workspace and view it
 promptedGoto = wsgrid >>= flip whenJust (switchTopic myTopicConfig)
 
@@ -1313,17 +1327,17 @@ mainKeymap c = mkKeymap c $ -- Main Keys
  -- Scratchpads
     , ("M4-o",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap) -- Scratchpad
 --  Or on the home row with M4-Control
-    , ("M4-C-a", scratchToggle "term") -- Term
-    , ("M4-C-o", scratchToggle "term2") -- Term2
-    , ("M4-C-e", scratchToggle "term3") -- Term3
-    , ("M4-C-u", scratchToggle "term4") -- Term4
-    , ("M4-C-g", scratchToggle "ghci") -- ghci
-    , ("M4-C-c", scratchToggle "calc") -- calc
-    , ("M4-C-t", scratchToggle "top") -- top
-    , ("M4-C-s", scratchToggle "conky") -- Conky
-    , ("M4-C-v", scratchToggle "pavuControl") -- Pavu Control
-    , ("M4-C-S-v", scratchToggle "alsaMixer") -- Pavu Control
-    , ("M4-C-n", scratchpadSpawnActionTerminal "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
+    , ("M4-M1-a", scratchToggle "term") -- Term
+    , ("M4-M1-o", scratchToggle "term2") -- Term2
+    , ("M4-M1-e", scratchToggle "term3") -- Term3
+    , ("M4-M1-u", scratchToggle "term4") -- Term4
+    , ("M4-M1-g", scratchToggle "ghci") -- ghci
+    , ("M4-M1-c", scratchToggle "calc") -- calc
+    , ("M4-M1-t", scratchToggle "top") -- top
+    , ("M4-M1-s", scratchToggle "conky") -- Conky
+    , ("M4-M1-v", scratchToggle "pavuControl") -- Pavu Control
+    , ("M4-M1-S-v", scratchToggle "alsaMixer") -- Pavu Control
+    , ("M4-M1-n", scratchpadSpawnActionTerminal "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
 
     -- Sink
     , ("M4-r",   withFocused $ windows . W.sink) -- sink focused window
@@ -1338,7 +1352,7 @@ mainKeymap c = mkKeymap c $ -- Main Keys
     , ("M4-S-q",        io $ exitWith ExitSuccess) -- Quit
 
 -- Screensaver
-    , ("M4-C-x",        spawn "xscreensaver-command -lock") -- screen lock
+    , ("M4-S-x",        spawn "xscreensaver-command -lock") -- screen lock
     , ("M4-x",          spawn "xscreensaver-command -activate")  -- screensaver
 
     -- Mark windows and manipluate with tags.
