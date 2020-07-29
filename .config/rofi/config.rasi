@@ -1,7 +1,7 @@
 configuration {
  modi: "window,drun,ssh,combi";
  theme: "solarized";
- font: "Source Code Pro 14";
+ font: "Source Code Pro 36";
  combi-modi: "window,drun,ssh";
  show-icons: false;
  theme: "Arc-Dark";

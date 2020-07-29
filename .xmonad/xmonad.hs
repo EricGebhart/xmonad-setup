@@ -510,7 +510,7 @@ scratchpads =
   , NS "alsaMixer"  (myTerminal2 ++ " -e alsamixer -t alsamixer") (title =? "alsamixer") (flexFloatSSSP (1/4) (1/4))
   ]
   where
-    spawnConky  = "conky -c ~/.config/conky/AUR-Lazuli-Azul.conkyrc" -- launch Conky
+    spawnConky  = "conky -c ~/.config/conky/Erics.conkyrc" -- launch Conky
     findConky   = title =? "system_conky"   -- its window,  has a own_window_title of "system_conky"
     manageConky = (flexFloatSSP (1/4) (1/4))
     spawnPavu  = "pavucontrol"
