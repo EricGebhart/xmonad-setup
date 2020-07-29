@@ -5,6 +5,7 @@
 
 #xcompmgr -f -C -n -D 3 &
 #xcompmgr -f &
+export DESKTOP_SESSION=xmonad
 
 #eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
 #export SSH_AUTH_SOCK

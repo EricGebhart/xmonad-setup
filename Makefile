@@ -9,7 +9,7 @@ install:
 
 .PHONY: xsession
 xsession:
-	sudo cp xmonad.desktop /usr/share/xsessions/
+	sudo cp myXmonad.desktop /usr/share/xsessions/
 
 startup:
 	sudo cp .xinitrc $(HOME)/
