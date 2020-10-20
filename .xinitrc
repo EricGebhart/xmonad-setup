@@ -1,5 +1,8 @@
 # xinitrc for xmonad with a polybar
 
+# Load resources
+# with code stolen from /etc/X11/xinitrc
+
 userresources=$HOME/.Xresources
 usermodmap=$HOME/.Xmodmap
 sysresources=/etc/X11/xinit/.Xresources
@@ -26,14 +29,11 @@ fi
 #xcompmgr -f -C -n -D 3 &
 #xcompmgr -f &
 
-#eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
-#export SSH_AUTH_SOCK
+eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
+export SSH_AUTH_SOCK
 
 #emacs --daemon
 
-# Load resources
-# no need. Done above with code stolen from /etc/X11/xinitrc
-# xrdb -merge ~/.Xresources
 
 # Big pointer
 xsetroot -cursor_name left_ptr &
@@ -49,8 +49,10 @@ feh --bg-scale /home/eric/Documents/Art/ocean_park_114.jpg
 xscreensaver &
 
 #gestures and virtual on screen keyboard
-#easystroke &
-#onboard &
+easystroke &
+onboard &
+
+redshift &
 
 #if [ -x /usr/bin/nm-applet ] ; then
 #    nm-applet & ## if using trayer add: --sm-disable &

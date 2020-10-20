@@ -28,8 +28,10 @@ feh --bg-scale /home/eric/Documents/Art/ocean_park_114.jpg
 xscreensaver &
 
 #gestures and virtual on screen keyboard
-#easystroke &
-#onboard &
+easystroke &
+onboard &
+
+redshift &
 
 #if [ -x /usr/bin/nm-applet ] ; then
 #    nm-applet & ## if using trayer add: --sm-disable &

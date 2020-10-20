@@ -21,10 +21,11 @@ to what seems the simplest and best. polybar.   For all the various desktop pane
 
 I recently added rofi, but I'm not sure it's any better than dmenu. I know it's not _just_ dmenu, but that's all
 that I can think of to use it for. Conky is fine and pretty, but htop is just so simple.
+Both work. Conky is put into a scratchpad so it can be easily managed and invoked.
 
 This repo is for configurations and etc. Just do a `make all` here.  If you need to install things 
-and you use an Arch Linux based distro then go get my [arch-pkgs](http://github.com/ericgebhart/arch-pkgs) or 
-my more comprehensive [Arch-Setup](http://github.com/ericgebhart/Arch-Setup) 
+and you use an Arch Linux based distro then go get my [arch-pkgs](http://github.com/ericgebhart/arch-pkgs) `make Xmonad` there will install everything you need.
+See my other more comprehensive setup repo: [Arch-Setup](http://github.com/ericgebhart/Arch-Setup) 
 
 You will need:
 * xmonad
@@ -93,7 +94,7 @@ thank you [pclewis!](https://github.com/pclewis/dotfiles/tree/master/xmonad/.xmo
 
 The important bits for keyhints is `showHintForKeymap.sh`, an awk program that lives in your .xmonad directory. 
 If things are displayed too tightly, or dropping off, it may be necessary to increase the line height
-your xmonad.hs.  Hopefully it's obvious.
+in your xmonad.hs.  Hopefully it's obvious.
  
 If you want to change the font for dzen something like this works in .Xresources. You can also pass the font in to the showhintforkeymap.sh function.  -- all of this is taken care of with the install. But mind that I have a hi-dpi monitor and I have settings for that as well. So *big* fonts sometimes. You'll want to read the code...
 
