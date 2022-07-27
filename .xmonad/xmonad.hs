@@ -138,6 +138,7 @@ myFocusFollowsMouse = True
 myTerminal = "urxvt"
 myTerminal2 = "termite"
 myShell = "zsh"
+emacsn = "emacsn"
 
           ------------------------------------------------------------------------
 -- Colors and borders
@@ -199,7 +200,6 @@ myFont = "Source Code Pro"
 myMonoFont = "Source Code Pro"
 myfontwsize = "xft:" ++ myFont ++ ":size=16"
 
-
 -----------------------------------------
 -- Settings for the dzen sub-keymap popup
 
@@ -226,6 +226,7 @@ workspaceGsConfig = def -- defaultGSConfig
            , gs_cellheight  = 150
            , gs_cellpadding = 5
            , gs_cellwidth   = 400
+           , gs_navigate   = navNSearch
            , gs_font = "xft:Source Code Pro:pixelsize=48"
            }
 
@@ -234,6 +235,7 @@ gotoBringGsConfig = def
                 {gs_cellheight = 75
                 , gs_cellpadding = 5
                 , gs_cellwidth = 600
+                , gs_navigate   = navNSearch
                 , gs_font = "xft:Source Code Pro:pixelsize=36"
                 }
 
@@ -244,7 +246,8 @@ gotoBringGsConfig = def
 coloredGSConfig colorizer = (buildDefaultGSConfig colorizer)
                        { gs_cellheight  = 95
                        , gs_cellpadding = 5
-                       , gs_cellwidth   = 250
+                       , gs_cellwidth   = 300
+                       , gs_navigate   = navNSearch
                        , gs_font = "xft:Source Code Pro:pixelsize=40"
                        }
 
@@ -307,21 +310,31 @@ data TopicItem = TI { topicName :: Topic
 myTopics :: [TopicItem]
 myTopics = [ TI "main" "" (return ())
            -- ,  TI "mail" "" (spawnInTopicDir "emacsn -e")
-           , TI "Web" "" (spawnInTopicDir "vivaldi-stable")
-           , TI "Xournal" "Xournal" (spawnInTopicDir "xournal")
+           , TI "Org" "org" (spawnInTopicDir "emacsn -m ORG")
+           -- , TI "Web" "" (spawnInTopicDir "vivaldi-stable")
+           , TI "Web" "" (spawnInTopicDir "emacsn -cws common -b duckduckgo.com" >>
+                          spawnInTopicDir "discord")
 --           , TI "Yeti" "play/Yeti/yeti-stack" (spawnInTopicDir "emacsn -m Yeti")
            , TI "Code" "play" (spawnInTopicDir "emacsn -m Code")
+           , TI "QMK" "play/qmk_firmware" (spawnInTopicDir "emacsn -m QMK keyboards/ergodox_ez/keymaps/ericgebhart/keymap.c")
+           , TI "Elisp" "play/emacs-setup/elisp" (spawnInTopicDir "emacsn -m Elisp")
            , TI "Arch-Setup" "Arch-Setup" (spawnInTopicDir "emacsn -m Arch-Setup")
-           , TI "bgc-ui" "play/bgc-ui" (spawnInTopicDir "emacsn -m bgc-ui")
+           , TI "XMonad" "play/xmonad-setup/.xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs") -- lib/*/*.hs
+           , TI "SPR" "play/Simple_Process_Repl" (spawnInTopicDir "emacsn -m SPR README.md")
+           --, TI "RobotGirl" "play/robotgirl/" (spawnInTopicDir "emacsn -m RobotGirl")
+           , TI "Plysp" "play/plysp" (spawnInTopicDir "emacsn -m Plysp")
+
+           -- , TI "PBR" "play/Particle_Board_REPL" (spawnInTopicDir "emacsn -m PBR")
+
            , TI "eg.com" "play/ericgebhart.github.io" (spawnInTopicDir "emacsn -m eg.com")
            , TI "tb.com" "play/tangobreath.github.io" (spawnInTopicDir "emacsn -m tb.com")
-           , TI "Elisp" "elisp" (spawnInTopicDir "emacsn -m Elisp")
            , TI "Closh" "play/closh" (spawnInTopicDir "emacsn -m closh")
-           , TI "Mal" "play/mal" (spawnInTopicDir "emacsn -m mal")
-           , TI "QMK" "play/qmk_firmware" (spawnInTopicDir "emacsn -m QMK keyboards/ergodox_ez/keymaps/ericgebhart/keymap.c")
-           , TI "XMonad" ".xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs") -- lib/*/*.hs
-           , TI "Comm" "" (spawnInTopicDir "slack" >>
-                            spawnInTopicDir "emacsn -e")
+           -- , TI "Mal" "play/mal" (spawnInTopicDir "emacsn -m mal")
+           -- , TI "bgc-ui" "play/bgc-ui" (spawnInTopicDir "emacsn -m bgc-ui")
+           -- , TI "emacs-single" "play/emacs-single" (spawnInTopicDir "emacsn -m emacs-single")
+           , TI "Xournal" "Xournal" (spawnInTopicDir "xournal")
+           , TI "Comm" "" (spawnInTopicDir "telegram-desktop" >>
+                            spawnInTopicDir "emacsn -cews mail")
 
            , TI "BD" "BD" (spawnInTopicDir "termite -T BD" >>
                             spawnInTopicDir "YACReaderLibrary")
@@ -500,13 +513,14 @@ scratchpads =
   [ NS "conky"   spawnConky findConky manageConky
   , NS "pavuControl"   spawnPavu findPavu managePavu
   , NS "term"  (myTerminal2 ++ " -t term") (title =? "term") (flexFloatBSP (1/20) (1/20))
-  , NS "term2" (myTerminal2 ++ " -t term2") (title =? "term2") (flexFloatBSP (2/20) (2/20))
+  , NS "term1" (myTerminal2 ++ " -t term1") (title =? "term1") (flexFloatBSP (2/20) (2/20))
+  , NS "term2" (myTerminal2 ++ " -t term2") (title =? "term2") (flexFloatBSP (3/20) (3/20))
   , NS "term3" (myTerminal2 ++ " -t term3") (title =? "term3") (flexFloatBSP (4/20) (4/20))
   , NS "term4" (myTerminal2 ++ " -t term4") (title =? "term4") (flexFloatBSP (6/20) (4/20))
   , NS "ghci"  (myTerminal2 ++ " -e ghci") (title =? "ghci") (flexFloatBSP (6/20) (1/10))
   --, NS "sync"  (myTerminal ++ " -e sy") (title =? "sy") (flexFloatSP (1/10) (2/3))
   , NS "top"   (myTerminal2 ++ " -e htop") (title =? "htop") (flexFloatSSP (1/4) (1/4))
-  , NS "calc"  (myTerminal2 ++ " -e bcl -t bc") (title =? "bc") (flexFloatSSSP (1/4) (1/4))
+ , NS "calc"  (myTerminal2 ++ " -e bcl -t bc") (title =? "bc") (flexFloatSSSP (1/4) (1/4))
   , NS "alsaMixer"  (myTerminal2 ++ " -e alsamixer -t alsamixer") (title =? "alsamixer") (flexFloatSSSP (1/4) (1/4))
   ]
   where
@@ -530,24 +544,27 @@ scratchToggle a = namedScratchpadAction scratchpads a >> bringMouse
 myScratchpadMenu =
   [ ("Conky", (scratchToggle "conky"))
   , ("Volume",(scratchToggle "pavuControl"))
-  , ("AlsaMixer", (scratchToggle "alsaMixer"))
-  , ("Term1", (scratchToggle "term"))
-  , ("Term2", (scratchToggle "term2"))
-  , ("Term3", (scratchToggle "term3"))
-  , ("Term4", (scratchToggle "term4"))
-  , ("ghci",  (scratchToggle "ghci"))
-  , ("top",   (scratchToggle "top"))
+  , ("Music mixer", (scratchToggle "alsaMixer"))
+  , ("GHCI",  (scratchToggle "ghci"))
+  , ("Top",   (scratchToggle "top"))
   --, ("sync",  (scratchToggle "sync"))
-  , ("calc",  (scratchToggle "calc"))
+  , ("Calc",  (scratchToggle "calc"))
   --, ("OSX",   (scratchToggle "OSX"))
   --, ("MSW",   (scratchToggle "MSW"))
   , ("Scratch", scratchpadSpawnActionTerminal  "urxvt")
   -- , ("Scratch", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800")
+  -- at the end because that puts them on the outside edges of select-grid.
+  , ("a Term", (scratchToggle "term"))
+  , ("o Term", (scratchToggle "term1"))
+  , ("e Term", (scratchToggle "term2"))
+  , ("u Term", (scratchToggle "term3"))
+  , ("h Term", (scratchToggle "term4"))
   ]
 
 -- The scratch pad sub keymap
 namedScratchpadsKeymap = -- Scratch Pads
-    [ ("o", scratchToggle "term") -- Term
+    [("a", scratchToggle "term") -- Term
+    , ("o", scratchToggle "term1") -- Term1
     , ("e", scratchToggle "term2") -- Term2
     , ("u", scratchToggle "term3") -- Term3
     , ("h", scratchToggle "term4") -- Term4
@@ -898,8 +915,9 @@ archpkgs  = searchEngine "archpkgs"   "https://www.archlinux.org/packages/?sort=
 archaur   = searchEngine "archaur"    "https://aur.archlinux.org/packages/?O=0&K="
 thesaurus = searchEngine "thesaurus"  "http://thesaurus.reference.com/browse/"
 etymology = searchEngine "etymology"  "http://www.etymonline.com/index.php?term="
-synonyms  = searchEngine "synonyms"   "http://www.synonymes.com/synonyme.php?mot="
--- synonym  = searchEngine "synonymes" "http://www.les-synonymes.com/mot/"
+synonymes  = searchEngine "synonyms"   "http://www.synonymes.com/synonyme.php?mot="
+-- synonymes = searchEngine  "synonymes" "http://www.les-synonymes.com/mot/"
+wiktionaryen = searchEngine "wiktionary" "https://en.wiktionary.org/w/index.php?search="
 wiktionnaire = searchEngine "wiktionnaire" "https://fr.wiktionary.org/w/index.php?search="
 clojuredocs = searchEngine "clojuredocs" "https://clojuredocs.org/clojure.core/"
 
@@ -929,8 +947,9 @@ promptSearchMenu =
      , ("Arch",         (mypromptSearch arch))
      , ("Arch Pkg",     (mypromptSearch archpkgs))
      , ("Arch AUR",     (mypromptSearch archaur))
+     , ("Wiktionary",   (mypromptSearch wiktionaryen))
      , ("Wiktionnaire", (mypromptSearch wiktionnaire))
-     , ("Synonymes.fr", (mypromptSearch synonyms))
+     , ("Synonymes.fr", (mypromptSearch synonymes))
      ]
 
 selectSearchMenu =
@@ -953,8 +972,9 @@ selectSearchMenu =
      , ("Arch",         (selectSearch arch))
      , ("Arch Pkg",     (selectSearch archpkgs))
      , ("Arch AUR",     (selectSearch archaur))
+     , ("Wiktionary",   (selectSearch wiktionaryen))
      , ("Wiktionnaire", (selectSearch wiktionnaire))
-     , ("Synonymes.fr", (selectSearch synonyms))
+     , ("Synonymes.fr", (selectSearch synonymes))
      ]
 
 -------------------------------------------------------------------------------------------
@@ -1314,7 +1334,7 @@ mainKeymap c = mkKeymap c $ -- Main Keys
     , ("M4-S-a",        selectApps) -- Apps -GS
     , ("M4-i",          searchStuff) -- Search
     , ("M4-S-i",        selectSearchStuff) -- Search Selected
-    , ("M4-e",          getScratchpad) -- grid select scratchpad
+--    , ("M4-e",          getScratchpad) -- grid select scratchpad
     --, ("M4-C-a",        spawnSelected workspaceG sConfig ["krita","dolphin","repetierHost"]) -- Apps
 
     , ("M4-<Tab>",      cycleRecentWS' [xK_Super_L, xK_Shift_L] xK_Tab xK_grave) -- Cycle Recent
@@ -1325,12 +1345,13 @@ mainKeymap c = mkKeymap c $ -- Main Keys
     , ("M4-C-m",        manPrompt myXPConfig) -- Man Pages
 
  -- Scratchpads
-    , ("M4-o",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap) -- Scratchpad
+    , ("M4-e",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap) -- Scratchpad
 --  Or on the home row with M4-Control
     , ("M4-M1-a", scratchToggle "term") -- Term
-    , ("M4-M1-o", scratchToggle "term2") -- Term2
-    , ("M4-M1-e", scratchToggle "term3") -- Term3
-    , ("M4-M1-u", scratchToggle "term4") -- Term4
+    , ("M4-M1-o", scratchToggle "term1") -- Term1
+    , ("M4-M1-e", scratchToggle "term2") -- Term2
+    , ("M4-M1-u", scratchToggle "term3") -- Term3
+    , ("M4-M1-h", scratchToggle "term4") -- Term4
     , ("M4-M1-g", scratchToggle "ghci") -- ghci
     , ("M4-M1-c", scratchToggle "calc") -- calc
     , ("M4-M1-t", scratchToggle "top") -- top
