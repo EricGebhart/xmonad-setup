@@ -316,7 +316,7 @@ myTopics = [ TI "main" "" (return ())
                           spawnInTopicDir "discord")
 --           , TI "Yeti" "play/Yeti/yeti-stack" (spawnInTopicDir "emacsn -m Yeti")
            , TI "Code" "play" (spawnInTopicDir "emacsn -m Code")
-           , TI "QMK" "play/qmk_firmware" (spawnInTopicDir "emacsn -m QMK keyboards/ergodox_ez/keymaps/ericgebhart/keymap.c")
+           , TI "QMK" "play/qmk_firmware/users/ericgebhart" (spawnInTopicDir "emacsn -m README.md")
            , TI "Elisp" "play/emacs-setup/elisp" (spawnInTopicDir "emacsn -m Elisp")
            , TI "Arch-Setup" "Arch-Setup" (spawnInTopicDir "emacsn -m Arch-Setup")
            , TI "XMonad" "play/xmonad-setup/.xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs") -- lib/*/*.hs
@@ -925,14 +925,18 @@ clojuredocs = searchEngine "clojuredocs" "https://clojuredocs.org/clojure.core/"
 -- Grid-Select menus -------------------------------------------
 
 promptSearchMenu =
-     [ ("man",          (manPrompt myXPConfig))
+     [("duckduckgo",   (mypromptSearch duckduckgo))
+     , ("Reverso",      (mypromptSearch reverso))
+     , ("Wiktionary",   (mypromptSearch wiktionaryen))
+     , ("Wiktionnaire", (mypromptSearch wiktionnaire))
+     , ("Synonymes.fr", (mypromptSearch synonymes))
+     , ("man",          (manPrompt myXPConfig))
 --     , ("sdcv",         (sdcvPrompt myXPConfig "sdcv"))
 --     , ("calc",         (calcPrompt myXPConfig "calc"))
      , ("goldendict",   (gDPrompt myXPConfig))
      , ("google",       (mypromptSearch google))
      , ("hoogle",       (mypromptSearch hoogle))
      , ("clojuredocs",  (mypromptSearch clojuredocs))
-     , ("duckduckgo",   (mypromptSearch duckduckgo))
      , ("wikipedia",    (mypromptSearch wikipedia))
      , ("hackage",      (mypromptSearch hackage))
      , ("scholar",      (mypromptSearch scholar))
@@ -943,13 +947,9 @@ promptSearchMenu =
      , ("Lucky",        (mypromptSearch lucky))
      , ("Images",       (mypromptSearch images))
      , ("greek",        (mypromptSearch greek))
-     , ("Reverso",      (mypromptSearch reverso))
      , ("Arch",         (mypromptSearch arch))
      , ("Arch Pkg",     (mypromptSearch archpkgs))
      , ("Arch AUR",     (mypromptSearch archaur))
-     , ("Wiktionary",   (mypromptSearch wiktionaryen))
-     , ("Wiktionnaire", (mypromptSearch wiktionnaire))
-     , ("Synonymes.fr", (mypromptSearch synonymes))
      ]
 
 selectSearchMenu =

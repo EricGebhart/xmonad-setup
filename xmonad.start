@@ -10,8 +10,6 @@ export DESKTOP_SESSION=xmonad
 #eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
 #export SSH_AUTH_SOCK
 
-#emacs --daemon
-
 # Load resources
 
 xrdb -merge ~/.Xresources
@@ -37,6 +35,7 @@ redshift &
 #    nm-applet & ## if using trayer add: --sm-disable &
 #fi
 
+
 nm-applet & ## if using trayer add: --sm-disable &
 
 #/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
@@ -52,5 +51,7 @@ xrandr --fbmm 286x281
 
 xcompmgr -c &
 
+emacsn -s common &
+emacsn -s mail &
 
 exec xmonad
