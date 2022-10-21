@@ -66,7 +66,7 @@ import XMonad.Layout.LimitWindows
 import XMonad.Layout.Reflect
 import XMonad.Layout.TwoPane
 import XMonad.Layout.DwmStyle
-import XMonad.Layout.IM
+import qualified XMonad.Layout.IM as IM
 import XMonad.Layout.Fullscreen
 import XMonad.Layout.NoBorders
 import qualified XMonad.Layout.Dwindle as DW  -- Dwindle,Spiral and Squeeze.
@@ -108,6 +108,7 @@ import Data.Char (isSpace)
 
 import XMonad.Util.Run
 import XMonad.Util.Paste
+import XMonad.ManageHook
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.Scratchpad
 import XMonad.Util.XSelection
@@ -302,10 +303,10 @@ myScreenshot = "screenshot"
 -- whatever should be there, in the directory it should be focused on.
 -- To reset a workspace, just make it empty, then change out and back.
 
-data TopicItem = TI { topicName :: Topic
-                    , topicDir  :: String
-                    , topicAct  :: X ()
-                    }
+-- data TopicItem = TI { topicName :: Topic
+--                    , topicDir  :: String
+--                    , topicAct  :: X ()
+--                    }
 
 myTopics :: [TopicItem]
 myTopics = [ TI "main" "" (return ())
@@ -316,17 +317,19 @@ myTopics = [ TI "main" "" (return ())
                           spawnInTopicDir "discord")
 --           , TI "Yeti" "play/Yeti/yeti-stack" (spawnInTopicDir "emacsn -m Yeti")
            , TI "Code" "play" (spawnInTopicDir "emacsn -m Code")
+           , TI "MyQMK" "play/myqmk/users/ericgebhart" (spawnInTopicDir "emacsn -m MyQMK README.md")
            , TI "QMK" "play/qmk_firmware/users/ericgebhart" (spawnInTopicDir "emacsn -m README.md")
            , TI "Elisp" "play/emacs-setup/elisp" (spawnInTopicDir "emacsn -m Elisp")
-           , TI "Arch-Setup" "Arch-Setup" (spawnInTopicDir "emacsn -m Arch-Setup")
            , TI "XMonad" "play/xmonad-setup/.xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs") -- lib/*/*.hs
+           , TI "Arch-Setup" "Arch-Setup" (spawnInTopicDir "emacsn -m Arch-Setup")
            , TI "SPR" "play/Simple_Process_Repl" (spawnInTopicDir "emacsn -m SPR README.md")
            --, TI "RobotGirl" "play/robotgirl/" (spawnInTopicDir "emacsn -m RobotGirl")
            , TI "Plysp" "play/plysp" (spawnInTopicDir "emacsn -m Plysp")
 
            -- , TI "PBR" "play/Particle_Board_REPL" (spawnInTopicDir "emacsn -m PBR")
 
-           , TI "eg.com" "play/ericgebhart.github.io" (spawnInTopicDir "emacsn -m eg.com")
+           , TI "erica.com" "play/ericatango.github.io" (spawnInTopicDir "emacsn -m eg.com")
+           , TI "eg.com" "play/EricGebhart.github.io" (spawnInTopicDir "emacsn -m eg.com")
            , TI "tb.com" "play/tangobreath.github.io" (spawnInTopicDir "emacsn -m tb.com")
            , TI "Closh" "play/closh" (spawnInTopicDir "emacsn -m closh")
            -- , TI "Mal" "play/mal" (spawnInTopicDir "emacsn -m mal")
@@ -357,15 +360,15 @@ myTopics = [ TI "main" "" (return ())
            ]
 
 myTopicNames :: [Topic]
-myTopicNames = map topicName myTopics
+myTopicNames = map tiName myTopics
 
 myTopicConfig :: TopicConfig
 myTopicConfig = TopicConfig
-    { topicDirs = M.fromList $ map (topicName &&& topicDir) myTopics
+    { topicDirs = M.fromList $ map (tiName &&& tiDir) myTopics
     , defaultTopicAction = const $ return ()
     , defaultTopic = "main"
-    , maxTopicHistory = 10
-    , topicActions = M.fromList $ map (topicName &&& topicAct) myTopics
+    --, maxTopicHistory = 10 - deprecated.
+    , topicActions = M.fromList $ map (tiName &&& tiAction) myTopics
     }
 
 -- --- Prompted workspace navigation. ---------------------------------
@@ -511,6 +514,7 @@ flexFloatBSP dx dy = customFloating (flexScratchpadSize dx dy)
 
 scratchpads =
   [ NS "conky"   spawnConky findConky manageConky
+  , NS "htop" "xterm -e htop" (title =? "htop") defaultFloating -- from the example in the doc
   , NS "pavuControl"   spawnPavu findPavu managePavu
   , NS "term"  (myTerminal2 ++ " -t term") (title =? "term") (flexFloatBSP (1/20) (1/20))
   , NS "term1" (myTerminal2 ++ " -t term1") (title =? "term1") (flexFloatBSP (2/20) (2/20))
@@ -520,7 +524,7 @@ scratchpads =
   , NS "ghci"  (myTerminal2 ++ " -e ghci") (title =? "ghci") (flexFloatBSP (6/20) (1/10))
   --, NS "sync"  (myTerminal ++ " -e sy") (title =? "sy") (flexFloatSP (1/10) (2/3))
   , NS "top"   (myTerminal2 ++ " -e htop") (title =? "htop") (flexFloatSSP (1/4) (1/4))
- , NS "calc"  (myTerminal2 ++ " -e bcl -t bc") (title =? "bc") (flexFloatSSSP (1/4) (1/4))
+  , NS "calc"  (myTerminal2 ++ " -e bcl -t bc") (title =? "bc") (flexFloatSSSP (1/4) (1/4))
   , NS "alsaMixer"  (myTerminal2 ++ " -e alsamixer -t alsamixer") (title =? "alsamixer") (flexFloatSSSP (1/4) (1/4))
   ]
   where
@@ -547,6 +551,7 @@ myScratchpadMenu =
   , ("Music mixer", (scratchToggle "alsaMixer"))
   , ("GHCI",  (scratchToggle "ghci"))
   , ("Top",   (scratchToggle "top"))
+  , ("HTop",   (scratchToggle "htop"))
   --, ("sync",  (scratchToggle "sync"))
   , ("Calc",  (scratchToggle "calc"))
   --, ("OSX",   (scratchToggle "OSX"))
@@ -573,7 +578,8 @@ namedScratchpadsKeymap = -- Scratch Pads
     , ("C", scratchToggle "conky") -- Conky
     , ("v", scratchToggle "pavuControl") -- Pavu Control
     , ("a", scratchToggle "alsaMixer") -- Pavu Control
-    , ("t", scratchToggle "top") -- top
+    , ("t", scratchToggle "top") -- htop
+    , ("H", scratchToggle "htop") -- htop
     , ("n", scratchpadSpawnActionTerminal "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
     ]
 
@@ -584,6 +590,10 @@ manageScratchPad = scratchpadManageHook (W.RationalRect l t w h)
     w = 0.5
     t = 1 - h
     l = 1 - w
+
+myScratchpadManageHook =
+    manageScratchPad <+>
+    namedScratchpadManageHook scratchpads
 
 ----------------------------------------------------------------
 -- Grid-Select menu --------------------------------------------
@@ -635,26 +645,14 @@ myManageHelpers = composeAll . concat $
     , [ title       =? c --> doIgnore          | c <- titleIgnores]
     , [(className =? "Firefox" <&&> resource =? "Dialog") --> doFloat]
     ]
-  where classFloats    = ["Galculator", "Steam", "Media_Center_26", "MPlayer", "Gimp", "Gajim.py", "Xmessage"]
+  where classFloats    = ["Galculator", "Steam", "Media_Center_30", "YACReaderLibrary",
+                          "MPlayer", "Gimp", "Gajim.py", "Xmessage"]
         titleFloats    = ["Volume Control", "alsamixer", "Onboard"]
         resourceFloats = ["desktop_window", "Dialog", "gpicview"]
         titleIgnores   = ["stalonetray", "xfce4-notifyd"]
 
--- -- move and resize on float.  what size and where ?
--- -- Set x, y, gx1, gy1, dx, dy, gx2 and gy2 accordingly.
--- -- or sink it if it's already floating.
--- toggleFloat = withFocused (\windowId -> do
---                               { floats <- gets (W.floating . windowset);
---                                 if windowId `M.member` floats
---                                 then withFocused $ windows . W.sink
---                                 else do
---                                      keysMoveWindowTo (x, y) (gx1, gy1) windowId
---                                      keysResizeWindow (dx, dy) (gx2, gy2) windowId
---                               }
---                           )
+myManageHook = myManageHelpers <+> myScratchpadManageHook
 
-myManageHook = myManageHelpers <+>
-    manageScratchPad
 
 ------------------------------------------------------------------------------------
 --Layouts --------------------------------------------------------------------------
@@ -736,12 +734,12 @@ myHTWide = hintedTile HT.Wide
      delta      = 3/100
 
 -- with IM to get a sidebar with grid in the other part
-myChat' l = withIM size roster l
+myChat' l = IM.withIM size roster l
     where
         -- Ratio of screen roster will occupy
         size = 1%5
         -- Match roster window
-        roster = Title "Buddy List"
+        roster = IM.Title "Buddy List"
 myChat = myChat' G.Grid
 
 -- For tailing logs ?
@@ -754,13 +752,13 @@ myDish = limitWindows 5 $ Dishes nmaster ratio
 
 -- example of withIM
 -- Dishes with a sidebar for ProcMeter3 or whatever
-myDishBar' l = reflectHoriz $ withIM procmeterSize procmeter $
+myDishBar' l = reflectHoriz $ IM.withIM procmeterSize procmeter $
               reflectHoriz $ l
     where
         -- Ratio of screen procmeter will occupy
         procmeterSize = 1%7
         -- Match procmeter
-        procmeter = ClassName "ProcMeter3"
+        procmeter = IM.ClassName "ProcMeter3"
 myDishesSidebar = myDishBar' myDish
 
 -----------------------------------------------------------------------
@@ -859,18 +857,19 @@ myLayout = avoidStruts $
         mediaLayouts  = Full      ||| myNoBorders  ||| myGrid       ||| Circle       ||| myCross     ||| myTall
         langLayouts   = mySqueeze ||| myMagBSP     ||| myMagTiled   ||| myMAccordion ||| myDwindle   ||| mySpiral
 
--- layout prompt (w/ auto-completion and all layouts)
-myLayoutPrompt = inputPromptWithCompl mylayoutXPConfig "Layout"
-                    (mkComplFunFromList' allLayouts)
-                    ?+ (sendMessage . JumpToLayout)
-
 mylayoutXPConfig = def { autoComplete = Just 1000 }
+
+-- layout prompt (w/ auto-completion and all layouts)
+-- myLayoutPrompt = inputPromptWithCompl mylayoutXPConfig "Layout"
+--                     (mkComplFunFromList' allLayouts)
+--                     ?+ (sendMessage . JumpToLayout)
+
 
 -- modified variant of cycleRecentWS from XMonad.Actions.CycleRecentWS (17)
 -- which does not include visible but non-focused workspaces in the cycle
-cycleRecentWS' = cycleWindowSets options
- where options w = map (W.view `flip` w) (recentTags w)
-       recentTags w = map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
+-- cycleRecentWS' = cycleWindowSets options
+--  where options w = map (W.view `flip` w) (recentTags w)
+--       recentTags w = map W.tag $ W.hidden w ++ [W.workspace (W.current w)]
 
 
 ------------------------------------------------------------------------------------------
@@ -880,13 +879,13 @@ mypromptSearch a = promptSearch myXPConfig a
 
 isGDHist a = (a == "GoldenDict:")
 
-gDPrompt :: XPConfig -> X ()
-gDPrompt c =
-    inputPromptWithCompl c "GoldenDict:" (historyCompletionP isGDHist) ?+ \word ->
--- -- this causes the full sized goldendict to appear.
--- runProccessWithInput "goldendict" [] word
-    safeSpawn "goldendict" [word]
-         >> return ()
+-- gDPrompt :: XPConfig -> X ()
+-- gDPrompt c =
+    -- inputPromptWithCompl c "GoldenDict:" (historyCompletionP isGDHist) ?+ \word ->
+-- -- -- this causes the full sized goldendict to appear.
+-- -- runProccessWithInput "goldendict" [] word
+    -- safeSpawn "goldendict" [word]
+         -- >> return ()
 
 -- these don't actually work for some reason. The data scrolls out of the dzen bar.
 calcPrompt :: XPConfig -> String -> X ()
@@ -933,7 +932,7 @@ promptSearchMenu =
      , ("man",          (manPrompt myXPConfig))
 --     , ("sdcv",         (sdcvPrompt myXPConfig "sdcv"))
 --     , ("calc",         (calcPrompt myXPConfig "calc"))
-     , ("goldendict",   (gDPrompt myXPConfig))
+--     , ("goldendict",   (gDPrompt myXPConfig))
      , ("google",       (mypromptSearch google))
      , ("hoogle",       (mypromptSearch hoogle))
      , ("clojuredocs",  (mypromptSearch clojuredocs))
@@ -983,26 +982,13 @@ selectSearchMenu =
 -- Automatic workspace grid select by getting the names from the topicspace.
 
 -- Default navigation.  arrows/vi (hjkl) '/' for string search.
+-- search by letter and/or arrows.
 
 wsgrid = withWindowSet $ \w -> do
     let wss = W.workspaces w
         usednames = map W.tag $  wss
         newnames = filter (\used -> (show used `notElem` (map show myTopicNames))) usednames
     gridselect workspaceGsConfig (map (\x -> (x,x)) (myTopicNames ++ newnames))
-
--- ppSort = fmap (.scratchpadFilterOutWorkspace) getSortByTag
--- where noScratchPad ws = if ws == "NSP" then "" else ws
-
--- getSortByIndexNoNSP = fmap (.namedScratchpadFilterOutWorkspace) getSortByIndex
--- getSortByIndexNoNSP =
---   fmap ((. namedScratchpadFilterOutWorkspace) . (. filter (\(W.Workspace tag _ _) -> tag /= "0"))) getSortByIndex
--- getSortByIndexNoNSP =
---   fmap (. filter (\(W.Workspace tag _ _) -> tag /= "0" && tag /= "NSP" && tag /= "NSP1")) getSortByIndex
-
--- myExtraWSs =  ["0","NSP","NSP1"]
--- myWorkspaces = map show [1..9] ++ myExtraWSs
--- getSortByIndexNoNSP = fmap (. filter (\(W.Workspace tag _ _) -> not (tag `elem` myExtraWSs))) getSortByIndex
-
 
 -- gridselect a workspace and view it
 promptedGoto = wsgrid >>= flip whenJust (switchTopic myTopicConfig)
@@ -1203,18 +1189,18 @@ workspacesKeymap = -- Workspaces
     , ("S-p",    shiftToPrev) -- shift -> prev
     , ("C-n",    shiftToNext >> nextWS) -- Shift -> Next & follow
     , ("C-p",    shiftToPrev >> prevWS) -- Shift -> Prev & follow
-    , ("<Tab>",  cycleRecentWS' [xK_Super_L, xK_Shift_L] xK_Tab xK_grave) -- Cycle Recent
-    , ("S-z",    killAll >> DO.moveTo Prev HiddenNonEmptyWS) -- Kill All
+--    , ("<Tab>",  cycleRecentWS' [xK_Super_L, xK_Shift_L] xK_Tab xK_grave) -- Cycle Recent
+    , ("S-z",    killAll >> DO.moveTo Prev (hiddenWS :&: Not emptyWS)) -- Kill All
     , ("a",      addWorkspacePrompt myXPConfig) -- Add
     , ("r",      removeEmptyWorkspace) -- Remove
     , ("s",      selectWorkspace myXPConfig) -- Select
     , ("S-r",    renameWorkspace myXPConfig) -- Rename
-    , ("C-<R>",  DO.swapWith Next NonEmptyWS) -- Swap Next
-    , ("C-<L>",  DO.swapWith Prev NonEmptyWS) -- Swap Prev
-    , ("S-<R>",  DO.shiftTo Next HiddenNonEmptyWS) -- Shift to Next
-    , ("S-<L>",  DO.shiftTo Prev HiddenNonEmptyWS) -- Shift to Prev
-    , ("<R>",    DO.moveTo Next HiddenNonEmptyWS) -- Move to Next
-    , ("<L>",    DO.moveTo Prev HiddenNonEmptyWS) -- Move to Prev
+    , ("C-<R>",  DO.swapWith Next (Not emptyWS)) -- Swap Next
+    , ("C-<L>",  DO.swapWith Prev (Not emptyWS)) -- Swap Prev
+    , ("S-<R>",  DO.shiftTo Next (hiddenWS :&: Not emptyWS)) -- Shift to Next
+    , ("S-<L>",  DO.shiftTo Prev (hiddenWS :&: Not emptyWS)) -- Shift to Prev
+    , ("<R>",    DO.moveTo Next (hiddenWS :&: Not emptyWS)) -- Move to Next
+    , ("<L>",    DO.moveTo Prev (hiddenWS :&: Not emptyWS)) -- Move to Prev
     ]
 
 layoutKeymap = -- Layout
@@ -1334,10 +1320,10 @@ mainKeymap c = mkKeymap c $ -- Main Keys
     , ("M4-S-a",        selectApps) -- Apps -GS
     , ("M4-i",          searchStuff) -- Search
     , ("M4-S-i",        selectSearchStuff) -- Search Selected
---    , ("M4-e",          getScratchpad) -- grid select scratchpad
+    , ("M4-o",          getScratchpad) -- grid select scratchpad
     --, ("M4-C-a",        spawnSelected workspaceG sConfig ["krita","dolphin","repetierHost"]) -- Apps
 
-    , ("M4-<Tab>",      cycleRecentWS' [xK_Super_L, xK_Shift_L] xK_Tab xK_grave) -- Cycle Recent
+--    , ("M4-<Tab>",      cycleRecentWS' [xK_Super_L, xK_Shift_L] xK_Tab xK_grave) -- Cycle Recent
 
 -- prompted things
     , ("M4-p",          toSubmap c "promptsKeymap" promptsKeymap) -- Prompts
@@ -1346,6 +1332,9 @@ mainKeymap c = mkKeymap c $ -- Main Keys
 
  -- Scratchpads
     , ("M4-e",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap) -- Scratchpad
+    , ("M4-n",          scratchpadSpawnActionTerminal  "urxvt") -- Urxvt Scratchpad
+    , ("M4-S-n",        namedScratchpadAction scratchpads  "term1") -- Term1 Scratchpad
+    , ("M4-S-e",        namedScratchpadAction scratchpads  "htop") -- htop example Scratchpad
 --  Or on the home row with M4-Control
     , ("M4-M1-a", scratchToggle "term") -- Term
     , ("M4-M1-o", scratchToggle "term1") -- Term1
@@ -1442,44 +1431,34 @@ myStartupHook = return ()
 fadeinactive = fadeInactiveLogHook fadeAmount
    where fadeAmount = 0.7
 
---     , manageHook = manageHook kdeConfig <+> myManageHook
-
 myConfig = do
   dbus <- D.connectSession
   getWellKnownName dbus
   return $ defaults {
       logHook = do
-         ewmhDesktopsLogHook
          -- dynamicLogWithPP $ (prettyPrinter dbus)
          dynamicLogWithPP $ (myPPPolybar dbus)
          fadeinactive
 
-      , manageHook = manageDocks <+> myManageHook <+> manageHook desktopConfig <+>
--- for kde
---                   manageHook kdeConfig <+>
-                     namedScratchpadManageHook scratchpads
+      , manageHook = myManageHook
       , layoutHook = layoutHook defaults
-      , handleEventHook = docksEventHook <+> handleEventHook desktopConfig
       , startupHook = do
-          docksStartupHook
-          ewmhDesktopsStartup
           myStartupHook        -- >> setWMName "LG3D"
       }
 
 -- docks :: XConfig myConfig -> XConfig myConfig
 
 ------------------------------------------------------------------------
-  -- Combine it all together
+-- Combine it all together
 -- A structure containing your confiuration settings, overriding
-  -- fields in the default config. Any you don't override, will
+-- fields in the default config. Any you don't override, will
 
 -- use the defaults defined in xmonad/XMonad/Config.hs
 --
 -- No need to modify this.
 --
 
-  -- defaultConfig
-
+-- defaultConfig
 defaults = def {
   -- simple stuff
    terminal           = myTerminal,
@@ -1496,12 +1475,12 @@ defaults = def {
 
      -- hooks, layouts
    layoutHook         = myLayout, -- smartBorders $ myLayout,
-   manageHook         = manageDocks <+> myManageHook,
+   manageHook         = myManageHook,
    startupHook        = myStartupHook
 } -- `additionalKeysP` myadditionalKeys
 
 main :: IO ()
-main = xmonad =<< myConfig
+main = xmonad . ewmh . docks =<< myConfig
 
 
 -- For KDE.
