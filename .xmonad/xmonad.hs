@@ -110,7 +110,6 @@ import XMonad.Util.Run
 import XMonad.Util.Paste
 import XMonad.ManageHook
 import XMonad.Util.NamedScratchpad
-import XMonad.Util.Scratchpad
 import XMonad.Util.XSelection
 import XMonad.Util.EZConfig
 
@@ -328,7 +327,7 @@ myTopics = [ TI "main" "" (return ())
 
            -- , TI "PBR" "play/Particle_Board_REPL" (spawnInTopicDir "emacsn -m PBR")
 
-           , TI "erica.com" "play/ericatango.github.io" (spawnInTopicDir "emacsn -m eg.com")
+           , TI "erica.com" "play/ericatango" (spawnInTopicDir "emacsn -m eg.com")
            , TI "eg.com" "play/EricGebhart.github.io" (spawnInTopicDir "emacsn -m eg.com")
            , TI "tb.com" "play/tangobreath.github.io" (spawnInTopicDir "emacsn -m tb.com")
            , TI "Closh" "play/closh" (spawnInTopicDir "emacsn -m closh")
@@ -516,7 +515,7 @@ scratchpads =
   [ NS "conky"   spawnConky findConky manageConky
   , NS "htop" "xterm -e htop" (title =? "htop") defaultFloating -- from the example in the doc
   , NS "pavuControl"   spawnPavu findPavu managePavu
-  , NS "term"  (myTerminal2 ++ " -t term") (title =? "term") (flexFloatBSP (1/20) (1/20))
+  , NS "term0"  (myTerminal2 ++ " -t term") (title =? "term") (flexFloatBSP (1/20) (1/20))
   , NS "term1" (myTerminal2 ++ " -t term1") (title =? "term1") (flexFloatBSP (2/20) (2/20))
   , NS "term2" (myTerminal2 ++ " -t term2") (title =? "term2") (flexFloatBSP (3/20) (3/20))
   , NS "term3" (myTerminal2 ++ " -t term3") (title =? "term3") (flexFloatBSP (4/20) (4/20))
@@ -556,10 +555,8 @@ myScratchpadMenu =
   , ("Calc",  (scratchToggle "calc"))
   --, ("OSX",   (scratchToggle "OSX"))
   --, ("MSW",   (scratchToggle "MSW"))
-  , ("Scratch", scratchpadSpawnActionTerminal  "urxvt")
-  -- , ("Scratch", scratchpadSpawnActionTerminal  "urxvt -background rgba:0000/0000/0200/c800")
   -- at the end because that puts them on the outside edges of select-grid.
-  , ("a Term", (scratchToggle "term"))
+  , ("a Term", (scratchToggle "term0"))
   , ("o Term", (scratchToggle "term1"))
   , ("e Term", (scratchToggle "term2"))
   , ("u Term", (scratchToggle "term3"))
@@ -568,7 +565,7 @@ myScratchpadMenu =
 
 -- The scratch pad sub keymap
 namedScratchpadsKeymap = -- Scratch Pads
-    [("a", scratchToggle "term") -- Term
+    [ ("a", scratchToggle "term0") -- Term
     , ("o", scratchToggle "term1") -- Term1
     , ("e", scratchToggle "term2") -- Term2
     , ("u", scratchToggle "term3") -- Term3
@@ -577,23 +574,12 @@ namedScratchpadsKeymap = -- Scratch Pads
     , ("c", scratchToggle "calc") -- calc
     , ("C", scratchToggle "conky") -- Conky
     , ("v", scratchToggle "pavuControl") -- Pavu Control
-    , ("a", scratchToggle "alsaMixer") -- Pavu Control
+    , ("m", scratchToggle "alsaMixer") -- Pavu Control
     , ("t", scratchToggle "top") -- htop
     , ("H", scratchToggle "htop") -- htop
-    , ("n", scratchpadSpawnActionTerminal "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
     ]
 
-manageScratchPad :: ManageHook
-manageScratchPad = scratchpadManageHook (W.RationalRect l t w h)
-  where
-    h = 0.6
-    w = 0.5
-    t = 1 - h
-    l = 1 - w
-
-myScratchpadManageHook =
-    manageScratchPad <+>
-    namedScratchpadManageHook scratchpads
+myScratchpadManageHook = namedScratchpadManageHook scratchpads
 
 ----------------------------------------------------------------
 -- Grid-Select menu --------------------------------------------
@@ -1332,8 +1318,7 @@ mainKeymap c = mkKeymap c $ -- Main Keys
 
  -- Scratchpads
     , ("M4-e",          toSubmap c "namedScratchpadsKeymap" namedScratchpadsKeymap) -- Scratchpad
-    , ("M4-n",          scratchpadSpawnActionTerminal  "urxvt") -- Urxvt Scratchpad
-    , ("M4-S-n",        namedScratchpadAction scratchpads  "term1") -- Term1 Scratchpad
+    , ("M4-n",        namedScratchpadAction scratchpads  "term1") -- Term1 Scratchpad
     , ("M4-S-e",        namedScratchpadAction scratchpads  "htop") -- htop example Scratchpad
 --  Or on the home row with M4-Control
     , ("M4-M1-a", scratchToggle "term") -- Term
@@ -1347,7 +1332,6 @@ mainKeymap c = mkKeymap c $ -- Main Keys
     , ("M4-M1-s", scratchToggle "conky") -- Conky
     , ("M4-M1-v", scratchToggle "pavuControl") -- Pavu Control
     , ("M4-M1-S-v", scratchToggle "alsaMixer") -- Pavu Control
-    , ("M4-M1-n", scratchpadSpawnActionTerminal "urxvt -background rgba:0000/0000/0200/c800") -- scratchpad
 
     -- Sink
     , ("M4-r",   withFocused $ windows . W.sink) -- sink focused window

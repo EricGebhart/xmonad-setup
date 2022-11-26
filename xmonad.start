@@ -52,6 +52,6 @@ xrandr --fbmm 286x281
 xcompmgr -c &
 
 emacsn -s common &
-emacsn -s mail &
+emacsn -es mail &
 
 exec xmonad
