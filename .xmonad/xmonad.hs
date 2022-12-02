@@ -136,7 +136,7 @@ myFocusFollowsMouse = True
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 myTerminal = "urxvt"
-myTerminal2 = "termite"
+myTerminal2 = "urxvt --transparent --shading 40 -geometry 100x40"
 myShell = "zsh"
 emacsn = "emacsn"
 
@@ -316,8 +316,8 @@ myTopics = [ TI "main" "" (return ())
                           spawnInTopicDir "discord")
 --           , TI "Yeti" "play/Yeti/yeti-stack" (spawnInTopicDir "emacsn -m Yeti")
            , TI "Code" "play" (spawnInTopicDir "emacsn -m Code")
-           , TI "MyQMK" "play/myqmk/users/ericgebhart" (spawnInTopicDir "emacsn -m MyQMK README.md")
-           , TI "QMK" "play/qmk_firmware/users/ericgebhart" (spawnInTopicDir "emacsn -m README.md")
+           , TI "MyQMK" "play/myqmk/users/ericgebhart" (spawnInTopicDir "emacsn -m MyQMK readme.md")
+           , TI "QMK" "play/mycurrentqmk/users/ericgebhart" (spawnInTopicDir "emacsn -m readme.md")
            , TI "Elisp" "play/emacs-setup/elisp" (spawnInTopicDir "emacsn -m Elisp")
            , TI "XMonad" "play/xmonad-setup/.xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs") -- lib/*/*.hs
            , TI "Arch-Setup" "Arch-Setup" (spawnInTopicDir "emacsn -m Arch-Setup")
@@ -327,7 +327,7 @@ myTopics = [ TI "main" "" (return ())
 
            -- , TI "PBR" "play/Particle_Board_REPL" (spawnInTopicDir "emacsn -m PBR")
 
-           , TI "erica.com" "play/ericatango" (spawnInTopicDir "emacsn -m eg.com")
+           , TI "erica.com" "play/ericatango" (spawnInTopicDir "emacsn -m erica.com")
            , TI "eg.com" "play/EricGebhart.github.io" (spawnInTopicDir "emacsn -m eg.com")
            , TI "tb.com" "play/tangobreath.github.io" (spawnInTopicDir "emacsn -m tb.com")
            , TI "Closh" "play/closh" (spawnInTopicDir "emacsn -m closh")
@@ -515,11 +515,11 @@ scratchpads =
   [ NS "conky"   spawnConky findConky manageConky
   , NS "htop" "xterm -e htop" (title =? "htop") defaultFloating -- from the example in the doc
   , NS "pavuControl"   spawnPavu findPavu managePavu
-  , NS "term0"  (myTerminal2 ++ " -t term") (title =? "term") (flexFloatBSP (1/20) (1/20))
-  , NS "term1" (myTerminal2 ++ " -t term1") (title =? "term1") (flexFloatBSP (2/20) (2/20))
-  , NS "term2" (myTerminal2 ++ " -t term2") (title =? "term2") (flexFloatBSP (3/20) (3/20))
-  , NS "term3" (myTerminal2 ++ " -t term3") (title =? "term3") (flexFloatBSP (4/20) (4/20))
-  , NS "term4" (myTerminal2 ++ " -t term4") (title =? "term4") (flexFloatBSP (6/20) (4/20))
+  , NS "term0"  (myTerminal2 ++ " --title term") (title =? "term") (flexFloatBSP (1/20) (1/20))
+  , NS "term1" (myTerminal2 ++ " --title term1") (title =? "term1") (flexFloatBSP (2/20) (2/20))
+  , NS "term2" (myTerminal2 ++ " --title term2") (title =? "term2") (flexFloatBSP (3/20) (3/20))
+  , NS "term3" (myTerminal2 ++ " --title term3") (title =? "term3") (flexFloatBSP (4/20) (4/20))
+  , NS "term4" (myTerminal2 ++ " --title term4") (title =? "term4") (flexFloatBSP (6/20) (4/20))
   , NS "ghci"  (myTerminal2 ++ " -e ghci") (title =? "ghci") (flexFloatBSP (6/20) (1/10))
   --, NS "sync"  (myTerminal ++ " -e sy") (title =? "sy") (flexFloatSP (1/10) (2/3))
   , NS "top"   (myTerminal2 ++ " -e htop") (title =? "htop") (flexFloatSSP (1/4) (1/4))
@@ -1407,7 +1407,6 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
 -- By default, do nothing.
 myStartupHook = return ()
 
-
 ------------------------------------------------------------------------
 -- Run xmonad with all the defaults we set up.
 --
@@ -1424,10 +1423,10 @@ myConfig = do
          dynamicLogWithPP $ (myPPPolybar dbus)
          fadeinactive
 
-      , manageHook = myManageHook
-      , layoutHook = layoutHook defaults
-      , startupHook = do
-          myStartupHook        -- >> setWMName "LG3D"
+      -- , manageHook = myManageHook
+      -- , layoutHook = layoutHook defaults
+      -- , startupHook = do
+      --     myStartupHook        -- >> setWMName "LG3D"
       }
 
 -- docks :: XConfig myConfig -> XConfig myConfig
