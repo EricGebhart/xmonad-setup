@@ -26,7 +26,7 @@ feh --bg-scale /home/eric/Documents/Art/ocean_park_114.jpg
 xscreensaver &
 
 #gestures and virtual on screen keyboard
-easystroke &
+#easystroke &
 onboard &
 
 redshift &
@@ -51,7 +51,7 @@ xrandr --fbmm 286x281
 
 xcompmgr -c &
 
-emacsn -s common &
-emacsn -es mail &
+emacsn -S 10 -s common &
+emacsn -S 10 -s mail &
 
 exec xmonad
