@@ -27,20 +27,24 @@ This repo is for configurations and etc. Just do a `make all` here.  If you need
 and you use an Arch Linux based distro then go get my [arch-pkgs](http://github.com/ericgebhart/arch-pkgs) `make Xmonad` there will install everything you need.
 See my other more comprehensive setup repo: [Arch-Setup](http://github.com/ericgebhart/Arch-Setup) 
 
+From that setup, you will want the dotfiles repo, and possibly the emacs-setup repo.
+The emacsn script, .Xresources, zsh files, and other things are there. The _necessities_
+package in the arch-pkgs repo contains fonts and other things. Other packages insure
+the installation of the following.
+
 You will need:
 * xmonad
-* xmonad-log-applet (from my repo)[http://github.com/ericgebhart/xmonad-log-applet]
 * dzen2
 * dmenu
 * rofi
 * polybar
 * conky
 * rxvt-unicode - or change xmonad.hs to point at your favorite terminal.
-* termite - or change xmonad.hs to point at your favorite terminal.
 * xcompmgr or compton if you want transparency to work.
 * adobe-source-code-pro-fonts
+* ttf-Iosevka
 * ttf-ubuntu-font-family
-* awesome-terminal-fonts - perhaps.
+* awesome-terminal-fonts
 * ghci is nice to have for haskell coding. ie. if you modify xmonad.hs.
 * feh        -- set background image.
 * For touch screens
@@ -148,8 +152,10 @@ Maybe you have a .xresources, a .xinitrc, your own xmonad.hs and other stuff.
 Everything is here, so have at it.
 
 To install just the xmonad parts use 'make install'. To install the xsession use 'sudo make xsession'.  
-This does reference the xmonad.start in your home directory, so perhaps you'll want to
-put that in a more generic place.  I usually just do `startx ./xmonad.start` in my _.zlogin_.
+If you want to use some sort of display manager like xdm, sddm, etc.
+This does reference the xmonad.start in your home bin directory, so perhaps you'll want to
+put that in a more generic place.  I usually just do `ssh-agent startx ~/bin/xmonad.start` in my _.zlogin_.
+This is a good place to start ssh-agent for using ssh authentication.
 Optionally, use the .xinitrc which is exactly the same. But allows for a display manager or just `startx`.
 Whatever you want...
 
