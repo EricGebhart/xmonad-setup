@@ -137,6 +137,7 @@ myFocusFollowsMouse = True
 -- certain contrib modules.
 myTerminal = "urxvt"
 myTerminal2 = "urxvt --transparent --shading 40 -geometry 100x40"
+-- myTerminal2 = "alacritty"
 myShell = "zsh"
 emacsn = "emacsn"
 
@@ -311,15 +312,16 @@ myTopics :: [TopicItem]
 myTopics = [ TI "main" "" (return ())
            -- ,  TI "mail" "" (spawnInTopicDir "emacsn -e")
            , TI "Org" "org" (spawnInTopicDir "emacsn -m ORG")
-           -- , TI "Web" "" (spawnInTopicDir "vivaldi-stable")
-           , TI "Web" "" (spawnInTopicDir "emacsn -cws common -b duckduckgo.com" >>
+           , TI "Web" "" (spawnInTopicDir "vivaldi-stable" >>
                           spawnInTopicDir "discord")
+           -- , TI "Web" "" (spawnInTopicDir "emacsn -cws common -b duckduckgo.com" >>
+           --               spawnInTopicDir "discord")
 --           , TI "Yeti" "play/Yeti/yeti-stack" (spawnInTopicDir "emacsn -m Yeti")
            , TI "Code" "play" (spawnInTopicDir "emacsn -m Code")
            , TI "MyQMK" "play/myqmk/users/ericgebhart" (spawnInTopicDir "emacsn -m MyQMK readme.md")
            , TI "QMK" "play/mycurrentqmk/users/ericgebhart" (spawnInTopicDir "emacsn -m readme.md")
-           , TI "Elisp" "play/emacs-setup/elisp" (spawnInTopicDir "emacsn -m Elisp")
-           , TI "XMonad" "play/xmonad-setup/.xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs") -- lib/*/*.hs
+           , TI "Elisp" "Arch-Setup/emacs-setup/elisp" (spawnInTopicDir "emacsn -m Elisp")
+           , TI "XMonad" "Arch-Setup/xmonad-setup/.xmonad" (spawnInTopicDir "emacsn -m Xmonad xmonad.hs") -- lib/*/*.hs
            , TI "Arch-Setup" "Arch-Setup" (spawnInTopicDir "emacsn -m Arch-Setup")
            , TI "SPR" "play/Simple_Process_Repl" (spawnInTopicDir "emacsn -m SPR README.md")
            --, TI "RobotGirl" "play/robotgirl/" (spawnInTopicDir "emacsn -m RobotGirl")
@@ -338,11 +340,11 @@ myTopics = [ TI "main" "" (return ())
            , TI "Comm" "" (spawnInTopicDir "telegram-desktop" >>
                             spawnInTopicDir "emacsn -cews mail")
 
-           , TI "BD" "BD" (spawnInTopicDir "termite -T BD" >>
+           , TI "BD" "BD" (spawnInTopicDir "urxvt -t BD" >>
                             spawnInTopicDir "YACReaderLibrary")
-           , TI "DownLoads" "Downloads" (spawnInTopicDir "termite -T Downloads" >>
+           , TI "DownLoads" "Downloads" (spawnInTopicDir "urxvt -t Downloads" >>
                                           spawnInTopicDir "dolphin --select ~/Downloads")
-           , TI "French" "Language/Française" (spawnInTopicDir "termite -T Française" >>
+           , TI "French" "Language/Française" (spawnInTopicDir "urxvt -t Française" >>
                                                spawnInTopicDir "dolphin --select ~/Language/Française" >>
                                                spawn "anki")
            , TI "3D" "Projects/3d" (spawnInTopicDir "repetierHost" >>
@@ -355,7 +357,7 @@ myTopics = [ TI "main" "" (return ())
            , TI "Inkscape" "Drawings" (spawnInTopicDir "inkscape")
            , TI "Gravit" "Drawings" (spawnInTopicDir "GravitDesigner.AppImage")
              --, TI "feeds"  "" (spawn "chromium-browser --app='https://feedbin.me'")
-           --, TI "stats"  "" (spawnInTopicDir "termite -e htop")
+           --, TI "stats"  "" (spawnInTopicDir "urxvt -e htop")
            ]
 
 myTopicNames :: [Topic]
