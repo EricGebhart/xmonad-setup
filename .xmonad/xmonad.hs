@@ -136,7 +136,7 @@ myFocusFollowsMouse = True
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 myTerminal = "urxvt"
-myTerminal2 = "urxvt --transparent --shading 40 -geometry 100x40"
+myTerminal2 = "urxvt -geometry 100x40"
 -- myTerminal2 = "alacritty"
 myShell = "zsh"
 emacsn = "emacsn"
